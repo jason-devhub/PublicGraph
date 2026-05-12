@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test frontend{% endblock %}
+
+{% block body %}
+<div class="mx-auto max-w-content">
+    <h1 class="font-serif text-2xl text-text-primary mb-2">Configuration frontend (T1.5)</h1>
+    <p class="text-text-secondary mb-8">
+        Hotwire (Turbo + Stimulus), Symfony UX, Tailwind via SymfonyCasts TailwindBundle, AssetMapper.
+    </p>
+    <div
+        data-controller="hello"
+        class="border border-rule-medium bg-surface-primary px-6 py-5"
+    >
+        <p data-hello-target="label" class="text-text-primary mb-4">
+            Cliquez sur le bouton pour vérifier Stimulus.
+        </p>
+        <button
+            type="button"
+            data-action="click->hello#toggle"
+            class="border border-accent bg-accent text-text-inverse px-4 py-2 text-sm hover:bg-accent-hover"
+        >
+            Tester Stimulus
+        </button>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étape 4 — Appartenances{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <p class="font-mono text-xs text-text-tertiary">Étape 4 / 5</p>
+        <h1 class="mt-2 font-serif text-2xl text-text-primary">Appartenance</h1>
+        <p class="mt-2 text-text-secondary">Au moins une appartenance avec une source URL est obligatoire.</p>
+        <form method="post" class="mt-6 space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('wizard_step') }}">
+            <div>
+                <label class="block text-text-secondary">Organisation</label>
+                <select name="wizard[step4][organizationId]" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+                    <option value="">— choisir —</option>
+                    {% for org in organizationsSample %}
+                        <option value="{{ org.id }}" {% if data.organizationId|default('') == org.id %}selected{% endif %}>{{ org.officialName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Année (optionnel)</label>
+                <input type="number" name="wizard[step4][year]" value="{{ data.year|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-text-secondary">Début</label>
+                    <input type="date" name="wizard[step4][startDate]" value="{{ data.startDate|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-text-secondary">Fin</label>
+                    <input type="date" name="wizard[step4][endDate]" value="{{ data.endDate|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                </div>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Source URL</label>
+                <input type="url" name="wizard[step4][sourceUrl]" value="{{ data.sourceUrl|default('') }}" required class="mt-1 w-full border border-rule-medium px-3 py-2" placeholder="https://…">
+            </div>
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse hover:bg-accent-hover">Continuer</button>
+        </form>
+    </div>
+{% endblock %}

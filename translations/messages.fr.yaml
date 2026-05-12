@@ -1,0 +1,84 @@
+org:
+  official_name_label: 'Nom officiel'
+
+site:
+  name: 'PublicGraph'
+  skip_to_content: 'Aller au contenu'
+  nav:
+    persons: 'Personnes'
+    organizations: 'Organisations'
+    graph: 'Graphe'
+    search: 'Recherche'
+    contribute: 'Contribuer'
+    login: 'Connexion'
+    dashboard: 'Mon espace'
+    logout: 'Déconnexion'
+    main_aria: 'Navigation principale'
+  search:
+    label: 'Recherche'
+    placeholder: 'Recherche…'
+    submit: 'OK'
+  search_page:
+    meta_title: 'Recherche'
+    heading: 'Recherche'
+    term_label: 'Terme'
+    input_placeholder: 'Nom, organisation…'
+    submit: 'Rechercher'
+    empty_hint: 'Saisissez un terme ou utilisez le champ dans l’en-tête.'
+    filter_nav_aria: 'Filtrer par type'
+    filter_all: 'Tout'
+    filter_persons: 'Personnes'
+    filter_organizations: 'Organisations'
+    persons: 'Personnes'
+    organizations: 'Organisations'
+    results_count: '%count% résultat(s)'
+    no_person: 'Aucune personne.'
+    no_organization: 'Aucune organisation.'
+    no_results: 'Aucun résultat.'
+    prev: 'Précédent'
+    next: 'Suivant'
+    page_of: 'Page %page% / %pages%'
+    pagination_persons_aria: 'Pagination personnes'
+    pagination_orgs_aria: 'Pagination organisations'
+    pagination_aria: 'Pagination'
+  footer:
+    tagline: 'Cartographie factuelle des liens d’influence.'
+    nav_aria: 'Liens de pied de page'
+    legal: 'Mentions légales'
+    terms: 'CGU'
+    privacy: 'Confidentialité'
+    charter: 'Charte éditoriale'
+    about: 'À propos'
+    report: 'Signaler'
+    right_of_reply: 'Droit de réponse'
+    contact: 'Contact'
+  cookie_banner: 'Ce site ne dépose pas de cookies de mesure d’audience ni de publicité. Aucun traceur tiers n’est chargé sur les pages publiques.'
+  cookie_banner_aria: 'Cookies'
+
+seo:
+  person:
+    title: '%name% — PublicGraph'
+    og_title: '%name% — Cartographie d’influence'
+    role_fallback: 'personnalité politique et institutionnelle'
+    org_sample: ' dont %orgs%'
+    meta: '%name% (%roles%) : %membership_count% appartenance(s) recensée(s)%org_part%. %position_count% mandat(s) ou poste(s) publié(s). Sources liées en bas de fiche.'
+  organization:
+    title: '%name% — PublicGraph'
+    og_title: '%name% — Cartographie d’influence'
+    meta: '%name% (%type%) : %member_count% membre(s) connu(s) sur PublicGraph.%country_part% Données sourcées et modérées.'
+    countries: ' Pays : %list%.'
+  default:
+    title: 'PublicGraph'
+    description: 'Cartographie factuelle des liens d’influence entre acteurs publics et privés.'
+
+mini_graph:
+  analyzing: "Le réseau d'influence de cette personne est en cours d'analyse."
+  load_error: 'Impossible de charger le graphe pour le moment.'
+  connections_one: '1 connexion'
+  connections_many: '%count% connexions'
+
+global_graph:
+  loading: 'Chargement du graphe…'
+  error: 'Impossible de charger le graphe.'
+  selection: 'Sélection'
+  view_full: 'Voir la fiche complète'

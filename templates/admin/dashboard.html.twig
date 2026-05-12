@@ -1,0 +1,24 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Tableau de bord{% endblock %}
+
+{% block main %}
+    <div class="content-body">
+        <h2 class="mb-3">Personnes par statut</h2>
+        {% if person_by_status is empty %}
+            <p>Aucune personne en base.</p>
+        {% else %}
+            <ul>
+                {% for status, count in person_by_status %}
+                    <li><strong>{{ status }}</strong> : {{ count }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <h2 class="mt-4 mb-3">Files modération</h2>
+        <ul>
+            <li><strong>Propositions en attente</strong> : {{ pending_proposals_count }}</li>
+            <li><strong>Signalements non traités (reçus)</strong> : {{ reports_received_count }}</li>
+        </ul>
+    </div>
+{% endblock %}

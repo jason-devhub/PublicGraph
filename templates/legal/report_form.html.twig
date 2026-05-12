@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Signaler un problème{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-lg px-4 py-10 font-sans text-sm">
+        <h1 class="font-serif text-2xl text-text-primary">Signalement</h1>
+        <form method="post" class="mt-6 space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('report') }}">
+            <fieldset>
+                <legend class="text-text-secondary">Type d’entité</legend>
+                <label class="mr-4"><input type="radio" name="entityType" value="person" required> Personne</label>
+                <label class="mr-4"><input type="radio" name="entityType" value="organization"> Organisation</label>
+                <label><input type="radio" name="entityType" value="revolving_door"> Porte tournante</label>
+            </fieldset>
+            <div>
+                <label class="block text-text-secondary">Slug ou URL de la fiche</label>
+                <input name="entityIdentifier" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Motif</label>
+                <select name="reason" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                    {% for value, label in reasons %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Description (min. 20 caractères)</label>
+                <textarea name="description" required minlength="20" rows="6" class="mt-1 w-full border border-rule-medium px-3 py-2"></textarea>
+            </div>
+            <div>
+                <label class="block text-text-secondary">E-mail de contact (optionnel)</label>
+                <input type="email" name="contactEmail" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Jeton Turnstile (tests : <code>test-turnstile-token</code>)</label>
+                <input type="text" name="cf-turnstile-response" class="mt-1 w-full border border-rule-medium px-3 py-2 font-mono text-xs" autocomplete="off">
+            </div>
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse">Envoyer</button>
+        </form>
+    </div>
+{% endblock %}

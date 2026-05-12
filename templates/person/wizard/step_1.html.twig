@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étape {{ step }}/5 — Nouvelle fiche{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <p class="font-mono text-xs text-text-tertiary">Étape {{ step }} / 5</p>
+        <h1 class="mt-2 font-serif text-2xl text-text-primary">Identité</h1>
+        <form method="post" class="mt-6 space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('wizard_step') }}">
+            <div>
+                <label class="block text-text-secondary">Prénom</label>
+                <input name="wizard[step1][givenName]" value="{{ data.givenName|default('') }}" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Nom</label>
+                <input name="wizard[step1][familyName]" value="{{ data.familyName|default('') }}" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Nom d’usage (optionnel)</label>
+                <input name="wizard[step1][usageName]" value="{{ data.usageName|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-text-secondary">Naissance (AAAA-MM-JJ)</label>
+                    <input name="wizard[step1][birthDate]" value="{{ data.birthDate|default('') }}" type="date" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-text-secondary">Décès</label>
+                    <input name="wizard[step1][deathDate]" value="{{ data.deathDate|default('') }}" type="date" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                </div>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Nationalités (codes ISO2 séparés par espace, ex. FR BE)</label>
+                <input name="wizard[step1][nationalityIso]" value="{{ data.nationalityIso|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <fieldset class="border border-rule-medium px-3 py-3">
+                <legend class="px-1 text-xs uppercase tracking-wide text-text-tertiary">Catégories</legend>
+                {% set cats = data.roleCategories|default([]) %}
+                {% for opt in ['politician','civil_servant','business_leader','media_owner','financier','lobbyist','other_influencer'] %}
+                    <label class="mr-4 inline-flex items-center gap-2">
+                        <input type="checkbox" name="wizard[step1][roleCategories][]" value="{{ opt }}" {% if opt in cats %}checked{% endif %}>
+                        {{ opt }}
+                    </label>
+                {% endfor %}
+            </fieldset>
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse hover:bg-accent-hover">Continuer</button>
+        </form>
+    </div>
+{% endblock %}

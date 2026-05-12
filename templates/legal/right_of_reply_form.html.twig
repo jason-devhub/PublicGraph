@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Droit de réponse — {{ person.givenName }} {{ person.familyName }}{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <h1 class="font-serif text-2xl text-text-primary">Demande de droit de réponse</h1>
+        <p class="mt-2 text-text-secondary">Fiche : {{ person.givenName }} {{ person.familyName }}</p>
+        <form method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('ror') }}">
+            <div>
+                <label class="block text-text-secondary">Nom complet</label>
+                <input name="requesterName" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Qualité / fonction</label>
+                <input name="requesterQuality" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">E-mail</label>
+                <input type="email" name="requesterEmail" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Téléphone</label>
+                <input name="requesterPhone" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Type de demande</label>
+                <select name="requestType" class="mt-1 w-full border border-rule-medium px-3 py-2">
+                    {% for value, label in types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Texte de la demande (min. 50 caractères)</label>
+                <textarea name="requestText" required minlength="50" rows="8" class="mt-1 w-full border border-rule-medium px-3 py-2"></textarea>
+            </div>
+            <div>
+                <label class="block text-text-secondary">Justificatif PDF (max 5 Mo)</label>
+                <input type="file" name="justificationFile" accept="application/pdf" required class="mt-1 w-full">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Turnstile (tests : test-turnstile-token)</label>
+                <input name="cf-turnstile-response" class="mt-1 w-full border border-rule-medium px-3 py-2 font-mono text-xs">
+            </div>
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse">Envoyer</button>
+        </form>
+    </div>
+{% endblock %}

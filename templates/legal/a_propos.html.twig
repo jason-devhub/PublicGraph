@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}À propos — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">À propos</h1>
+        </header>
+
+        <div class="mt-8 space-y-8 font-sans text-sm leading-relaxed text-text-primary">
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Vision</h2>
+                <p class="mt-3 text-text-secondary">PublicGraph vise une cartographie lisible et sourcée des liens d’influence entre personnalités publiques ou privées et organisations (réseaux, entreprises, partis, institutions). Le parti pris est celui de la trace documentaire, pas de l’opinion.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Équipe</h2>
+                <p class="mt-3 text-text-secondary">Le projet est initié et développé par <strong>Jason Nivoliez</strong>. Les contributions externes sont les bienvenues sous réserve de validation éditoriale.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Statut et code</h2>
+                <p class="mt-3 text-text-secondary">Statut actuel : projet personnel open source, avec perspective d’association loi 1901. Le dépôt de code est ouvert sur GitHub (URL à compléter dans la documentation du dépôt).</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">En savoir plus</h2>
+                <ul class="mt-3 list-inside list-disc space-y-2 text-text-secondary">
+                    <li><a href="{{ path('app_charte_editoriale') }}" class="text-accent no-underline hover:underline">Charte éditoriale</a></li>
+                    <li><a href="{{ path('app_person_index') }}" class="text-accent no-underline hover:underline">Liste des personnes</a></li>
+                    <li><a href="{{ path('app_graph_index') }}" class="text-accent no-underline hover:underline">Graphe</a></li>
+                </ul>
+            </section>
+        </div>
+    </article>
+{% endblock %}

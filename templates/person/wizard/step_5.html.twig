@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étape 5 — Récapitulatif{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <p class="font-mono text-xs text-text-tertiary">Étape 5 / 5</p>
+        <h1 class="mt-2 font-serif text-2xl text-text-primary">Récapitulatif</h1>
+        <pre class="mt-6 overflow-x-auto border border-rule-medium bg-surface-inset p-4 font-mono text-xs text-text-secondary">{{ fullJson|json_encode }}</pre>
+        <form method="post" class="mt-8">
+            <input type="hidden" name="_token" value="{{ csrf_token('wizard_step') }}">
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse hover:bg-accent-hover">Soumettre pour modération</button>
+        </form>
+    </div>
+{% endblock %}

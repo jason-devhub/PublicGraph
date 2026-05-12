@@ -1,0 +1,77 @@
+{% import 'catalog/_macros.html.twig' as catalog %}
+
+<div {{ attributes.defaults({class: 'space-y-10'}) }}>
+    <div class="border-b border-rule-medium pb-8">
+        <h2 class="font-sans text-xs font-semibold uppercase tracking-wide text-text-tertiary">Filtres</h2>
+        {{ form_start(form, {
+            attr: {
+                'data-model': 'defer',
+                'data-action': 'change->live#update',
+            }
+        }) }}
+        <div class="mt-4 grid gap-6 md:grid-cols-2">
+            {{ form_row(form.types) }}
+            {{ form_row(form.countries) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+    {% set oc = organizationCatalog %}
+    {% set pager = oc.pager %}
+    {% set memberCounts = oc.memberCounts %}
+
+    <div class="grid gap-4 md:grid-cols-2">
+        {% for org in pager.currentPageResults %}
+            {% set oid = org.id %}
+            <article class="border-t border-b border-rule-medium bg-surface-primary px-4 py-5">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                          <h3 class="font-serif text-lg font-medium leading-snug text-text-primary">
+                              {% if org.slug %}
+                                  <a href="{{ path('app_organization_show', {slug: org.slug}) }}" class="text-accent no-underline hover:text-accent-hover hover:underline">{{ org.officialName }}</a>
+                              {% else %}
+                                  {{ org.officialName }}
+                              {% endif %}
+                          </h3>
+                    <span class="shrink-0 rounded-xs px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide {{ catalog.organization_type_classes(org.type) }}">{{ catalog.organization_type_label(org.type) }}</span>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2 font-sans text-xs text-text-secondary">
+                    {% for c in org.countries %}
+                        <span class="inline-flex items-center gap-1 font-mono">
+                            <span class="text-[10px] text-text-tertiary" aria-hidden="true">{{ c.isoCode }}</span>
+                            {{ c.isoCode }}
+                        </span>
+                    {% else %}
+                        <span class="text-text-tertiary">Pays non renseigné</span>
+                    {% endfor %}
+                </div>
+                <p class="mt-4 font-sans text-sm text-text-secondary">
+                    <span class="font-semibold text-text-primary">{{ oid ? memberCounts[oid]|default(0) : 0 }}</span> membres connus
+                </p>
+            </article>
+        {% else %}
+            <p class="text-text-secondary md:col-span-2">Aucune organisation ne correspond aux filtres.</p>
+        {% endfor %}
+    </div>
+
+    {% if pager.nbPages > 1 %}
+        <nav class="flex flex-wrap items-center justify-between gap-4 border-t border-rule-medium pt-6 font-sans text-sm" aria-label="Pagination organisations">
+            <p class="text-text-secondary">Page {{ pager.currentPage }} / {{ pager.nbPages }}</p>
+            <div class="flex gap-2">
+                {% if pager.hasPreviousPage %}
+                    <button type="button"
+                            class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                            data-action="live#action"
+                            data-live-action-param="setPage"
+                            data-live-page-param="{{ pager.currentPage - 1 }}">Précédent</button>
+                {% endif %}
+                {% if pager.hasNextPage %}
+                    <button type="button"
+                            class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                            data-action="live#action"
+                            data-live-action-param="setPage"
+                            data-live-page-param="{{ pager.currentPage + 1 }}">Suivant</button>
+                {% endif %}
+            </div>
+        </nav>
+    {% endif %}
+</div>

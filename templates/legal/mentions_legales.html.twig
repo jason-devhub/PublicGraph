@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions légales — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">Mentions légales</h1>
+            <p class="mt-4 font-sans text-sm text-text-secondary">Dernière mise à jour du texte : mai 2026.</p>
+        </header>
+
+        <div class="mt-8 space-y-8 font-sans text-sm leading-relaxed text-text-primary">
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Éditeur du site</h2>
+                <p class="mt-3"><strong>Jason Nivoliez</strong>, agissant en qualité d’auto-entrepreneur.</p>
+                <p class="mt-2">Siège social : {{ adresse_a_completer }}</p>
+                <p class="mt-2 text-text-secondary">Contact : utilisez la page <a href="{{ path('app_contact') }}" class="text-accent no-underline hover:underline">Contact</a>.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Hébergement</h2>
+                <p class="mt-3">OVHcloud — Société par Actions Simplifiée au capital variable — RCS Lille Métropole 424 761 419 — siège : 2 rue Kellermann, 59100 Roubaix, France.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Signalement et droit de réponse</h2>
+                <p class="mt-3">Pour signaler un contenu manifestement illicite : <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">formulaire de signalement</a>.</p>
+                <p class="mt-2">Pour une demande de rectification ou droit de réponse concernant une fiche personne : <a href="{{ path('app_droit_de_reponse') }}" class="text-accent no-underline hover:underline">Droit de réponse</a>.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Propriété intellectuelle</h2>
+                <p class="mt-3 text-text-secondary">Structure du site, textes propres à PublicGraph et base de code : licence à préciser sur le dépôt public (voir la page <a href="{{ path('app_a_propos') }}" class="text-accent no-underline hover:underline">À propos</a>). Les données réutilisées (notamment Wikidata) restent soumises à leurs licences respectives.</p>
+            </section>
+        </div>
+    </article>
+{% endblock %}

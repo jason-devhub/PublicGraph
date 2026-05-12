@@ -1,0 +1,13 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Rejeter une proposition{% endblock %}
+
+{% block main %}
+    <p>Proposition #{{ proposal.id }} — {{ proposal.entityType }} #{{ proposal.entityId }}</p>
+    <form method="post" action="{{ reject_submit_url }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('reject_proposal_' ~ proposal.id) }}"/>
+        <label for="rejectionReason">Motif du rejet</label>
+        <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="6" required></textarea>
+        <button type="submit" class="btn btn-danger mt-3">Confirmer le rejet</button>
+    </form>
+{% endblock %}

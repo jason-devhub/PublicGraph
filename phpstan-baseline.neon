@@ -1,0 +1,715 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Class App\\Controller\\Admin\\ChangeProposalCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/ChangeProposalCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\LegislativeActionCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/LegislativeActionCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\MembershipCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/MembershipCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\OrganizationCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/OrganizationCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\PartyCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/PartyCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\PendingChangeProposalCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/PendingChangeProposalCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\PendingRightOfReplyCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/PendingRightOfReplyCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\PersonCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/PersonCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\PositionCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/PositionCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\ReceivedReportCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/ReceivedReportCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\ReportCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/ReportCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\RevolvingDoorCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/RevolvingDoorCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\RightOfReplyRequestCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/RightOfReplyRequestCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\SourceCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/SourceCrudController.php
+
+		-
+			message: '#^Class App\\Controller\\Admin\\UserCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Controller/Admin/UserCrudController.php
+
+		-
+			message: '#^Offset ''alpha\-2'' on array\{alpha\-2\: string, region\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/DataFixtures/CountryFixtures.php
+
+		-
+			message: '#^Instanceof between App\\Module\\Catalog\\Entity\\Country and App\\Module\\Catalog\\Entity\\Country will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/DataFixtures/DevFixtures.php
+
+		-
+			message: '#^Offset 0 on array\{App\\Module\\Organization\\Entity\\Organization, App\\Module\\Organization\\Entity\\Organization, App\\Module\\Organization\\Entity\\Organization, App\\Module\\Organization\\Entity\\Organization, App\\Module\\Organization\\Entity\\Organization\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/DataFixtures/DevFixtures.php
+
+		-
+			message: '#^Offset int\<0, 4\> might not exist on list\{0\?\: App\\Module\\Catalog\\Entity\\Country, 1\?\: App\\Module\\Catalog\\Entity\\Country, 2\?\: App\\Module\\Catalog\\Entity\\Country, 3\?\: App\\Module\\Catalog\\Entity\\Country, 4\?\: App\\Module\\Catalog\\Entity\\Country\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/DataFixtures/DevFixtures.php
+
+		-
+			message: '#^Binary operation "\." between ''Parti '' and array\|string results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Factory/PartyFactory.php
+
+		-
+			message: '#^Cannot call method getOrganization\(\) on App\\Module\\Influence\\Entity\\Position\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Module/Catalog/Controller/PersonShowController.php
+
+		-
+			message: '#^Instanceof between App\\Module\\Organization\\Entity\\Organization and App\\Module\\Organization\\Entity\\Organization will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Module/Catalog/Controller/PersonShowController.php
+
+		-
+			message: '#^Parameter \#1 \$organization of method App\\Shared\\I18n\\LocalizedContentResolver\:\:resolveOrganizationDisplayName\(\) expects App\\Module\\Organization\\Entity\\Organization, App\\Module\\Organization\\Entity\\Organization\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Module/Catalog/Controller/PersonShowController.php
+
+		-
+			message: '#^Parameter \#1 \$position of method App\\Shared\\I18n\\LocalizedContentResolver\:\:resolvePositionTitle\(\) expects App\\Module\\Influence\\Entity\\Position, App\\Module\\Influence\\Entity\\Position\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Module/Catalog/Controller/PersonShowController.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{\}\|array\{lastSuccessAt\?\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Module/Catalog/Controller/StatusController.php
+
+		-
+			message: '#^Property App\\Module\\Influence\\Entity\\Membership\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Influence/Entity/Membership.php
+
+		-
+			message: '#^Property App\\Module\\Influence\\Entity\\Position\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Influence/Entity/Position.php
+
+		-
+			message: '#^Cannot call method getId\(\) on App\\Module\\Person\\Entity\\Person\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Module/Influence/Repository/PositionRepository.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Module/Legal/Controller/PublicRightOfReplyController.php
+
+		-
+			message: '#^Property App\\Module\\Legal\\Entity\\Report\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Legal/Entity/Report.php
+
+		-
+			message: '#^Property App\\Module\\Legal\\Entity\\RightOfReplyRequest\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Legal/Entity/RightOfReplyRequest.php
+
+		-
+			message: '#^Property App\\Module\\Legislation\\Entity\\LegislativeAction\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Legislation/Entity/LegislativeAction.php
+
+		-
+			message: '#^Property App\\Module\\Legislation\\Entity\\RevolvingDoor\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Legislation/Entity/RevolvingDoor.php
+
+		-
+			message: '#^Property App\\Module\\Moderation\\Entity\\ChangeProposal\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Moderation/Entity/ChangeProposal.php
+
+		-
+			message: '#^Property App\\Module\\Organization\\Entity\\Organization\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Organization/Entity/Organization.php
+
+		-
+			message: '#^Property App\\Module\\Organization\\Entity\\OrganizationTranslation\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Organization/Entity/OrganizationTranslation.php
+
+		-
+			message: '#^Property App\\Module\\Organization\\Entity\\Party\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Organization/Entity/Party.php
+
+		-
+			message: '#^Method App\\Module\\Organization\\Repository\\OrganizationRepository\:\:createApprovedCatalogListQueryBuilder\(\) has parameter \$countryIsoCodes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Organization/Repository/OrganizationRepository.php
+
+		-
+			message: '#^Method App\\Module\\Organization\\Repository\\OrganizationRepository\:\:createApprovedCatalogListQueryBuilder\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Organization/Repository/OrganizationRepository.php
+
+		-
+			message: '#^Property App\\Module\\Person\\Entity\\Person\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Person/Entity/Person.php
+
+		-
+			message: '#^Property App\\Module\\Person\\Entity\\Person\:\:\$rightOfReplyRequests is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/Person/Entity/Person.php
+
+		-
+			message: '#^Property App\\Module\\Person\\Entity\\PersonTranslation\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Person/Entity/PersonTranslation.php
+
+		-
+			message: '#^Method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:finalizeDetails\(\) has parameter \$raw with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:finalizeDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:mergeDetails\(\) has parameter \$fragment with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:mergeDetails\(\) has parameter \$pairDetails with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Parameter &\$pairDetails by\-ref type of method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:accumulateEuropeanFamilyScores\(\) expects array\<string, array\<string, mixed\>\>, array given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Parameter &\$pairDetails by\-ref type of method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:accumulateMembershipScores\(\) expects array\<string, array\<string, mixed\>\>, array given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Parameter &\$pairDetails by\-ref type of method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:accumulatePartyScores\(\) expects array\<string, array\<string, mixed\>\>, array given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Parameter &\$pairDetails by\-ref type of method App\\Module\\Proximity\\Calculator\\ProximityCalculator\:\:accumulatePositionOverlapScores\(\) expects array\<string, array\<string, mixed\>\>, array given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/Module/Proximity/Calculator/ProximityCalculator.php
+
+		-
+			message: '#^Property App\\Module\\Proximity\\Entity\\PersonSimilarity\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Proximity/Entity/PersonSimilarity.php
+
+		-
+			message: '#^Parameter \#1 \$array \(non\-empty\-list\<App\\Module\\Person\\Entity\\Person\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Module/Proximity/Service/CoPresenceFinder.php
+
+		-
+			message: '#^Method App\\Module\\Search\\EventListener\\SearchIndexEntitySubscriber\:\:postPersist\(\) has parameter \$args with generic class Doctrine\\Persistence\\Event\\LifecycleEventArgs but does not specify its types\: TObjectManager$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Module/Search/EventListener/SearchIndexEntitySubscriber.php
+
+		-
+			message: '#^Method App\\Module\\Search\\EventListener\\SearchIndexEntitySubscriber\:\:postRemove\(\) has parameter \$args with generic class Doctrine\\Persistence\\Event\\LifecycleEventArgs but does not specify its types\: TObjectManager$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Module/Search/EventListener/SearchIndexEntitySubscriber.php
+
+		-
+			message: '#^Method App\\Module\\Search\\EventListener\\SearchIndexEntitySubscriber\:\:postUpdate\(\) has parameter \$args with generic class Doctrine\\Persistence\\Event\\LifecycleEventArgs but does not specify its types\: TObjectManager$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Module/Search/EventListener/SearchIndexEntitySubscriber.php
+
+		-
+			message: '#^Method App\\Module\\Search\\Service\\SearchQueryService\:\:autocomplete\(\) should return array\{persons\: list\<array\<string, mixed\>\>, organizations\: list\<array\<string, mixed\>\>\} but returns array\{persons\: array\<int, array\>, organizations\: array\<int, array\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Module/Search/Service/SearchQueryService.php
+
+		-
+			message: '#^Parameter \#1 \$limit of method Meilisearch\\Contracts\\SearchQuery\:\:setLimit\(\) expects int\<0, max\>\|null, int given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Module/Search/Service/SearchQueryService.php
+
+		-
+			message: '#^Property App\\Module\\Source\\Entity\\EntitySource\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Source/Entity/EntitySource.php
+
+		-
+			message: '#^Property App\\Module\\Source\\Entity\\Source\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/Source/Entity/Source.php
+
+		-
+			message: '#^Method App\\Module\\User\\Entity\\User\:\:getUserIdentifier\(\) should return non\-empty\-string but returns string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$changeProposalsModerated is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$changeProposalsSubmitted is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$entitySourcesAdded is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$personsCreated is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$revisionsProposed is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\User\:\:\$revisionsValidated is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Module/User/Entity/User.php
+
+		-
+			message: '#^Property App\\Module\\User\\Entity\\UserWizardState\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Module/User/Entity/UserWizardState.php
+
+		-
+			message: '#^Class App\\Module\\User\\Repository\\UserRepository implements generic interface Symfony\\Component\\Security\\Core\\User\\UserProviderInterface but does not specify its types\: TUser$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Module/User/Repository/UserRepository.php
+
+		-
+			message: '#^Class App\\Module\\User\\Security\\EmailVerifiedVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Module/User/Security/EmailVerifiedVoter.php
+
+		-
+			message: '#^Instanceof between App\\Module\\Person\\Entity\\Person and App\\Module\\Person\\Entity\\Person will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Module/Wikidata/Command/WikidataSyncIncrementalCommand.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Dto\\PersonDto\:\:__construct\(\) has parameter \$nationalityQids with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Dto/PersonDto.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Dto\\PersonDto\:\:__construct\(\) has parameter \$organizationMemberships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Dto/PersonDto.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Dto\\PersonDto\:\:__construct\(\) has parameter \$partyMemberships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Dto/PersonDto.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Dto\\PersonDto\:\:__construct\(\) has parameter \$positionsHeld with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Dto/PersonDto.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Dto\\PersonDto\:\:__construct\(\) has parameter \$roleCategories with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Dto/PersonDto.php
+
+		-
+			message: '#^Parameter \#1 \$roleCategories of method App\\Module\\Person\\Entity\\Person\:\:setRoleCategories\(\) expects list\<string\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Module/Wikidata/Service/WikidataPersonImporter.php
+
+		-
+			message: '#^Method App\\Module\\Wikidata\\Service\\WikidataPersonMapper\:\:mapOccupationsToRoles\(\) has parameter \$occupationQids with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Module/Wikidata/Service/WikidataPersonMapper.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Module/Wikidata/Service/WikidataPersonMapper.php
+
+		-
+			message: '#^Offset 1 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Module/Wikidata/Service/WikidataPersonMapper.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between '''' and non\-falsy\-string will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Module/Wikidata/Service/WikidataPersonMapper.php
+
+		-
+			message: '#^Property App\\Shared\\Entity\\Revision\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Shared/Entity/Revision.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Shared/EventSubscriber/LegacyUrlRedirectSubscriber.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between null and string will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: src/Shared/Twig/MetaTags.php
+
+		-
+			message: '#^Parameter \#1 \$em of static method App\\Tests\\Support\\CatalogPublicFixture\:\:seed\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/E2E/VisitorJourneyTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:flush\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/AdminEasyAdminAccessTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:hashPassword\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/AdminEasyAdminAccessTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:persist\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/AdminEasyAdminAccessTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getRepository\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Functional/Catalog/CatalogPagesTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of static method App\\Tests\\Support\\CatalogPublicFixture\:\:seed\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 4
+			path: tests/Functional/Catalog/CatalogPagesTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertStringNotContainsString\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Catalog/CatalogPagesTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getRepository\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/I18n/PersonShowI18nTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with string will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Functional/I18n/PersonShowI18nTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of static method App\\Tests\\Support\\CatalogPublicFixture\:\:seed\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/I18n/PersonShowI18nTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/Module/KernelFunctionalTestCase.php
+
+		-
+			message: '#^Cannot call method flush\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Functional/Module/MinSourcesValidatorFunctionalTest.php
+
+		-
+			message: '#^Cannot call method persist\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: tests/Functional/Module/MinSourcesValidatorFunctionalTest.php
+
+		-
+			message: '#^Method App\\Tests\\Functional\\Module\\PersonSimilarityRepositoryFunctionalTest\:\:persistSimilarity\(\) has parameter \$details with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Functional/Module/PersonSimilarityRepositoryFunctionalTest.php
+
+		-
+			message: '#^Method App\\Tests\\Functional\\Module\\PersonStatusTransitionFunctionalTest\:\:provideAllowedTransitions\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Functional/Module/PersonStatusTransitionFunctionalTest.php
+
+		-
+			message: '#^Method App\\Tests\\Functional\\Module\\PersonStatusTransitionFunctionalTest\:\:provideForbiddenTransitions\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Functional/Module/PersonStatusTransitionFunctionalTest.php
+
+		-
+			message: '#^Cannot call method getRepository\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Functional/Module/RevisionLoggerFunctionalTest.php
+
+		-
+			message: '#^Parameter \#1 \$entityManager of class App\\Shared\\Service\\RevisionLogger constructor expects Doctrine\\ORM\\EntityManagerInterface, Doctrine\\ORM\\EntityManagerInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Module/RevisionLoggerFunctionalTest.php
+
+		-
+			message: '#^Cannot call method flush\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Functional/Module/SimpleRepositoriesFunctionalTest.php
+
+		-
+			message: '#^Cannot call method getRepository\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Functional/Module/SimpleRepositoriesFunctionalTest.php
+
+		-
+			message: '#^Cannot call method persist\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Functional/Module/SimpleRepositoriesFunctionalTest.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Functional/Module/UserRepositoryFunctionalTest.php
+
+		-
+			message: '#^Cannot call method clear\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Functional/Module/UserRepositoryFunctionalTest.php
+
+		-
+			message: '#^Cannot call method getRepository\(\) on Doctrine\\ORM\\EntityManagerInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Functional/Module/UserRepositoryFunctionalTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:flush\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getConnection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistApprovedOrg\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistApprovedPerson\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 4
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistMembership\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistSimilarity\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/PersonGraphDataEndpointTest.php
+
+		-
+			message: '#^Method App\\Tests\\Unit\\Graph\\PersonMiniGraphBuilderTest\:\:personWithId\(\) has parameter \$cats with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Unit/Graph/PersonMiniGraphBuilderTest.php
+
+		-
+			message: '#^Parameter \#1 \$roleCategories of method App\\Module\\Person\\Entity\\Person\:\:setRoleCategories\(\) expects list\<string\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Graph/PersonMiniGraphBuilderTest.php
+
+		-
+			message: '#^Property App\\Tests\\Unit\\Shared\\DiffComputerTestDto\:\:\$v is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: tests/Unit/Shared/DiffComputerTest.php
+
+		-
+			message: '#^Class App\\Tests\\Unit\\Shared\\RevolvingDoorFactualNoteValidatorTest extends generic class Symfony\\Component\\Validator\\Test\\ConstraintValidatorTestCase but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: tests/Unit/Shared/RevolvingDoorFactualNoteValidatorTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''Symfony\\\\Component\\\\Dotenv\\\\Dotenv'' and ''bootEnv'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/bootstrap.php

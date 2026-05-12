@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — PublicGraph{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-4xl px-4 py-10">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium text-text-primary">Tableau de bord</h1>
+            <p class="mt-2 font-sans text-sm text-text-secondary">Vos fiches et propositions de modification.</p>
+        </header>
+
+        {% if app.user and app.user.emailVerifiedAt is null %}
+            <div class="mt-6 border border-accent bg-surface-inset px-4 py-3 font-sans text-sm text-text-primary">
+                <p>Validez votre adresse e-mail pour contribuer.</p>
+                <form method="post" action="{{ path('app_resend_verification_email') }}" class="mt-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token('resend_verification') }}">
+                    <button type="submit" class="border border-accent px-3 py-1 font-medium text-accent hover:bg-accent hover:text-text-inverse">Renvoyer l'e-mail de vérification</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <section class="mt-10 border-t border-rule-medium pt-8">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 class="font-serif text-xl font-medium text-text-primary">Mes fiches</h2>
+                {% if is_granted('create_person') %}
+                    <a href="{{ path('app_person_wizard_start') }}" class="border border-accent bg-accent px-4 py-2 font-sans text-sm font-medium text-text-inverse no-underline hover:bg-accent-hover">Créer une fiche personne</a>
+                {% endif %}
+            </div>
+            <ul class="mt-4 space-y-2 font-sans text-sm">
+                {% for status, items in personGroups %}
+                    {% for p in items %}
+                        <li class="flex flex-wrap items-center justify-between gap-2 border-b border-rule-light py-2">
+                            <span>{{ p.givenName }} {{ p.familyName }} — <span class="font-mono text-xs text-text-tertiary">{{ status }}</span></span>
+                            {% if p.slug %}
+                                <a href="{{ path('app_person_show', {slug: p.slug}) }}" class="text-accent underline">Voir</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-text-secondary">Aucune fiche pour l’instant.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="mt-10 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-xl font-medium text-text-primary">Mes propositions</h2>
+            <ul class="mt-4 space-y-2 font-sans text-sm">
+                {% for status, items in proposalGroups %}
+                    {% for pr in items %}
+                        <li class="flex flex-wrap items-center justify-between gap-2 border-b border-rule-light py-2">
+                            <span>#{{ pr.id }} {{ pr.entityType }} #{{ pr.entityId }} — <span class="font-mono text-xs text-text-tertiary">{{ status }}</span></span>
+                            <div class="flex gap-3">
+                                {% if status == 'pending' %}
+                                    <form method="post" action="{{ path('app_contributor_proposal_withdraw', {id: pr.id}) }}" onsubmit="return confirm('Retirer cette proposition ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('withdraw_proposal_' ~ pr.id) }}">
+                                        <button type="submit" class="text-sm text-text-secondary underline">Retirer</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-text-secondary">Aucune proposition.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="mt-10 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-xl font-medium text-text-primary">Statistiques</h2>
+            <dl class="mt-4 grid gap-4 font-sans text-sm sm:grid-cols-3">
+                <div class="border border-rule-medium px-4 py-3">
+                    <dt class="text-text-tertiary">Contributions</dt>
+                    <dd class="mt-1 text-lg tabular-nums text-text-primary">{{ stats.contributions }}</dd>
+                </div>
+                <div class="border border-rule-medium px-4 py-3">
+                    <dt class="text-text-tertiary">Approuvées</dt>
+                    <dd class="mt-1 text-lg tabular-nums text-text-primary">{{ stats.approved }}</dd>
+                </div>
+                <div class="border border-rule-medium px-4 py-3">
+                    <dt class="text-text-tertiary">Taux d’acceptation</dt>
+                    <dd class="mt-1 text-lg tabular-nums text-text-primary">{% if stats.accept_rate is not null %}{{ stats.accept_rate }} %{% else %}—{% endif %}</dd>
+                </div>
+            </dl>
+        </section>
+    </div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% macro full_name(person) %}
+    {{- person.usageName ? person.usageName : (person.givenName ~ ' ' ~ person.familyName) -}}
+{% endmacro %}
+
+{% macro role_category_label(cat) %}
+    {% set labels = {
+        'politician': 'Politicien',
+        'civil_servant': 'Fonctionnaire',
+        'business_leader': 'Dirigeant',
+        'media_owner': 'Médias',
+        'financier': 'Financier',
+        'lobbyist': 'Lobbyiste',
+        'other_influencer': 'Autre',
+    } %}
+    {{- labels[cat]|default(cat) -}}
+{% endmacro %}
+
+{% macro role_category_classes(cat) %}
+    {% set map = {
+        'politician': 'bg-cat-politician text-text-inverse',
+        'civil_servant': 'bg-cat-civil_servant text-text-inverse',
+        'business_leader': 'bg-cat-business_leader text-text-inverse',
+        'media_owner': 'bg-cat-media_owner text-text-inverse',
+        'financier': 'bg-cat-financier text-text-inverse',
+        'lobbyist': 'bg-cat-lobbyist text-text-inverse',
+        'other_influencer': 'bg-cat-other_influencer text-text-inverse',
+    } %}
+    {{- map[cat]|default('bg-surface-inset text-text-secondary') -}}
+{% endmacro %}
+
+{% macro organization_type_label(type) %}
+    {% set labels = {
+        'influence_network': 'Réseau d’influence',
+        'political_party': 'Parti politique',
+        'corporation': 'Entreprise',
+        'media_group': 'Groupe médias',
+        'government_body': 'Institution',
+        'international_body': 'International',
+        'think_tank': 'Think tank',
+        'lobby_group': 'Lobby',
+        'other': 'Autre',
+    } %}
+    {{- labels[type]|default(type) -}}
+{% endmacro %}
+
+{% macro organization_type_classes(type) %}
+    {% set map = {
+        'influence_network': 'bg-orgtype-influence_network text-text-inverse',
+        'political_party': 'bg-orgtype-political_party text-text-inverse',
+        'corporation': 'bg-orgtype-corporation text-text-inverse',
+        'media_group': 'bg-orgtype-media_group text-text-inverse',
+        'government_body': 'bg-orgtype-government_body text-text-inverse',
+        'international_body': 'bg-orgtype-international_body text-text-inverse',
+        'think_tank': 'bg-orgtype-think_tank text-text-inverse',
+        'lobby_group': 'bg-orgtype-lobby_group text-text-inverse',
+        'other': 'bg-orgtype-other text-text-inverse',
+    } %}
+    {{- map[type]|default('bg-surface-inset text-text-secondary') -}}
+{% endmacro %}

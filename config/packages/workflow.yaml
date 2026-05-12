@@ -1,0 +1,77 @@
+framework:
+    workflows:
+        change_proposal:
+            type: state_machine
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Module\Moderation\Entity\ChangeProposal
+            initial_marking: pending
+            places:
+                - pending
+                - approved
+                - rejected
+                - withdrawn
+            transitions:
+                approve:
+                    from: pending
+                    to: approved
+                reject:
+                    from: pending
+                    to: rejected
+                withdraw:
+                    from: pending
+                    to: withdrawn
+
+        person_publication:
+            type: state_machine
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Module\Person\Entity\Person
+            initial_marking: draft
+            places:
+                - draft
+                - pending
+                - approved
+                - rejected
+                - archived
+            transitions:
+                submit:
+                    from: draft
+                    to: pending
+                approve:
+                    from: pending
+                    to: approved
+                reject:
+                    from: pending
+                    to: rejected
+                archive:
+                    from: approved
+                    to: archived
+
+        organization_publication:
+            type: state_machine
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Module\Organization\Entity\Organization
+            initial_marking: pending
+            places:
+                - pending
+                - approved
+                - rejected
+                - archived
+            transitions:
+                approve:
+                    from: pending
+                    to: approved
+                reject:
+                    from: pending
+                    to: rejected
+                archive:
+                    from: approved
+                    to: archived

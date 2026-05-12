@@ -1,0 +1,43 @@
+SELECT ?person ?personLabel ?birthDate ?deathDate ?gender ?image
+       (STRAFTER(STR(?person), "http://www.wikidata.org/entity/") AS ?wikidataId)
+       (GROUP_CONCAT(DISTINCT ?natQid; separator="|") AS ?nationalityQids)
+       (GROUP_CONCAT(DISTINCT ?occQid; separator="|") AS ?occupationQids)
+       (GROUP_CONCAT(DISTINCT CONCAT(?partyQid, ":", STR(?partyLabel)); separator=";;") AS ?partyPairs)
+       (GROUP_CONCAT(DISTINCT CONCAT(?orgQid, ":", STR(?orgLabel)); separator=";;") AS ?orgPairs)
+       (GROUP_CONCAT(DISTINCT CONCAT(?posQid, ":", STR(?posLabel), ":", STR(?start), ":", STR(?end)); separator=";;") AS ?positionPairs)
+WHERE {
+  BIND(wd:{{QID}} AS ?person)
+  ?person wdt:P31 wd:Q5 .
+  OPTIONAL { ?person wdt:P569 ?birthDate. }
+  OPTIONAL { ?person wdt:P570 ?deathDate. }
+  OPTIONAL { ?person wdt:P21 ?gender. }
+  OPTIONAL { ?person wdt:P18 ?image. }
+  OPTIONAL {
+    ?person wdt:P27 ?nat.
+    BIND(REPLACE(STR(?nat), "http://www.wikidata.org/entity/", "") AS ?natQid)
+  }
+  OPTIONAL {
+    ?person wdt:P106 ?occ.
+    BIND(REPLACE(STR(?occ), "http://www.wikidata.org/entity/", "") AS ?occQid)
+  }
+  OPTIONAL {
+    ?person wdt:P102 ?party.
+    BIND(REPLACE(STR(?party), "http://www.wikidata.org/entity/", "") AS ?partyQid)
+    ?party rdfs:label ?partyLabel. FILTER(LANG(?partyLabel) = "fr" || LANG(?partyLabel) = "en")
+  }
+  OPTIONAL {
+    ?person wdt:P463 ?org.
+    BIND(REPLACE(STR(?org), "http://www.wikidata.org/entity/", "") AS ?orgQid)
+    ?org rdfs:label ?orgLabel. FILTER(LANG(?orgLabel) = "fr" || LANG(?orgLabel) = "en")
+  }
+  OPTIONAL {
+    ?person p:P39 ?st.
+    ?st ps:P39 ?position.
+    BIND(REPLACE(STR(?position), "http://www.wikidata.org/entity/", "") AS ?posQid)
+    ?position rdfs:label ?posLabel. FILTER(LANG(?posLabel) = "fr" || LANG(?posLabel) = "en")
+    OPTIONAL { ?st pq:P580 ?start. }
+    OPTIONAL { ?st pq:P582 ?end. }
+  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+}
+GROUP BY ?person ?personLabel ?birthDate ?deathDate ?gender ?image

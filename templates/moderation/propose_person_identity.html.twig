@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Proposer une modification — {{ person.givenName }} {{ person.familyName }}{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <h1 class="font-serif text-2xl text-text-primary">Modifier l’identité</h1>
+        <form method="post" class="mt-6 space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('propose_identity') }}">
+            <div>
+                <label class="block text-text-secondary">Prénom</label>
+                <input name="givenName" value="{{ person.givenName }}" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Nom</label>
+                <input name="familyName" value="{{ person.familyName }}" required class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Nom d’usage</label>
+                <input name="usageName" value="{{ person.usageName|default('') }}" class="mt-1 w-full border border-rule-medium px-3 py-2">
+            </div>
+            <div>
+                <label class="block text-text-secondary">Justification (min. 10 caractères)</label>
+                <textarea name="justification" required minlength="10" rows="5" class="mt-1 w-full border border-rule-medium px-3 py-2"></textarea>
+            </div>
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse">Soumettre</button>
+        </form>
+    </div>
+{% endblock %}

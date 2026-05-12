@@ -1,0 +1,46 @@
+<div {{ attributes.defaults({ class: 'relative z-30 w-full min-w-0 max-w-xl' }) }}>
+    <form action="{{ path('app_search_index') }}" method="get" class="relative flex gap-2" role="search">
+        <label class="sr-only" for="header-search-q">{{ 'site.search.label'|trans }}</label>
+        <input
+            id="header-search-q"
+            type="search"
+            name="q"
+            autocomplete="off"
+            placeholder="Rechercher…"
+            value="{{ q }}"
+            data-model="debounce(250)|q"
+            class="w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        />
+        <button type="submit" class="shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">
+            OK
+        </button>
+        {% if autocomplete.persons is not empty or autocomplete.organizations is not empty %}
+            <div class="absolute bottom-full left-0 right-0 z-40 mb-1 max-h-80 overflow-auto border border-rule-medium bg-surface-primary">
+                {% if autocomplete.persons is not empty %}
+                    <p class="border-b border-rule-subtle bg-surface-secondary px-3 py-2 font-sans text-xs font-semibold uppercase tracking-wide text-text-tertiary">Personnes</p>
+                    <ul class="divide-y divide-rule-subtle font-sans text-sm">
+                        {% for hit in autocomplete.persons %}
+                            <li>
+                                <a href="{{ path('app_person_show', { slug: hit.slug }) }}" class="block px-3 py-2 text-text-primary no-underline hover:bg-surface-secondary hover:text-accent">
+                                    {{ hit.fullName }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if autocomplete.organizations is not empty %}
+                    <p class="border-b border-rule-subtle bg-surface-secondary px-3 py-2 font-sans text-xs font-semibold uppercase tracking-wide text-text-tertiary">Organisations</p>
+                    <ul class="divide-y divide-rule-subtle font-sans text-sm">
+                        {% for hit in autocomplete.organizations %}
+                            <li>
+                                <a href="{{ path('app_organization_show', { slug: hit.slug }) }}" class="block px-3 py-2 text-text-primary no-underline hover:bg-surface-secondary hover:text-accent">
+                                    {{ hit.officialName }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+    </form>
+</div>

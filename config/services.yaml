@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# See also https://symfony.com/doc/current/service_container/import.html
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    search.index.enabled: true
+    app.default_locale: '%env(APP_DEFAULT_LOCALE)%'
+    app.enabled_locales: '%env(csv:APP_ENABLED_LOCALES)%'
+    revolving_door.forbidden_words:
+        - corrompu
+        - corruption
+        - pot-de-vin
+        - achat
+        - acheté
+        - vendu
+        - traître
+        - traitre
+        - complot
+        - collusion
+        - mafia
+        - corrupt
+        - bribed
+        - bought
+        - traitor
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # Bounded contexts (specs/plan.md section 3.1) — entités gérées par Doctrine, pas comme services
+    App\Module\:
+        resource: '../src/Module/'
+        exclude:
+            - '../src/Module/*/Entity/'
+
+    App\Shared\:
+        resource: '../src/Shared/'
+
+    # Reste de src/ (Kernel exclu : service implicite du FrameworkBundle)
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Module/'
+            - '../src/Shared/'
+            - '../src/DataFixtures/'
+            - '../src/Factory/'
+
+    App\DataFixtures\:
+        resource: '../src/DataFixtures/'
+
+    App\Factory\:
+        resource: '../src/Factory/'
+
+    # Params nommés non résolus par autowiring (pas de typehint env).
+    App\Module\Search\Client\MeilisearchClient:
+        lazy: true
+        arguments:
+            $meilisearchUrl: '%env(MEILISEARCH_URL)%'
+            $meilisearchKey: '%env(default::MEILISEARCH_KEY)%'
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Search\Service\SearchDocumentFactory:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Search\Service\SearchQueryService:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Catalog\Sitemap\PersonSitemapPopulateListener:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Catalog\Sitemap\OrganizationSitemapPopulateListener:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Catalog\Sitemap\RevolvingDoorSitemapPopulateListener:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Module\Legal\Service\CloudflareTurnstileVerifier:
+        arguments:
+            $secretKey: '%env(default::string:TURNSTILE_SECRET_KEY)%'
+            $environment: '%kernel.environment%'
+
+    App\Shared\Twig\MetaTags:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+            $defaultLocale: '%app.default_locale%'
+
+    App\Shared\I18n\LocalizedContentResolver:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Shared\EventSubscriber\LegacyUrlRedirectSubscriber:
+        arguments:
+            $defaultLocale: '%app.default_locale%'
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Shared\EventSubscriber\EnabledLocaleGuardSubscriber:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    App\Shared\EventSubscriber\PreferredLocaleCookieSubscriber:
+        arguments:
+            $enabledLocales: '%app.enabled_locales%'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+when@test:
+    parameters:
+        search.index.enabled: false

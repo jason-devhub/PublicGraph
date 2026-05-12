@@ -1,0 +1,108 @@
+###############################################################################
+# Dépôt — chemins non versionnés (choix projet)
+###############################################################################
+/.claude/
+/.github/
+/docs/
+/scripts/
+/specs/
+/CLAUDE.md
+
+###############################################################################
+# Symfony — environnements réels et secrets (ne jamais committer)
+###############################################################################
+/.env
+/.env.local
+/.env.local.php
+/.env.prod
+/.env.dev
+/.env.backup
+/.env.bak
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+/.maintenance
+
+# Modèles locaux optionnels (source de vérité versionnée : `.env.example`)
+/.env.dist
+/.env.local.dist
+/.env.prod.dist
+
+###############################################################################
+# PHP / Composer
+###############################################################################
+composer.phar
+/auth.json
+/.composer/auth.json
+
+###############################################################################
+# Node / npm / Yarn
+###############################################################################
+/node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+###############################################################################
+# Symfony AssetMapper / Importmap
+###############################################################################
+/public/assets/
+/assets/vendor/
+
+###############################################################################
+# Docker
+###############################################################################
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+
+###############################################################################
+# IDE / Editor
+###############################################################################
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+###############################################################################
+# Tests
+###############################################################################
+/.phpunit.result.cache
+/bin/.phpunit.result.cache
+.phpunit.cache/
+/phpunit.xml
+/phpunit-coverage/
+
+###############################################################################
+# Build / Cache
+###############################################################################
+/.php-cs-fixer.cache
+/.phpstan/
+/coverage/
+*.log
+
+###############################################################################
+# OS
+###############################################################################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

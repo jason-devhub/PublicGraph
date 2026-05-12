@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Charte éditoriale — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">Charte éditoriale</h1>
+            <p class="mt-4 font-sans text-sm text-text-secondary">Ce document résume les engagements éditoriaux et de gouvernance dérivés de la constitution du projet. En cas d’écart, la constitution fait foi.</p>
+        </header>
+
+        <div class="mt-8 space-y-8 font-sans text-sm leading-relaxed text-text-primary">
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Mission</h2>
+                <p class="mt-3 text-text-secondary">PublicGraph cartographie des <strong>faits vérifiables</strong> : appartenances à des organisations d’influence, mandats, trajectoires public-privé dites « portes tournantes ». L’objectif est la transparence, pas la polémique ni la dénonciation.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Factualité stricte</h2>
+                <p class="mt-3 text-text-secondary">Seuls sont publiés des éléments attestés par des sources identifiables (registres officiels, documents publics, presse établie avec URL, listes publiques d’événements, etc.).</p>
+                <p class="mt-3 text-text-secondary">Sont exclus les jugements de valeur ou les étiquettes idéologiques (« mondialiste », « patriote », « corrompu », etc.), les insinuations sans source et les liens de causalité présentés comme des accusations.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Sourçage obligatoire</h2>
+                <p class="mt-3 text-text-secondary">Chaque appartenance, mandat ou porte tournante publiée doit être assortie d’<strong>au moins une URL de source</strong> vérifiable. Les sources sont conservées et affichées sur les fiches.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Neutralité de présentation</h2>
+                <p class="mt-3 text-text-secondary">Les faits sont présentés sans les interpréter. Pas de notation morale ou politique des personnes. Les indicateurs techniques (ex. score de proximité entre profils) sont des calculs sur les co-appartenances, pas une qualification éthique.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Modération et publication</h2>
+                <p class="mt-3 text-text-secondary">Aucune contribution grand public n’est visible tant qu’un modérateur ne l’a pas validée. Les propositions de modification sont tracées ; les versions publiées résultent de décisions documentées.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Droit de réponse et signalement</h2>
+                <p class="mt-3">Toute personne concernée peut demander une rectification : voir <a href="{{ path('app_droit_de_reponse') }}" class="text-accent no-underline hover:underline">Droit de réponse</a>. Pour un contenu manifestement illicite : <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">Signaler</a>.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Gouvernance</h2>
+                <p class="mt-3 text-text-secondary">À ce jour le projet est porté par une personne physique ; une évolution vers une association loi 1901 est envisagée lorsque le nombre de contributeurs et la charge juridique le justifieront. Le code et les données restent pensés pour rester ouverts.</p>
+            </section>
+        </div>
+    </article>
+{% endblock %}

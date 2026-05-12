@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur serveur — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="max-w-xl font-sans text-sm text-text-primary">
+        <h1 class="font-serif text-3xl font-medium">Erreur serveur</h1>
+        <p class="mt-4 text-text-secondary">Une erreur inattendue s’est produite. L’équipe a été notifiée si le suivi applicatif est activé.</p>
+        <p class="mt-6">
+            <a href="{{ path('app_home') }}" class="text-accent no-underline hover:underline">Retour à l’accueil</a>
+            — <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">Signaler un problème</a>
+        </p>
+    </article>
+{% endblock %}

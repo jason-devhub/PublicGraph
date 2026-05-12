@@ -1,0 +1,241 @@
+{% extends 'base.html.twig' %}
+{% import 'catalog/_macros.html.twig' as catalog %}
+
+{% block head_seo %}
+    {{ component('MetaTags', { entity: person, type: 'person' }) }}
+{% endblock %}
+
+{% block body %}
+    <article>
+        <header class="border-b border-rule-strong pb-8">
+            <div class="flex flex-col gap-6 md:flex-row md:items-start">
+                <div class="shrink-0">
+                    {% if person.photoUrl %}
+                        <img src="{{ person.photoUrl }}" alt="" class="mx-auto max-h-[250px] max-w-[250px] border border-rule-medium object-cover md:mx-0" width="250" height="250" loading="lazy">
+                    {% else %}
+                        <div class="mx-auto flex h-[200px] w-[200px] items-center justify-center border border-rule-medium bg-surface-inset font-mono text-text-tertiary md:mx-0">Sans photo</div>
+                    {% endif %}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">{{ catalog.full_name(person) }}</h1>
+                    <p class="mt-2 font-sans text-sm text-text-secondary">
+                        {% if person.birthDate %}Né·e le {{ person.birthDate|date('d/m/Y') }}{% endif %}
+                        {% if person.deathDate %} — Décédé·e le {{ person.deathDate|date('d/m/Y') }}{% endif %}
+                    </p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for c in person.nationalities %}
+                            <span class="inline-flex items-center gap-1 rounded-sm border border-rule-medium px-2 py-0.5 font-mono text-xs text-text-secondary">
+                                <span class="text-[10px] text-text-tertiary" aria-hidden="true">{{ c.isoCode }}</span>
+                                {{ c.localizedName(app.request.locale) }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-1">
+                        {% for cat in person.roleCategories %}
+                            <span class="inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide {{ catalog.role_category_classes(cat) }}">{{ catalog.role_category_label(cat) }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-6 flex flex-wrap gap-3 font-sans text-sm">
+                        {% if person.status == 'approved' and is_granted('create_proposal') %}
+                            <a href="{{ path('app_contribution_propose_section', {entityType: 'person', id: person.id, sectionType: 'identity'}) }}" class="border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Proposer une modification (identité)</a>
+                        {% elseif app.user %}
+                            <span class="border border-rule-medium px-3 py-2 text-text-tertiary">Validez votre e-mail pour proposer une modification.</span>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Connexion pour proposer une modification</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="mt-10 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Description</h2>
+            {% if catalog_description %}
+                <div class="mt-4 max-w-3xl font-sans text-base leading-relaxed text-text-primary">{{ catalog_description|nl2br }}</div>
+            {% else %}
+                <p class="mt-4 font-sans text-sm text-text-secondary">Pas de description pour cette fiche.</p>
+            {% endif %}
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Mandats et postes</h2>
+            <ol class="mt-6 space-y-4 border-l-2 border-accent pl-6 font-sans text-sm text-text-primary">
+                {% for pos in positions %}
+                    <li class="relative">
+                        <span class="absolute -left-[7px] top-1.5 h-2 w-2 bg-accent" aria-hidden="true"></span>
+                        <p class="font-medium">{{ position_titles[pos.id] ?? pos.titleFr }}</p>
+                        <p class="text-text-secondary">{{ pos.organization.officialName }} — {{ pos.startDate|date('m/Y') }}
+                            {% if pos.endDate %}→ {{ pos.endDate|date('m/Y') }}{% else %}→ <span class="text-accent">en cours</span>{% endif %}
+                        </p>
+                    </li>
+                {% else %}
+                    <li class="text-text-secondary">Aucun mandat publié.</li>
+                {% endfor %}
+            </ol>
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8" aria-labelledby="mini-graph-heading">
+            <h2 id="mini-graph-heading" class="font-serif text-2xl font-medium text-text-primary">Réseau d’influence</h2>
+            <aside class="mt-6 border border-[#2A3038] bg-ink text-ink-text">
+                <header class="flex items-center justify-between gap-3 border-b border-[#2A3038] px-4 py-3 font-sans text-xs uppercase tracking-wider text-ink-secondary">
+                    <span>Cartographie locale</span>
+                    <span data-mini-graph-target="count" class="tabular-nums">—</span>
+                </header>
+                <div
+                    class="relative min-h-[320px] w-full"
+                    data-controller="mini-graph"
+                    data-mini-graph-url-value="{{ path('app_person_graph_data', { slug: person.slug }) }}"
+                    data-mini-graph-locale-value="{{ app.request.locale }}"
+                    data-mini-graph-msg-analyzing-value="{{ 'mini_graph.analyzing'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-load-error-value="{{ 'mini_graph.load_error'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-connections-one-value="{{ 'mini_graph.connections_one'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-connections-many-value="{{ 'mini_graph.connections_many'|trans|e('html_attr') }}"
+                >
+                    <div data-mini-graph-target="skeleton" class="absolute inset-0 flex items-center justify-center bg-ink font-sans text-sm text-ink-secondary motion-safe:animate-pulse" aria-hidden="true">Chargement du graphe…</div>
+                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-[320px] w-full bg-ink" role="img" aria-label="Graphe des liens de proximité et des organisations"></div>
+                    <div data-mini-graph-target="analyzing" class="absolute inset-0 z-20 hidden items-center justify-center bg-ink px-6 text-center font-sans text-sm leading-relaxed text-ink-text" role="status"></div>
+                </div>
+                <footer class="border-t border-[#2A3038] px-4 py-3 font-sans text-sm">
+                    <a href="{{ path('app_graph_index') }}?focus={{ person.slug|url_encode }}" class="text-ink-accent no-underline hover:underline">Voir dans le graphe complet ↗</a>
+                </footer>
+            </aside>
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Appartenances</h2>
+            <div class="mt-6 space-y-6">
+                {% for orgId, memberships in memberships_by_org %}
+                    {% set org = memberships[0].organization %}
+                    {% if org %}
+                        <div class="border-t border-rule-subtle pt-4 first:border-t-0 first:pt-0">
+                            <h3 class="font-sans text-base font-semibold text-text-primary">
+                                <a href="{{ path('app_organization_show', {slug: org.slug}) }}" class="text-accent no-underline hover:text-accent-hover hover:underline">{{ organization_display_names[org.id] ?? org.officialName }}</a>
+                            </h3>
+                            <ul class="mt-2 flex flex-wrap gap-1">
+                                {% for m in memberships %}
+                                    {% if m.year %}
+                                        <li><a href="{{ path('app_organization_show', {slug: org.slug}) }}" class="inline-block border border-rule-medium px-2 py-0.5 font-mono text-xs text-text-secondary no-underline hover:border-accent">{{ m.year }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="font-sans text-sm text-text-secondary">Aucune appartenance publiée.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Co-présences directes</h2>
+            {% if copresences is defined and copresences|length > 0 %}
+                <ul class="mt-6 space-y-6 font-sans text-sm text-text-primary">
+                    {% for row in copresences %}
+                        <li class="border-l-2 border-accent pl-4">
+                            <p class="font-medium">
+                                <a href="{{ path('app_organization_show', { slug: row.organization.slug }) }}" class="text-accent no-underline hover:underline">{{ copresence_organization_names[row.organization.id] ?? row.organization.officialName }}</a>
+                                — <span class="font-mono text-text-secondary">{{ row.year }}</span>
+                            </p>
+                            <p class="mt-2 text-text-secondary">Avec :
+                                {% for p in row.persons %}
+                                    <a href="{{ path('app_person_show', { slug: p.slug }) }}" class="text-accent no-underline hover:underline">{{ catalog.full_name(p) }}</a>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                            {% if row.sources|length > 0 %}
+                                <p class="mt-2 font-mono text-xs text-text-tertiary">Sources :
+                                    {% for src in row.sources %}
+                                        <a href="{{ src.url }}" class="break-all text-accent no-underline hover:underline" rel="noopener noreferrer">{{ src.url }}</a>{% if not loop.last %} · {% endif %}
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="mt-4 max-w-2xl border-l-2 border-rule-medium bg-surface-secondary pl-4 font-sans text-sm text-text-secondary">Aucune co-présence directe publiée (même organisation et même année).</p>
+            {% endif %}
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Profils de réseau similaires</h2>
+            {% if similar_profiles is defined and similar_profiles|length > 0 %}
+                <ul class="mt-6 divide-y divide-rule-subtle font-sans text-sm">
+                    {% for s in similar_profiles %}
+                        {% set other = s.personB %}
+                        {% if other %}
+                            <li class="flex flex-wrap items-start gap-4 py-4">
+                                <div class="shrink-0">
+                                    {% if other.photoUrl %}
+                                        <img src="{{ other.photoUrl }}" alt="" class="h-14 w-14 border border-rule-medium object-cover" width="56" height="56" loading="lazy">
+                                    {% else %}
+                                        <div class="flex h-14 w-14 items-center justify-center border border-rule-medium bg-surface-inset font-mono text-[10px] text-text-tertiary">N/A</div>
+                                    {% endif %}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-text-primary">
+                                        <a href="{{ path('app_person_show', { slug: other.slug }) }}" class="text-accent no-underline hover:underline">{{ catalog.full_name(other) }}</a>
+                                        <span class="ml-2 font-mono text-xs text-text-secondary">score {{ s.score }}</span>
+                                    </p>
+                                    {% set summary = s.details.summary ?? {} %}
+                                    {% if summary|length > 0 %}
+                                        <ul class="mt-2 flex flex-wrap gap-2 text-xs text-text-secondary">
+                                            {% for key, val in summary %}
+                                                <li class="border border-rule-medium px-2 py-0.5 font-mono">{{ key }}: {{ val is iterable ? val|json_encode : val }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="mt-4 max-w-2xl border-l-2 border-rule-medium bg-surface-secondary pl-4 font-sans text-sm text-text-secondary">Aucun profil similaire calculé pour le moment.</p>
+            {% endif %}
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Portes tournantes</h2>
+            <ul class="mt-6 space-y-4 font-sans text-sm">
+                {% for row in revolving_door_rows %}
+                    {% set rd = row.door %}
+                    <li class="border-l-2 border-accent pl-4">
+                        <p class="text-text-primary">
+                            <a href="{{ path('app_revolving_door_show', {id: rd.id}) }}" class="text-accent no-underline hover:underline">Fiche porte tournante</a> —
+                            {{ row.source_title }} ({{ row.source_org }})
+                            → {{ row.target_title }} ({{ row.target_org }})
+                        </p>
+                        {% if row.factual_note %}
+                            <p class="mt-2 text-text-secondary">{{ row.factual_note|nl2br }}</p>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="text-text-secondary">Aucune porte tournante publiée.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Sources</h2>
+            <ul class="mt-4 divide-y divide-rule-subtle font-mono text-xs text-text-secondary">
+                {% for src in sources %}
+                    <li class="py-2">
+                        {% if src.checkStatus == 'archived' %}
+                            <p class="mb-1 font-sans text-xs text-accent">Lien mort ou archivé — <a href="{{ src.waybackUrl }}" class="underline" rel="noopener noreferrer">version archivée (Wayback)</a></p>
+                        {% elseif src.checkStatus == 'dead' %}
+                            <p class="mb-1 font-sans text-xs text-accent">Lien signalé comme inaccessible.</p>
+                        {% endif %}
+                        <a href="{{ src.url }}" class="break-all text-accent no-underline hover:underline" rel="noopener noreferrer">{{ src.url }}</a>
+                        {% if src.title %}<span class="block font-sans text-text-tertiary">{{ src.title }}</span>{% endif %}
+                    </li>
+                {% else %}
+                    <li class="py-2 text-text-secondary">Aucune source liée pour le moment.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <footer class="mt-16 border-t border-rule-strong pt-8 font-sans text-sm text-text-secondary">
+            <a href="{{ path('app_droit_de_reponse') }}" class="text-accent no-underline hover:underline">Demande de droit de réponse</a>
+        </footer>
+    </article>
+{% endblock %}

@@ -1,0 +1,47 @@
+
+services:
+  nginx:
+    volumes:
+      - ./docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./public:/app/public:ro
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    # `.env.local` est lu par Symfony au boot via le montage `.:/app`.
+    volumes:
+      - .:/app
+      # vendor dans un volume Docker : un `composer install` sur l'hôte ne met pas à jour ce répertoire.
+      # Après clone ou changement du lock : `make install` (exécute composer dans le conteneur, PHP zip/redis OK).
+      - app_vendor:/app/vendor
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    volumes:
+      - .:/app
+      - app_vendor:/app/vendor
+
+  meilisearch:
+    ports:
+      - "${MEILISEARCH_HTTP_PORT}:7700"
+
+###> doctrine/doctrine-bundle ###
+  # MariaDB est fourni hors compose (Coolify ou service managé), via DATABASE_URL.
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+  mailer:
+    image: ${MAILPIT_IMAGE}
+    ports:
+      - "1025"
+      - "8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< symfony/mailer ###
+
+volumes:
+  app_vendor:

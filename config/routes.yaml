@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
+
+sitemap_legacy_redirects:
+    resource: routes/sitemap_legacy_redirects.yaml
+
+_presta_sitemap:
+    resource: routes/presta_sitemap.yaml
+
+# Routes publiques avec préfixe de locale (voir docs/upgrade_to_i18n.md).
+public_controllers_localized:
+    resource: ../src/Controller/
+    type: attribute
+    exclude:
+        - ../src/Controller/Admin/
+        - ../src/Controller/TestFrontendController.php
+    prefix: '/{_locale}'
+    defaults:
+        _locale: '%app.default_locale%'
+    requirements:
+        _locale: '[a-z]{2}'
+
+module_controllers_localized:
+    resource: ../src/Module/
+    type: attribute
+    prefix: '/{_locale}'
+    defaults:
+        _locale: '%app.default_locale%'
+    requirements:
+        _locale: '[a-z]{2}'
+
+admin_controllers:
+    resource: ../src/Controller/Admin/
+    type: attribute

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">Contact</h1>
+            <p class="mt-4 font-sans text-sm text-text-secondary">Pour les questions générales, la coopération ou les demandes relatives aux données personnelles.</p>
+        </header>
+
+        <div class="mt-8 border-t border-rule-subtle pt-8 font-sans text-sm leading-relaxed text-text-primary">
+            <p>Écrivez à l’adresse indiquée dans les mentions légales ou via le canal prévu dans la documentation du dépôt (issues GitHub). Une boîte dédiée sera publiée ici avant ouverture publique complète.</p>
+            <p class="mt-6 text-text-secondary">Pour signaler un contenu : utilisez le <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">formulaire de signalement</a>. Pour une rectification de fiche : <a href="{{ path('app_droit_de_reponse') }}" class="text-accent no-underline hover:underline">Droit de réponse</a>.</p>
+        </div>
+    </article>
+{% endblock %}

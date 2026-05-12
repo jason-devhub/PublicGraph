@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block head_seo %}
+    <title>Porte tournante — {{ person.usageName ?: person.givenName ~ ' ' ~ person.familyName }} — PublicGraph</title>
+    <meta name="robots" content="noindex, follow">
+{% endblock %}
+
+{% block body %}
+    <article class="max-w-3xl">
+        <nav class="font-sans text-sm text-text-secondary">
+            <a href="{{ path('app_person_show', {slug: person.slug}) }}" class="text-accent no-underline hover:underline">← Fiche {{ person.usageName ?: person.givenName ~ ' ' ~ person.familyName }}</a>
+        </nav>
+        <header class="mt-6 border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium text-text-primary">Porte tournante</h1>
+            <p class="mt-2 font-sans text-sm text-text-secondary">
+                {{ door.sourcePosition|localized_position_title }} ({{ door.sourcePosition.organization|localized_organization_name }})
+                → {{ door.targetPosition|localized_position_title }} ({{ door.targetPosition.organization|localized_organization_name }})
+            </p>
+        </header>
+        {% set factual = door|localized_revolving_door_note %}
+        {% if factual %}
+            <div class="mt-8 font-sans text-base leading-relaxed text-text-primary">{{ factual|nl2br }}</div>
+        {% endif %}
+    </article>
+{% endblock %}

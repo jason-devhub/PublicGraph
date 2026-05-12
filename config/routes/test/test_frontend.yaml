@@ -1,0 +1,9 @@
+# Même route qu’en dev : la page de test front n’existe pas en prod.
+test_frontend:
+    resource: ../../../src/Controller/TestFrontendController.php
+    type: attribute
+    prefix: '/{_locale}'
+    defaults:
+        _locale: '%app.default_locale%'
+    requirements:
+        _locale: '[a-z]{2}'

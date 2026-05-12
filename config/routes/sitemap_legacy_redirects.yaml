@@ -1,0 +1,21 @@
+# Alias de chemins demandés par specs/tasks.md (T6.1) vers les fichiers générés par PrestaSitemapBundle.
+sitemap_persons_legacy:
+    path: /sitemap-persons.xml
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /sitemap.persons.xml
+        permanent: false
+
+sitemap_organizations_legacy:
+    path: /sitemap-organizations.xml
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /sitemap.organizations.xml
+        permanent: false
+
+sitemap_revolving_doors_legacy:
+    path: /sitemap-revolving-doors.xml
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /sitemap.revolving-doors.xml
+        permanent: false

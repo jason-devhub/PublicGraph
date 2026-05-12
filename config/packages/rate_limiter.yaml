@@ -1,0 +1,11 @@
+framework:
+    rate_limiter:
+        limiters:
+            graph_api_ip:
+                policy: sliding_window
+                limit: 100
+                interval: '60 seconds'
+            search_api_ip:
+                policy: sliding_window
+                limit: 120
+                interval: '60 seconds'

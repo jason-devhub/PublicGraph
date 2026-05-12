@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étape 2 — Wikidata{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-xl px-4 py-10 font-sans text-sm">
+        <p class="font-mono text-xs text-text-tertiary">Étape 2 / 5</p>
+        <h1 class="mt-2 font-serif text-2xl text-text-primary">Wikidata</h1>
+        <p class="mt-4 text-text-secondary">La recherche Wikidata sera branchée en lot M5. Vous pouvez passer cette étape pour l’instant.</p>
+        <form method="post" class="mt-8">
+            <input type="hidden" name="_token" value="{{ csrf_token('wizard_step') }}">
+            <input type="hidden" name="wizard[step2][skipped]" value="1">
+            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse hover:bg-accent-hover">Continuer</button>
+        </form>
+    </div>
+{% endblock %}

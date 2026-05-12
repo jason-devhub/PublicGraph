@@ -1,0 +1,85 @@
+# Fichiers de base — étendre au fil des templates migrés vers |trans.
+org:
+  official_name_label: 'Official name'
+
+site:
+  name: 'PublicGraph'
+  skip_to_content: 'Skip to content'
+  nav:
+    persons: 'People'
+    organizations: 'Organizations'
+    graph: 'Graph'
+    search: 'Search'
+    contribute: 'Contribute'
+    login: 'Log in'
+    dashboard: 'My account'
+    logout: 'Log out'
+    main_aria: 'Main navigation'
+  search:
+    label: 'Search'
+    placeholder: 'Search…'
+    submit: 'OK'
+  search_page:
+    meta_title: 'Search'
+    heading: 'Search'
+    term_label: 'Term'
+    input_placeholder: 'Name, organization…'
+    submit: 'Search'
+    empty_hint: 'Enter a search term or use the field in the header.'
+    filter_nav_aria: 'Filter by type'
+    filter_all: 'All'
+    filter_persons: 'People'
+    filter_organizations: 'Organizations'
+    persons: 'People'
+    organizations: 'Organizations'
+    results_count: '%count% results'
+    no_person: 'No matching person.'
+    no_organization: 'No matching organization.'
+    no_results: 'No results.'
+    prev: 'Previous'
+    next: 'Next'
+    page_of: 'Page %page% / %pages%'
+    pagination_persons_aria: 'People results pagination'
+    pagination_orgs_aria: 'Organization results pagination'
+    pagination_aria: 'Pagination'
+  footer:
+    tagline: 'Factual mapping of influence relationships.'
+    nav_aria: 'Footer links'
+    legal: 'Legal notice'
+    terms: 'Terms of use'
+    privacy: 'Privacy'
+    charter: 'Editorial charter'
+    about: 'About'
+    report: 'Report content'
+    right_of_reply: 'Right of reply'
+    contact: 'Contact'
+  cookie_banner: 'This site does not use analytics or advertising cookies. No third-party trackers are loaded on public pages.'
+  cookie_banner_aria: 'Cookies'
+
+seo:
+  person:
+    title: '%name% — PublicGraph'
+    og_title: '%name% — Factual influence mapping'
+    role_fallback: 'political and institutional public figure'
+    org_sample: ' including %orgs%'
+    meta: '%name% (%roles%): %membership_count% recorded affiliation(s)%org_part%. %position_count% published mandate(s) or position(s). Linked sources at the bottom of the page.'
+  organization:
+    title: '%name% — PublicGraph'
+    og_title: '%name% — Factual influence mapping'
+    meta: '%name% (%type%): %member_count% known member(s) on PublicGraph.%country_part% Sourced, moderated data.'
+    countries: ' Countries: %list%.'
+  default:
+    title: 'PublicGraph'
+    description: 'Factual mapping of influence relationships between public and private actors.'
+
+mini_graph:
+  analyzing: "This person's influence network is still being computed."
+  load_error: 'Unable to load the graph right now.'
+  connections_one: '1 connection'
+  connections_many: '%count% connections'
+
+global_graph:
+  loading: 'Loading graph…'
+  error: 'Unable to load the graph.'
+  selection: 'Selection'
+  view_full: 'View full profile'

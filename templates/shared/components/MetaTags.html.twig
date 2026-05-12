@@ -1,0 +1,29 @@
+{% set c = this.all %}
+<title>{{ c.title }}</title>
+<meta name="description" content="{{ c.metaDescription|e('html_attr') }}">
+<link rel="canonical" href="{{ c.canonicalUrl }}">
+
+<meta property="og:title" content="{{ c.ogTitle|e('html_attr') }}">
+<meta property="og:description" content="{{ c.ogDescription|e('html_attr') }}">
+<meta property="og:type" content="{{ c.ogType }}">
+<meta property="og:url" content="{{ c.canonicalUrl }}">
+<meta property="og:locale" content="{{ c.ogLocale }}">
+{% for locTag in c.ogLocaleAlternates %}
+<meta property="og:locale:alternate" content="{{ locTag }}">
+{% endfor %}
+{% if c.ogImage %}
+<meta property="og:image" content="{{ c.ogImage }}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ c.ogTitle|e('html_attr') }}">
+<meta name="twitter:description" content="{{ c.ogDescription|e('html_attr') }}">
+
+{% for alt in c.hreflangAlternates %}
+<link rel="alternate" hreflang="{{ alt.locale }}" href="{{ alt.url }}">
+{% endfor %}
+{% if c.xDefaultHreflangUrl is defined and c.xDefaultHreflangUrl %}
+<link rel="alternate" hreflang="x-default" href="{{ c.xDefaultHreflangUrl }}">
+{% endif %}
+
+{# JSON-LD : pas de nonce Twig tant que la fonction csp_nonce Nelmio n’est pas exposée globalement #}
+<script type="application/ld+json">{{ c.jsonLd|raw }}</script>

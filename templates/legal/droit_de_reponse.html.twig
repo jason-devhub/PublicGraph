@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Droit de réponse — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">Droit de réponse et rectification</h1>
+            <p class="mt-4 font-sans text-sm text-text-secondary">Toute personne citée sur une fiche peut demander une correction factuelle.</p>
+        </header>
+
+        <div class="mt-8 space-y-6 font-sans text-sm leading-relaxed text-text-primary">
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Procédure</h2>
+                <p class="mt-3 text-text-secondary">Indiquez l’URL de la fiche concernée, la nature de l’erreur alléguée et les sources qui étayent votre demande. Les demandes sont traitées dans les délais raisonnables compatibles avec la modération bénévole du projet.</p>
+                <p class="mt-4">Pour ouvrir une demande : utilisez la page <a href="{{ path('app_contact') }}" class="text-accent no-underline hover:underline">Contact</a> en précisant « Droit de réponse » et la référence de la fiche.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Signalement distinct</h2>
+                <p class="mt-3">Pour un contenu manifestement illicite (hors simple désaccord factuel), privilégiez le <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">formulaire de signalement</a>.</p>
+            </section>
+        </div>
+    </article>
+{% endblock %}

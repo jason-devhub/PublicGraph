@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+{% import 'catalog/_macros.html.twig' as catalog %}
+
+{% block head_seo %}
+    {{ component('MetaTags', { entity: organization, type: 'organization', organizationMemberCount: organization_member_count }) }}
+{% endblock %}
+
+{% block body %}
+    <article>
+        <header class="border-b border-rule-strong pb-8">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="min-w-0">
+                    <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">{{ organization_display_name }}</h1>
+                    {% if organization_show_official_subtitle %}
+                        <p class="mt-2 font-sans text-sm text-text-secondary">{{ 'org.official_name_label'|trans }} : {{ organization_official_name }}</p>
+                    {% endif %}
+                </div>
+                <span class="shrink-0 rounded-xs px-2 py-1 text-[11px] font-semibold uppercase tracking-wide {{ catalog.organization_type_classes(organization.type) }}">{{ catalog.organization_type_label(organization.type) }}</span>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-3 font-sans text-sm text-text-secondary">
+                {% for c in organization.countries %}
+                            <span class="inline-flex items-center gap-1 font-mono text-xs">
+                                <span class="text-[10px] text-text-tertiary" aria-hidden="true">{{ c.isoCode }}</span>
+                                {{ c.localizedName(app.request.locale) }}
+                            </span>
+                {% endfor %}
+                {% if organization.foundedYear %}
+                    <span>Fondée {{ organization.foundedYear }}{% if organization.dissolvedYear %} — Dissoute {{ organization.dissolvedYear }}{% endif %}</span>
+                {% endif %}
+                {% if organization.websiteUrl %}
+                    <a href="{{ organization.websiteUrl }}" class="text-accent no-underline hover:underline" rel="noopener noreferrer">Site officiel</a>
+                {% endif %}
+            </div>
+            {% if organization.type == 'political_party' and organization.partyDetails %}
+                {% set party = organization.partyDetails %}
+                <div class="mt-6 border-l-2 border-accent pl-4 font-sans text-sm text-text-primary">
+                    <p><span class="text-text-secondary">Famille européenne :</span> {{ party.europeanFamily|default('—') }}</p>
+                    {% if party.colorHex %}
+                        <p class="mt-2 inline-flex items-center gap-2">
+                            <span class="text-text-secondary">Couleur :</span>
+                            <span class="inline-block h-4 w-8 border border-rule-medium" style="background-color: {{ party.colorHex|e('html_attr') }};" title="{{ party.colorHex|e('html_attr') }}"></span>
+                            <span class="font-mono text-xs">{{ party.colorHex }}</span>
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <p class="mt-8">
+                <a href="{{ path('app_graph_index', {organization: organization.slug}) }}" class="inline-block border border-accent px-4 py-2 font-sans text-sm font-medium text-accent no-underline hover:bg-accent-subtle">Voir dans le graphe</a>
+            </p>
+        </header>
+
+        <section class="mt-10 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Présentation</h2>
+            {% if catalog_description %}
+                <div class="mt-4 max-w-3xl font-sans text-base leading-relaxed text-text-primary">{{ catalog_description|nl2br }}</div>
+            {% else %}
+                <p class="mt-4 font-sans text-sm text-text-secondary">Pas de description pour cette organisation.</p>
+            {% endif %}
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8">
+            <h2 class="font-serif text-2xl font-medium text-text-primary">Membres et cadres connus</h2>
+            <twig:CatalogOrganizationMembers :organization="organization" />
+        </section>
+    </article>
+{% endblock %}

@@ -1,0 +1,80 @@
+<div {{ attributes.defaults({class: 'space-y-6'}) }}>
+    <div class="flex flex-wrap items-end gap-4 border-b border-rule-subtle pb-4">
+        <div class="font-sans text-sm text-text-secondary">
+            <label for="member-year-select" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary">Filtrer par année</label>
+            <select id="member-year-select"
+                    data-model="memberYear"
+                    data-action="change->live#update"
+                    class="mt-1 border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary">
+                <option value="" {% if memberYear is null or memberYear == '' %}selected{% endif %}>Toutes les années</option>
+                {% for y in 1950..2030 %}
+                    <option value="{{ y }}" {% if memberYear == (y ~ '') %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% set mb = memberBlock %}
+    {% set pager = mb.pager %}
+    {% set yearParticipation = mb.yearParticipation %}
+
+    <div class="overflow-x-auto border-t border-rule-medium">
+        <table class="w-full border-collapse font-sans text-sm">
+            <thead>
+            <tr class="border-b border-rule-medium text-left text-xs font-semibold uppercase tracking-wide text-text-tertiary">
+                <th class="py-3 pr-4 font-medium" scope="col">Personne</th>
+                <th class="py-3 font-medium" scope="col">Années (extraits)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for person in pager.currentPageResults %}
+                {% set pid = person.id %}
+                <tr class="border-b border-rule-subtle">
+                    <td class="py-3 pr-4 align-top">
+                        <a href="{{ path('app_person_show', {slug: person.slug}) }}" class="font-medium text-accent no-underline hover:text-accent-hover hover:underline">
+                            {{ person.givenName }} {{ person.familyName }}
+                        </a>
+                    </td>
+                    <td class="py-3 align-top">
+                        {% if pid and yearParticipation[pid] is defined %}
+                            <ul class="flex flex-wrap gap-1">
+                                {% for y in yearParticipation[pid] %}
+                                    <li class="border border-rule-medium px-2 py-0.5 font-mono text-xs text-text-secondary">{{ y }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-text-tertiary">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2" class="py-6 text-text-secondary">Aucun membre listé pour ce filtre.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pager.nbPages > 1 %}
+        <nav class="flex flex-wrap items-center justify-between gap-4 pt-4 font-sans text-sm" aria-label="Pagination membres">
+            <p class="text-text-secondary">Page {{ pager.currentPage }} / {{ pager.nbPages }}</p>
+            <div class="flex gap-2">
+                {% if pager.hasPreviousPage %}
+                    <button type="button"
+                            class="border border-rule-medium bg-surface-primary px-3 py-2"
+                            data-action="live#action"
+                            data-live-action-param="setMembersPage"
+                            data-live-members-page-param="{{ pager.currentPage - 1 }}">Précédent</button>
+                {% endif %}
+                {% if pager.hasNextPage %}
+                    <button type="button"
+                            class="border border-rule-medium bg-surface-primary px-3 py-2"
+                            data-action="live#action"
+                            data-live-action-param="setMembersPage"
+                            data-live-members-page-param="{{ pager.currentPage + 1 }}">Suivant</button>
+                {% endif %}
+            </div>
+        </nav>
+    {% endif %}
+</div>

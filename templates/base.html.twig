@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block head_seo %}
+        <title>{% block title %}{{ 'site.name'|trans }}{% endblock %}</title>
+    {% endblock %}
+    <link rel="icon" href="data:image/svg+xml,{{ '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#FAF7F2"/><text x="16" y="22" text-anchor="middle" font-size="16" fill="#7B1A1A" font-family="Georgia,serif">P</text></svg>'|url_encode }}">
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    {% endblock %}
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body class="min-h-screen flex flex-col">
+<a href="#contenu-principal" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-text-inverse">{{ 'site.skip_to_content'|trans }}</a>
+
+<header class="border-b border-rule-medium bg-surface-primary">
+    <div class="mx-auto flex max-w-content flex-wrap items-center gap-4 px-4 py-4 md:justify-between">
+        <a href="{{ path('app_home') }}" class="shrink-0 font-serif text-xl font-medium text-text-primary no-underline hover:text-accent">
+            {{ 'site.name'|trans }}
+        </a>
+        <div class="order-last min-w-0 flex-1 basis-full md:order-none md:max-w-xl md:flex-none md:basis-auto md:px-4">
+            <form action="{{ path('app_search_index') }}" method="get" class="flex gap-2" role="search">
+                <label class="sr-only" for="header-search-q">{{ 'site.search.label'|trans }}</label>
+                <input id="header-search-q" type="search" name="q" value="" placeholder="{{ 'site.search.placeholder'|trans }}" autocomplete="off"
+                       class="w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent">
+                <button type="submit" class="shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">{{ 'site.search.submit'|trans }}</button>
+            </form>
+        </div>
+        <nav aria-label="{{ 'site.nav.main_aria'|trans }}" class="ml-auto shrink-0 font-sans text-sm md:ml-0">
+            <ul class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <li><a href="{{ path('app_person_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.persons'|trans }}</a></li>
+                <li><a href="{{ path('app_organization_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.organizations'|trans }}</a></li>
+                <li><a href="{{ path('app_graph_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.graph'|trans }}</a></li>
+                <li><a href="{{ path('app_search_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.search'|trans }}</a></li>
+                <li><a href="{{ path('app_contribute_hub') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.contribute'|trans }}</a></li>
+                {% if app.user %}
+                    <li><a href="{{ path('app_contributor_dashboard') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.dashboard'|trans }}</a></li>
+                    <li>
+                        <form action="{{ path('app_logout') }}" method="post" class="inline">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                            <button type="submit" class="cursor-pointer border-0 bg-transparent p-0 text-accent font-sans text-sm no-underline hover:text-accent-hover hover:underline">{{ 'site.nav.logout'|trans }}</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}" class="text-accent no-underline hover:text-accent-hover hover:underline">{{ 'site.nav.login'|trans }}</a></li>
+                {% endif %}
+                {% if app.request.attributes.get('_route') %}
+                    {% for loc in app_enabled_locales %}
+                        {% if loc != app.request.locale %}
+                            <li>
+                                <a href="{{ path(app.request.attributes.get('_route'), (app.request.attributes.get('_route_params')|default({}))|merge({_locale: loc})) }}{% if app.request.queryString %}?{{ app.request.queryString }}{% endif %}"
+                                   class="font-mono text-xs uppercase text-text-tertiary no-underline hover:text-accent"
+                                   hreflang="{{ loc }}">{{ loc }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main id="contenu-principal" class="mx-auto w-full max-w-content flex-1 px-4 py-10">
+    {% block body %}{% endblock %}
+</main>
+
+<footer class="mt-auto border-t border-rule-medium bg-surface-secondary">
+    <div class="mx-auto max-w-content px-4 py-8">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <p class="font-serif text-sm text-text-secondary">{{ 'site.footer.tagline'|trans }}</p>
+            <nav aria-label="{{ 'site.footer.nav_aria'|trans }}">
+                <ul class="flex flex-wrap gap-x-6 gap-y-2 font-sans text-sm">
+                    <li><a href="{{ path('app_mentions_legales') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.legal'|trans }}</a></li>
+                    <li><a href="{{ path('app_cgu') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.terms'|trans }}</a></li>
+                    <li><a href="{{ path('app_confidentialite') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.privacy'|trans }}</a></li>
+                    <li><a href="{{ path('app_charte_editoriale') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.charter'|trans }}</a></li>
+                    <li><a href="{{ path('app_a_propos') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.about'|trans }}</a></li>
+                    <li><a href="{{ path('app_signaler') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.report'|trans }}</a></li>
+                    <li><a href="{{ path('app_droit_de_reponse') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.right_of_reply'|trans }}</a></li>
+                    <li><a href="{{ path('app_contact') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.footer.contact'|trans }}</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</footer>
+
+<aside class="border-t border-rule-subtle bg-surface-inset px-4 py-3 text-center font-sans text-xs text-text-secondary" role="status" aria-label="{{ 'site.cookie_banner_aria'|trans }}">
+    {{ 'site.cookie_banner'|trans }}
+</aside>
+</body>
+</html>

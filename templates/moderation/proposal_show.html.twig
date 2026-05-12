@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Proposition #{{ proposal.id }}{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-3xl px-4 py-10 font-sans text-sm">
+        <p><a href="{{ path('app_moderation_dashboard') }}" class="text-accent underline">← Retour</a></p>
+        <h1 class="mt-4 font-serif text-2xl text-text-primary">Proposition #{{ proposal.id }}</h1>
+        <p class="mt-2 text-text-secondary">{{ proposal.entityType }} #{{ proposal.entityId }}</p>
+        <pre class="mt-6 overflow-x-auto border border-rule-medium bg-surface-inset p-4 text-xs">{{ proposal.diff|json_encode }}</pre>
+        <p class="mt-6 text-text-primary"><strong>Justification contributeur :</strong> {{ proposal.justification }}</p>
+
+        <div class="mt-10 flex flex-wrap gap-4">
+            <form method="post" action="{{ path('app_moderation_proposal_approve', {id: proposal.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('moderate_proposal_' ~ proposal.id) }}">
+                <button type="submit" class="border border-accent bg-accent px-4 py-2 text-text-inverse">Approuver</button>
+            </form>
+            <form method="post" action="{{ path('app_moderation_proposal_reject', {id: proposal.id}) }}" class="space-y-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('moderate_proposal_' ~ proposal.id) }}">
+                <label class="block text-text-secondary">Motif de rejet</label>
+                <textarea name="rejectionReason" required minlength="10" rows="4" class="w-full border border-rule-medium px-3 py-2"></textarea>
+                <button type="submit" class="border border-rule-strong px-4 py-2">Rejeter</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

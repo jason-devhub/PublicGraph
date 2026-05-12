@@ -1,0 +1,10 @@
+SELECT ?org ?orgLabel (STRAFTER(STR(?org), "http://www.wikidata.org/entity/") AS ?wikidataId)
+       (SAMPLE(?instance) AS ?instanceOf)
+WHERE {
+  ?person wdt:P31 wd:Q5 .
+  BIND(wd:{{PERSON_QID}} AS ?person)
+  ?person wdt:P463 ?org .
+  OPTIONAL { ?org wdt:P31 ?instance. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+}
+GROUP BY ?org ?orgLabel

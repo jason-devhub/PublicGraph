@@ -1,0 +1,12 @@
+when@prod:
+    sentry:
+        dsn: '%env(default::SENTRY_DSN)%'
+        register_error_listener: true
+        options:
+            traces_sample_rate: 0.01
+            profiles_sample_rate: 0.01
+            environment: '%kernel.environment%'
+            send_default_pii: false
+            ignore_exceptions:
+                - 'Symfony\Component\ErrorHandler\Error\FatalError'
+                - 'Symfony\Component\Debug\Exception\FatalErrorException'

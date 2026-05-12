@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions générales d’utilisation — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="mx-auto max-w-3xl">
+        <header class="border-b border-rule-strong pb-6">
+            <h1 class="font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl">Conditions générales d’utilisation</h1>
+            <p class="mt-4 font-sans text-sm text-text-secondary">Les présentes CGU encadrent l’usage du service PublicGraph.</p>
+        </header>
+
+        <div class="mt-8 space-y-8 font-sans text-sm leading-relaxed text-text-primary">
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Objet du service</h2>
+                <p class="mt-3 text-text-secondary">PublicGraph permet de consulter et, pour les comptes autorisés, de proposer des données factuelles sourcées sur des personnalités publiques et des organisations. Le service vise la transparence, pas le débat d’opinion.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Inscription et compte</h2>
+                <p class="mt-3 text-text-secondary">En créant un compte, vous fournissez des informations exactes. Vous êtes responsable de la confidentialité de vos identifiants. Une adresse e-mail vérifiée peut être exigée pour certaines actions contributives.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Règles de contribution</h2>
+                <p class="mt-3 text-text-secondary">Toute proposition doit respecter la <a href="{{ path('app_charte_editoriale') }}" class="text-accent no-underline hover:underline">charte éditoriale</a> et la constitution du projet : sourçage obligatoire (au moins une URL vérifiable par lien factuel), interdiction des qualificatifs d’opinion ou des accusations non fondées, présentation neutre des faits.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Modération</h2>
+                <p class="mt-3 text-text-secondary">Nulle modification proposée par un contributeur n’est publiée avant validation par un modérateur. Le projet peut refuser, suspendre ou retirer un compte en cas de manquement répété aux CGU ou à la charte.</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Licence des contributions</h2>
+                <p class="mt-3 text-text-secondary">En contribuant, vous acceptez que vos apports puissent être publiés sous une licence ouverte compatible avec la diffusion des données du projet (référence : constitution — CC-BY-SA ou équivalent selon arbitrage final).</p>
+            </section>
+
+            <section class="border-t border-rule-subtle pt-6">
+                <h2 class="font-serif text-xl text-text-primary">Signalement</h2>
+                <p class="mt-3">Utilisez le <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">formulaire de signalement</a> pour tout contenu que vous estimez illicite ou manifestement erroné au sens applicable.</p>
+            </section>
+        </div>
+    </article>
+{% endblock %}

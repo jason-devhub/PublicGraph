@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statut du service — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="max-w-2xl font-sans text-sm text-text-primary">
+        <h1 class="font-serif text-3xl font-medium">Statut du service</h1>
+        <p class="mt-4 text-text-secondary">Données agrégées à titre informatif (cache 5 minutes côté HTTP).</p>
+
+        <dl class="mt-8 grid gap-4 border-t border-rule-medium pt-6">
+            <div class="flex justify-between gap-4 border-b border-rule-subtle py-2">
+                <dt>Fiches personnes (approuvées)</dt>
+                <dd class="font-mono tabular-nums">{{ person_count }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 border-b border-rule-subtle py-2">
+                <dt>Organisations (approuvées)</dt>
+                <dd class="font-mono tabular-nums">{{ organization_count }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 border-b border-rule-subtle py-2">
+                <dt>Portes tournantes (approuvées)</dt>
+                <dd class="font-mono tabular-nums">{{ revolving_door_count }}</dd>
+            </div>
+        </dl>
+
+        {% if show_cron_telemetry %}
+        <h2 class="mt-10 font-serif text-xl">Tâches planifiées (dernier succès connu)</h2>
+        <ul class="mt-4 space-y-2 text-text-secondary">
+            {% set src = telemetry['app:sources:check-urls']|default({}) %}
+            {% set wd = telemetry['app:wikidata:sync-people']|default({}) %}
+            {% set px = telemetry['app:proximity:recalculate']|default({}) %}
+            <li>Vérification des sources : {{ src.lastSuccessAt|default('—') }}</li>
+            <li>Synchronisation Wikidata : {{ wd.lastSuccessAt|default('—') }}</li>
+            <li>Recalcul proximité : {{ px.lastSuccessAt|default('—') }}</li>
+        </ul>
+        {% else %}
+        <p class="mt-10 text-text-secondary">Le détail des tâches planifiées n’est pas exposé en production (définir <code class="font-mono text-xs">STATUS_SHOW_TELEMETRY=1</code> pour l’afficher).</p>
+        {% endif %}
+
+        <p class="mt-8 text-text-secondary">État global estimé : <strong class="text-text-primary">{{ health }}</strong></p>
+    </article>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page introuvable — PublicGraph{% endblock %}
+
+{% block body %}
+    <article class="max-w-xl font-sans text-sm text-text-primary">
+        <h1 class="font-serif text-3xl font-medium">Page introuvable</h1>
+        <p class="mt-4 text-text-secondary">La ressource demandée n’existe pas ou n’est plus disponible.</p>
+        <p class="mt-6">
+            <a href="{{ path('app_home') }}" class="text-accent no-underline hover:underline">Retour à l’accueil</a>
+            — <a href="{{ path('app_signaler') }}" class="text-accent no-underline hover:underline">Signaler un problème</a>
+        </p>
+    </article>
+{% endblock %}

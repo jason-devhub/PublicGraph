@@ -1,0 +1,17 @@
+# Fichiers et dossiers exclus de l’image Docker de production.
+.git
+.github
+.phpunit.cache
+var
+vendor
+node_modules
+.env
+.env.*
+!.env.example
+tests
+specs
+scripts
+docs
+.claude
+*.md
+!README.md

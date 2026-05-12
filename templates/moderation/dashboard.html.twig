@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modération{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-5xl px-4 py-10 font-sans text-sm">
+        <h1 class="font-serif text-3xl text-text-primary">Modération</h1>
+        <dl class="mt-6 grid gap-4 sm:grid-cols-4">
+            <div class="border border-rule-medium px-3 py-2"><dt class="text-xs text-text-tertiary">Propositions</dt><dd class="text-lg">{{ pendingProposals|length }}</dd></div>
+            <div class="border border-rule-medium px-3 py-2"><dt class="text-xs text-text-tertiary">Fiches personnes</dt><dd class="text-lg">{{ pendingPersons|length }}</dd></div>
+            <div class="border border-rule-medium px-3 py-2"><dt class="text-xs text-text-tertiary">Organisations</dt><dd class="text-lg">{{ pendingOrganizations|length }}</dd></div>
+            <div class="border border-rule-medium px-3 py-2"><dt class="text-xs text-text-tertiary">Signalements / Rép.</dt><dd class="text-lg">{{ reportsCount }} / {{ rightOfReplyCount }}</dd></div>
+        </dl>
+
+        <section class="mt-10 border-t border-rule-medium pt-6">
+            <h2 class="font-serif text-xl">Propositions en attente</h2>
+            <ul class="mt-4 space-y-2">
+                {% for p in pendingProposals %}
+                    <li class="flex justify-between border-b border-rule-light py-2">
+                        <span>#{{ p.id }} {{ p.entityType }} {{ p.entityId }}</span>
+                        <a href="{{ path('app_moderation_proposal_show', {id: p.id}) }}" class="text-accent underline">Traiter</a>
+                    </li>
+                {% else %}
+                    <li class="text-text-secondary">Aucune.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="mt-10 border-t border-rule-medium pt-6">
+            <h2 class="font-serif text-xl">Fiches personnes en attente</h2>
+            <ul class="mt-4 space-y-2">
+                {% for person in pendingPersons %}
+                    <li class="flex flex-wrap items-center justify-between gap-2 border-b border-rule-light py-2">
+                        <span>{{ person.givenName }} {{ person.familyName }}</span>
+                        <form method="post" action="{{ path('app_moderation_person_approve', {id: person.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('moderate_person_' ~ person.id) }}">
+                            <button type="submit" class="border border-accent px-3 py-1 text-accent">Approuver</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="text-text-secondary">Aucune.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="mt-10 border-t border-rule-medium pt-6">
+            <h2 class="font-serif text-xl">Organisations en attente</h2>
+            <ul class="mt-4 space-y-2">
+                {% for org in pendingOrganizations %}
+                    <li class="flex flex-wrap items-center justify-between gap-2 border-b border-rule-light py-2">
+                        <span>{{ org.officialName }}</span>
+                        <form method="post" action="{{ path('app_moderation_organization_approve', {id: org.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('moderate_org_' ~ org.id) }}">
+                            <button type="submit" class="border border-accent px-3 py-1 text-accent">Approuver</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="text-text-secondary">Aucune.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+{% endblock %}

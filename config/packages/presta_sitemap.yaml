@@ -1,0 +1,5 @@
+presta_sitemap:
+    # Cache HTTP / revalidation côté bundle (24 h, critère tâche T6.1)
+    timetolive: 86400
+    items_by_set: 50000
+    route_annotation_listener: false
