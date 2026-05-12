@@ -16,6 +16,12 @@ x-symfony-env: &symfony-env
   APP_ENABLED_LOCALES: ${APP_ENABLED_LOCALES}
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
 
+# Déploiement type Coolify / reverse-proxy managé :
+# — Un seul domaine public doit pointer vers le service **nginx** (HTTP interne :80).
+# — Ne pas attribuer de FQDN à **app** (PHP-FPM :9000, pas HTTP), ni à **worker**, ni à **meilisearch**
+#   (restent sur le réseau interne du compose : `http://app:9000`, `http://meilisearch:7700`, etc.).
+# Coolify propose souvent un champ « domaine » par service : laisser vide sauf pour nginx.
+
 services:
 
   nginx:
