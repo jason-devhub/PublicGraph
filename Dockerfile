@@ -1,12 +1,21 @@
 FROM php:8.5-fpm-alpine
 
+# Client Redis (ext-redis) : le serveur est un autre conteneur ; ici on compile l’extension PHP.
+# Sur Alpine, pecl/redis échoue souvent sans linux-headers / openssl-dev / pcre-dev.
+# yes '' | pecl : invites non interactives (CI / Coolify sans TTY).
 RUN apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS icu-dev libzip-dev \
+        $PHPIZE_DEPS \
+        icu-dev \
+        libzip-dev \
+        linux-headers \
+        openssl-dev \
+        pcre-dev \
     && apk add --no-cache git unzip icu-libs libzip \
     && docker-php-ext-install -j"$(nproc)" \
        pdo_mysql intl zip opcache exif \
-    && pecl install redis \
+    && yes '' | pecl install -o -f redis \
     && docker-php-ext-enable redis \
+    && rm -rf /tmp/pear \
     && apk del .build-deps
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
