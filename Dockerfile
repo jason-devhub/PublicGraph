@@ -1,12 +1,13 @@
-FROM php:8.5-fpm-bookworm
+FROM php:8.5-fpm-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip libicu-dev libzip-dev \
+RUN apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS icu-dev libzip-dev \
+    && apk add --no-cache git unzip icu-libs libzip \
     && docker-php-ext-install -j"$(nproc)" \
        pdo_mysql intl zip opcache exif \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && rm -rf /var/lib/apt/lists/*
+    && apk del .build-deps
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
