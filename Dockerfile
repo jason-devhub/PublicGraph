@@ -3,6 +3,10 @@ FROM php:8.5-fpm-alpine
 # Client Redis (ext-redis) : le serveur est un autre conteneur ; ici on compile l’extension PHP.
 # Sur Alpine, pecl/redis échoue souvent sans linux-headers / openssl-dev / pcre-dev.
 # yes '' | pecl : invites non interactives (CI / Coolify sans TTY).
+#
+# Paquets *-dev (Alpine/Debian) = en-têtes et libs pour **compiler** du C (extensions PHP), pas « mode dev »
+# applicatif. Ils sont retirés à la fin de ce RUN (`apk del .build-deps`). En runtime on garde surtout
+# icu-libs et libzip (bibliothèques partagées pour intl/zip déjà compilées).
 RUN apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         icu-dev \
