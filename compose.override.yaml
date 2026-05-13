@@ -25,6 +25,8 @@ services:
       - app_vendor:/app/vendor
 
   publicgraph-search:
+    environment:
+      MEILI_ENV: ${MEILI_ENV:-development}
     ports:
       - "${MEILISEARCH_HTTP_PORT}:7700"
 

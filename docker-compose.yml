@@ -1,19 +1,19 @@
 x-symfony-env: &symfony-env
-  APP_ENV: ${APP_ENV}
-  APP_DEBUG: ${APP_DEBUG}
-  APP_SECRET: ${APP_SECRET}
-  APP_SHARE_DIR: ${APP_SHARE_DIR}
-  DATABASE_URL: ${DATABASE_URL}
-  REDIS_URL: ${REDIS_URL}
-  MEILISEARCH_URL: ${MEILISEARCH_URL}
-  MEILISEARCH_KEY: ${MEILISEARCH_KEY}
-  MAILER_DSN: ${MAILER_DSN}
+  APP_ENV: ${APP_ENV:-prod}
+  APP_DEBUG: ${APP_DEBUG:-0}
+  APP_SECRET: ${APP_SECRET:?definir APP_SECRET}
+  APP_SHARE_DIR: ${APP_SHARE_DIR:-var/share}
+  DATABASE_URL: ${DATABASE_URL:?definir DATABASE_URL}
+  REDIS_URL: ${REDIS_URL:?definir REDIS_URL}
+  MEILISEARCH_URL: ${MEILISEARCH_URL:-http://publicgraph-search:7700}
+  MEILISEARCH_KEY: ${MEILISEARCH_KEY:?definir MEILISEARCH_KEY}
+  MAILER_DSN: ${MAILER_DSN:-null://null}
   SENTRY_DSN: ${SENTRY_DSN:-}
-  DEFAULT_URI: ${DEFAULT_URI}
-  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN}
-  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN}
-  APP_DEFAULT_LOCALE: ${APP_DEFAULT_LOCALE}
-  APP_ENABLED_LOCALES: ${APP_ENABLED_LOCALES}
+  DEFAULT_URI: ${DEFAULT_URI:-http://localhost}
+  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN:?definir MESSENGER_ASYNC_DSN}
+  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN:?definir MESSENGER_SCHEDULER_DSN}
+  APP_DEFAULT_LOCALE: ${APP_DEFAULT_LOCALE:-en}
+  APP_ENABLED_LOCALES: ${APP_ENABLED_LOCALES:-en,fr}
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
 
 # Déploiement type Coolify / reverse-proxy managé :
@@ -43,8 +43,6 @@ services:
       dockerfile: Dockerfile
     expose:
       - "9000"
-    env_file:
-      - .env
     environment:
       <<: *symfony-env
     depends_on:
@@ -59,8 +57,6 @@ services:
       context: .
       dockerfile: Dockerfile
     command: ["php", "bin/console", "messenger:consume", "async", "scheduler", "-vv", "--time-limit=3600", "--memory-limit=200M"]
-    env_file:
-      - .env
     environment:
       <<: *symfony-env
     depends_on:
@@ -73,8 +69,8 @@ services:
   publicgraph-search:
     image: ${MEILISEARCH_IMAGE:-getmeili/meilisearch:v1.10}
     environment:
-      MEILI_MASTER_KEY: ${MEILISEARCH_KEY}
-      MEILI_ENV: ${MEILI_ENV:-production}
+      MEILI_MASTER_KEY: ${MEILISEARCH_KEY:?definir MEILISEARCH_KEY}
+      MEILI_ENV: production
     volumes:
       - meili_data:/meili_data
     restart: unless-stopped
