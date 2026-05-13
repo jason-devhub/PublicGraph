@@ -7,6 +7,8 @@ FROM php:8.5-fpm-alpine
 # Paquets *-dev (Alpine/Debian) = en-têtes et libs pour **compiler** du C (extensions PHP), pas « mode dev »
 # applicatif. Ils sont retirés à la fin de ce RUN (`apk del .build-deps`). En runtime on garde surtout
 # icu-libs et libzip (bibliothèques partagées pour intl/zip déjà compilées).
+# -j2 : évite les OOM sur les builders Coolify / CI quand nproc est élevé.
+# redis-6.3.0 : PECL épinglée (compat PHP 8.5 ; `pecl install redis` sans version peut casser sur 8.5).
 RUN apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         icu-dev \
@@ -15,9 +17,9 @@ RUN apk add --no-cache --virtual .build-deps \
         openssl-dev \
         pcre-dev \
     && apk add --no-cache git unzip icu-libs libzip \
-    && docker-php-ext-install -j"$(nproc)" \
-       pdo_mysql intl zip opcache exif \
-    && yes '' | pecl install -o -f redis \
+    && docker-php-ext-install -j2 \
+        pdo_mysql intl zip opcache exif \
+    && yes '' | pecl install -o -f redis-6.3.0 \
     && docker-php-ext-enable redis \
     && rm -rf /tmp/pear \
     && apk del .build-deps
