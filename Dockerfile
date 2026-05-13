@@ -28,13 +28,31 @@ WORKDIR /app
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV COMPOSER_ALLOW_SUPERUSER=1
+# Valeurs uniquement destinées aux commandes Symfony exécutées au build (`asset-map:compile`).
+# En runtime, `docker-compose.yml` les remplace par les variables Coolify réelles.
+ENV APP_SECRET=build_time_placeholder_change_in_runtime
+ENV APP_SHARE_DIR=var/share
+ENV DATABASE_URL="mysql://publicgraph:publicgraph@127.0.0.1:3306/publicgraph?serverVersion=10.11.0-MariaDB&charset=utf8mb4"
+ENV REDIS_URL=redis://127.0.0.1:6379
+ENV MEILISEARCH_URL=http://publicgraph-search:7700
+ENV MEILISEARCH_KEY=
+ENV MAILER_DSN=null://null
+ENV SENTRY_DSN=
+ENV DEFAULT_URI=http://localhost
+ENV MESSENGER_ASYNC_DSN=redis://127.0.0.1:6379/messages
+ENV MESSENGER_SCHEDULER_DSN=redis://127.0.0.1:6379/scheduler
+ENV APP_DEFAULT_LOCALE=en
+ENV APP_ENABLED_LOCALES=en,fr
+ENV STATUS_SHOW_TELEMETRY=0
 
 COPY . .
 
 RUN mkdir -p var/cache var/log \
-    && composer install --no-dev --no-interaction --no-scripts --optimize-autoloader \
-    && php bin/console asset-map:compile --env=prod --no-debug \
-    && chown -R www-data:www-data var
+    && composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
+
+RUN php bin/console asset-map:compile --env=prod --no-debug
+
+RUN chown -R www-data:www-data var
 
 USER www-data
 
