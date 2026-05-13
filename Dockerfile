@@ -57,6 +57,8 @@ RUN mkdir -p var/cache var/log \
 
 RUN php bin/console tailwind:build --env=prod --no-debug -vvv
 
+RUN php bin/console importmap:install --env=prod --no-debug -vvv
+
 RUN php bin/console asset-map:compile --env=prod --no-debug -vvv
 
 RUN chown -R www-data:www-data var

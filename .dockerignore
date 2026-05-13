@@ -5,6 +5,8 @@
 var
 vendor
 node_modules
+assets/vendor
+public/assets
 .env
 .env.*
 !.env.example
