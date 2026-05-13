@@ -69,6 +69,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends nginx curl \
     && rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf \
     && rm -rf /var/lib/apt/lists/*
 
+# Par défaut PHP-FPM vide l’environnement des workers (clear_env=yes) : les variables Docker
+# (APP_SECRET, DATABASE_URL, …) n’atteignent pas Symfony. Comme sur beaucoup d’images Symfony prod.
+RUN sed -i 's/^;clear_env = no$/clear_env = no/' /usr/local/etc/php-fpm.d/www.conf
+
+# Valeurs par défaut dans l’image (complètent le compose ; visibles des workers avec clear_env=no).
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
 WORKDIR /app
 
 COPY --from=app-build /app /app

@@ -1,6 +1,8 @@
+# APP_ENV / APP_DEBUG en littéraux (comme example/docker-compose.yml) : évite « environment cannot be empty »
+# quand Coolify ou l’hôte exporte APP_ENV= (chaîne vide) — Dotenv ne remplace pas une valeur vide par défaut.
 x-symfony-env: &symfony-env
-  APP_ENV: ${APP_ENV:-prod}
-  APP_DEBUG: ${APP_DEBUG:-0}
+  APP_ENV: prod
+  APP_DEBUG: "0"
   APP_SECRET: ${APP_SECRET:?definir APP_SECRET}
   APP_SHARE_DIR: ${APP_SHARE_DIR:-var/share}
   DATABASE_URL: ${DATABASE_URL:?definir DATABASE_URL}

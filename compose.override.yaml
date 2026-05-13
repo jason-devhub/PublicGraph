@@ -1,6 +1,10 @@
 
 services:
   publicgraph-web:
+    # Dev : aligné sur .env.local — le compose principal force prod (Coolify).
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "1"
     # Dev : code source monté pour les modifications en temps réel.
     # nginx.dev.conf remplace la config embarquée dans l'image prod.
     volumes:
@@ -11,6 +15,9 @@ services:
       - "${HTTP_PORT:-8080}:80"
 
   publicgraph-worker:
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "1"
     volumes:
       - .:/app
       - app_vendor:/app/vendor
