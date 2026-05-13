@@ -6,13 +6,15 @@
 #
 # Base Debian bookworm (comme Dockerfile.dev) : même chaîne d’extensions, builds CI/Coolify plus
 # fiables que l’ancienne variante Alpine + apk + PECL (échecs « exit code 2 » sur certains builders).
+# docker-php-ext-install reste volontairement en -j1 : sur PHP 8.5, certains builders déclenchent
+# une race `cp: cannot stat 'modules/*'` avec les builds parallèles.
 
 FROM php:8.5-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip \
-    libicu-dev libzip-dev libpng-dev libonig-dev libxml2-dev libcurl4-openssl-dev \
-    && docker-php-ext-install -j2 opcache pdo_mysql intl zip exif \
+    unzip \
+    libicu-dev libzip-dev \
+    && docker-php-ext-install -j1 opcache pdo_mysql intl zip exif \
     && yes '' | pecl install -o -f redis-6.3.0 \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*
