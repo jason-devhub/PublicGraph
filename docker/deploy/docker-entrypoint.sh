@@ -6,12 +6,12 @@ cd /app
 install -d -o www-data -g www-data var/cache var/log
 
 # Supprime le cache compilé de l'env courant pour éviter des routes obsolètes après un redéploiement.
+# Pas de `cache:warmup` ici : il échoue en prod (paramètre %kernel.share_dir% absent au boot console).
+# Le cache est reconstruit au premier hit HTTP / première commande Symfony.
 cache_env="${APP_ENV:-prod}"
 if [ -d "var/cache/${cache_env}" ]; then
     rm -rf "var/cache/${cache_env}"
 fi
-
-php bin/console cache:warmup --env="${cache_env}" --no-debug --no-ansi
 
 chown -R www-data:www-data var
 
