@@ -47,10 +47,16 @@ ENV STATUS_SHOW_TELEMETRY=0
 
 COPY . .
 
+# SymfonyRuntime appelle Dotenv sur `/app/.env` ; le vrai `.env` est exclu du contexte (`.dockerignore`).
+# `.env.example` est versionné : copie minimale pour le boot console au build. Les `ENV` ci-dessus
+# et les variables Coolify au runtime priment sur les placeholders du fichier.
+RUN cp .env.example .env
+
 RUN mkdir -p var/cache var/log \
     && composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
 
-RUN php bin/console asset-map:compile --env=prod --no-debug
+RUN php bin/console tailwind:build --env=prod --no-debug \
+    && php bin/console asset-map:compile --env=prod --no-debug
 
 RUN chown -R www-data:www-data var
 
