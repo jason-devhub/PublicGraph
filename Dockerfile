@@ -65,7 +65,7 @@ RUN chown -R www-data:www-data var
 # --- Image finale : Nginx + PHP-FPM (config nginx embarquée — jamais en volume)
 FROM php-base AS app
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx curl \
+RUN apt-get update && apt-get install -y --no-install-recommends nginx curl gosu \
     && rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf \
     && rm -rf /var/lib/apt/lists/*
 
