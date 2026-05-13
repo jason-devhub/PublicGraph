@@ -1,29 +1,21 @@
-FROM php:8.5-fpm-alpine
-
-# Client Redis (ext-redis) : le serveur est un autre conteneur ; ici on compile l’extension PHP.
-# Sur Alpine, pecl/redis échoue souvent sans linux-headers / openssl-dev / pcre-dev.
-# yes '' | pecl : invites non interactives (CI / Coolify sans TTY).
+# Image PHP-FPM **production** (publicgraph-php, publicgraph-worker sur Coolify).
 #
-# Paquets *-dev (Alpine/Debian) = en-têtes et libs pour **compiler** du C (extensions PHP), pas « mode dev »
-# applicatif. Ils sont retirés à la fin de ce RUN (`apk del .build-deps`). En runtime on garde surtout
-# icu-libs et libzip (bibliothèques partagées pour intl/zip déjà compilées).
-# -j2 : évite les OOM sur les builders Coolify / CI quand nproc est élevé.
-# Extension PECL « redis » (phpredis), version du *paquet PECL* (ici 6.3.0) — ce n’est PAS la version du
-# serveur Redis/Valkey (ex. redis:7.2-alpine en infra). phpredis 6.x parle RESP à un serveur 6.x ou 7.x.
-RUN apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        icu-dev \
-        libzip-dev \
-        linux-headers \
-        openssl-dev \
-        pcre-dev \
-    && apk add --no-cache git unzip icu-libs libzip \
-    && docker-php-ext-install -j2 \
-        pdo_mysql intl zip opcache exif \
+# En local, `docker compose build` fusionne `compose.override.yaml` : le build utilise alors
+# `docker/Dockerfile.dev` (Debian), pas ce fichier. Coolify n’utilise que `docker-compose.yml` →
+# c’est **ce** Dockerfile qui est construit en prod ; ne pas le confondre avec le build dev.
+#
+# Base Debian bookworm (comme Dockerfile.dev) : même chaîne d’extensions, builds CI/Coolify plus
+# fiables que l’ancienne variante Alpine + apk + PECL (échecs « exit code 2 » sur certains builders).
+
+FROM php:8.5-fpm-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git unzip \
+    libicu-dev libzip-dev libpng-dev libonig-dev libxml2-dev libcurl4-openssl-dev \
+    && docker-php-ext-install -j2 opcache pdo_mysql intl zip exif \
     && yes '' | pecl install -o -f redis-6.3.0 \
     && docker-php-ext-enable redis \
-    && rm -rf /tmp/pear \
-    && apk del .build-deps
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
