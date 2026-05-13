@@ -9,7 +9,9 @@
 parameters:
     search.index.enabled: true
     app.default_locale: '%env(APP_DEFAULT_LOCALE)%'
-    app.enabled_locales: '%env(csv:APP_ENABLED_LOCALES)%'
+    app.enabled_locales:
+        - en
+        - fr
     revolving_door.forbidden_words:
         - corrompu
         - corruption
@@ -51,12 +53,6 @@ services:
             - '../src/Shared/'
             - '../src/DataFixtures/'
             - '../src/Factory/'
-
-    App\DataFixtures\:
-        resource: '../src/DataFixtures/'
-
-    App\Factory\:
-        resource: '../src/Factory/'
 
     # Params nommés non résolus par autowiring (pas de typehint env).
     App\Module\Search\Client\MeilisearchClient:
