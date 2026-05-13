@@ -108,7 +108,7 @@ make fixtures-dev
 ```bash
 make up              # Démarre tous les conteneurs
 make down            # Arrête tous les conteneurs
-make shell           # Ouvre un shell dans le conteneur app
+make shell           # Ouvre un shell dans le conteneur publicgraph-php
 make logs            # Affiche les logs
 make migration       # Crée une nouvelle migration
 make migrate         # Applique les migrations

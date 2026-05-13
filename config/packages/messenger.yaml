@@ -1,7 +1,7 @@
 framework:
     messenger:
         transports:
-            # Redis streams (see MESSENGER_*_DSN in .env). Requires ext-redis in runtime (Docker image app).
+            # Redis streams (see MESSENGER_*_DSN in .env). Requires ext-redis in runtime (image publicgraph-php).
             async: '%env(MESSENGER_ASYNC_DSN)%'
             scheduler: '%env(MESSENGER_SCHEDULER_DSN)%'
             sync: 'sync://'

@@ -17,14 +17,14 @@ x-symfony-env: &symfony-env
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
 
 # Déploiement type Coolify / reverse-proxy managé :
-# — Un seul domaine public doit pointer vers le service **nginx** (HTTP interne :80).
-# — Ne pas attribuer de FQDN à **app** (PHP-FPM :9000, pas HTTP), ni à **worker**, ni à **meilisearch**
-#   (restent sur le réseau interne du compose : `http://app:9000`, `http://meilisearch:7700`, etc.).
-# Coolify propose souvent un champ « domaine » par service : laisser vide sauf pour nginx.
+# — Un seul domaine public : **publicgraph-web** (Nginx, HTTP :80).
+# — Pas de FQDN pour **publicgraph-php** (PHP-FPM :9000), **publicgraph-worker**, **publicgraph-search**
+#   (réseau interne : `http://publicgraph-php:9000`, `http://publicgraph-search:7700`, etc.).
+# Coolify : champ domaine rempli seulement pour publicgraph-web.
 
 services:
 
-  nginx:
+  publicgraph-web:
     # Valeurs par défaut : Coolify ne met pas toujours ces clés dans build-time.env (voir .env.example).
     image: ${NGINX_IMAGE:-nginx:1.27-alpine}
     ports:
@@ -34,10 +34,10 @@ services:
       - ./public:/app/public:ro
       - nginx_logs:/var/log/nginx
     depends_on:
-      - app
+      - publicgraph-php
     restart: unless-stopped
 
-  app:
+  publicgraph-php:
     build:
       context: .
       dockerfile: Dockerfile
@@ -48,13 +48,13 @@ services:
     environment:
       <<: *symfony-env
     depends_on:
-      meilisearch:
+      publicgraph-search:
         condition: service_started
     restart: unless-stopped
     volumes:
       - app_var_log:/app/var/log
 
-  worker:
+  publicgraph-worker:
     build:
       context: .
       dockerfile: Dockerfile
@@ -64,13 +64,13 @@ services:
     environment:
       <<: *symfony-env
     depends_on:
-      meilisearch:
+      publicgraph-search:
         condition: service_started
     restart: unless-stopped
     volumes:
       - app_var_log:/app/var/log
 
-  meilisearch:
+  publicgraph-search:
     image: ${MEILISEARCH_IMAGE:-getmeili/meilisearch:v1.10}
     environment:
       MEILI_MASTER_KEY: ${MEILISEARCH_KEY}

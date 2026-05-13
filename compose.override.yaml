@@ -1,11 +1,11 @@
 
 services:
-  nginx:
+  publicgraph-web:
     volumes:
       - ./docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/app/public:ro
 
-  app:
+  publicgraph-php:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
@@ -16,7 +16,7 @@ services:
       # Après clone ou changement du lock : `make install` (exécute composer dans le conteneur, PHP zip/redis OK).
       - app_vendor:/app/vendor
 
-  worker:
+  publicgraph-worker:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
@@ -24,7 +24,7 @@ services:
       - .:/app
       - app_vendor:/app/vendor
 
-  meilisearch:
+  publicgraph-search:
     ports:
       - "${MEILISEARCH_HTTP_PORT}:7700"
 

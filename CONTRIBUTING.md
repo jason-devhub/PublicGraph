@@ -20,7 +20,7 @@ Nous adoptons le [Contributor Covenant](https://www.contributor-covenant.org/ver
 
 ## Qualité du code
 
-- **PSR-12** via PHP CS Fixer (`make lint` ou équivalent dans le conteneur `app`).
+- **PSR-12** via PHP CS Fixer (`make lint` ou équivalent dans le conteneur `publicgraph-php`).
 - **PHPStan** niveau 8 (`make lint` ou `make phpstan` selon le Makefile du projet).
 - **PHPUnit** : `make test` avant merge.
 - Pas de désactivation de tests pour « faire passer » la CI.

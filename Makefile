@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 DOCKER_COMPOSE = docker compose
-APP = $(DOCKER_COMPOSE) exec app
+APP = $(DOCKER_COMPOSE) exec publicgraph-php
 
 ##
 ## Docker
@@ -18,16 +18,16 @@ down: ## Stop all containers
 restart: down up ## Restart all containers
 
 .PHONY: shell
-shell: ## Open a shell in the app container
-	$(DOCKER_COMPOSE) exec app bash
+shell: ## Open a shell in the publicgraph-php container
+	$(DOCKER_COMPOSE) exec publicgraph-php bash
 
 .PHONY: logs
 logs: ## Tail logs from all containers
 	$(DOCKER_COMPOSE) logs -f
 
 .PHONY: logs-app
-logs-app: ## Tail logs from the app container only
-	$(DOCKER_COMPOSE) logs -f app
+logs-app: ## Tail logs from the publicgraph-php container only
+	$(DOCKER_COMPOSE) logs -f publicgraph-php
 
 ##
 ## Symfony
