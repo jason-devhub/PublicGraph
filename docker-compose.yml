@@ -12,8 +12,10 @@ x-symfony-env: &symfony-env
   MAILER_DSN: ${MAILER_DSN:-null://null}
   SENTRY_DSN: ${SENTRY_DSN:-}
   DEFAULT_URI: ${DEFAULT_URI:-http://localhost}
-  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN:?definir MESSENGER_ASYNC_DSN (ex: redis://host:6379/messages)}
-  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN:?definir MESSENGER_SCHEDULER_DSN (ex: redis://host:6379/scheduler)}
+  # DSN requis pour le worker (messenger:consume). Exemple : redis://host:6379/messages
+  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN:-}
+  # DSN requis pour le scheduler (tâches cron). Exemple : redis://host:6379/scheduler
+  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN:-}
   APP_DEFAULT_LOCALE: ${APP_DEFAULT_LOCALE:-en}
   APP_ENABLED_LOCALES: ${APP_ENABLED_LOCALES:-en,fr}
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
