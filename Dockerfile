@@ -1,15 +1,13 @@
-# Image PHP-FPM **production** (publicgraph-php, publicgraph-worker sur Coolify).
+# Image unique production : Nginx (port 80) + PHP-FPM (9000 interne) dans le même conteneur.
+# Architecture identique à example/docker/deploy/Dockerfile pour la compatibilité Coolify.
+# Le service worker (docker-compose.yml) réutilise cette image avec une commande overridée.
 #
-# En local, `docker compose build` fusionne `compose.override.yaml` : le build utilise alors
-# `docker/Dockerfile.dev` (Debian), pas ce fichier. Coolify n’utilise que `docker-compose.yml` →
-# c’est **ce** Dockerfile qui est construit en prod ; ne pas le confondre avec le build dev.
-#
-# Base Debian bookworm (comme Dockerfile.dev) : même chaîne d’extensions, builds CI/Coolify plus
-# fiables que l’ancienne variante Alpine + apk + PECL (échecs « exit code 2 » sur certains builders).
-# `php:8.5-fpm-bookworm` charge déjà Zend OPcache. Ne pas le recompiler ici : sur PHP 8.5,
-# certains builders échouent avec `cp: cannot stat 'modules/*'` pendant l'installation.
+# Trois stages :
+#   php-base    — extensions PHP + ini
+#   app-build   — Composer + assets Symfony (tailwind, importmap, asset-map)
+#   app         — image finale avec Nginx embarqué (config COPIÉE, jamais montée en volume)
 
-FROM php:8.5-fpm-bookworm
+FROM php:8.5-fpm-bookworm AS php-base
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
@@ -21,6 +19,12 @@ RUN docker-php-ext-install -j1 pdo_mysql intl zip exif
 RUN yes '' | pecl install -o -f redis-6.3.0 \
     && docker-php-ext-enable redis
 
+COPY docker/deploy/php/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
+COPY docker/deploy/php/memory.ini  /usr/local/etc/php/conf.d/zz-memory.ini
+
+# --- Build applicatif (Composer + assets)
+FROM php-base AS app-build
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
@@ -28,8 +32,7 @@ WORKDIR /app
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV COMPOSER_ALLOW_SUPERUSER=1
-# Valeurs uniquement destinées aux commandes Symfony exécutées au build (`asset-map:compile`).
-# En runtime, `docker-compose.yml` les remplace par les variables Coolify réelles.
+# Valeurs build-time uniquement — remplacées par les variables Coolify au runtime.
 ENV APP_SECRET=build_time_placeholder_change_in_runtime
 ENV APP_SHARE_DIR=var/share
 ENV DATABASE_URL="mysql://publicgraph:publicgraph@127.0.0.1:3306/publicgraph?serverVersion=10.11.0-MariaDB&charset=utf8mb4"
@@ -47,22 +50,31 @@ ENV STATUS_SHOW_TELEMETRY=0
 
 COPY . .
 
-# SymfonyRuntime appelle Dotenv sur `/app/.env` ; le vrai `.env` est exclu du contexte (`.dockerignore`).
-# `.env.example` est versionné : copie minimale pour le boot console au build. Les `ENV` ci-dessus
-# et les variables Coolify au runtime priment sur les placeholders du fichier.
+# .env.example est versionné ; les ENV ci-dessus et les variables Coolify priment au runtime.
 RUN cp .env.example .env
 
 RUN mkdir -p var/cache var/log \
     && composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
 
 RUN php bin/console tailwind:build --env=prod --no-debug -vvv
-
 RUN php bin/console importmap:install --env=prod --no-debug -vvv
-
 RUN php bin/console asset-map:compile --env=prod --no-debug -vvv
 
 RUN chown -R www-data:www-data var
 
-USER www-data
+# --- Image finale : Nginx + PHP-FPM (config nginx embarquée — jamais en volume)
+FROM php-base AS app
 
-CMD ["php-fpm"]
+RUN apt-get update && apt-get install -y --no-install-recommends nginx curl \
+    && rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=app-build /app /app
+COPY docker/deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/deploy/docker-entrypoint.sh /usr/local/bin/docker-entrypoint-app
+RUN chmod +x /usr/local/bin/docker-entrypoint-app
+
+ENTRYPOINT ["docker-entrypoint-app"]
+CMD ["nginx", "-g", "daemon off;"]

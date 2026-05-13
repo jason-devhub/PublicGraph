@@ -1,25 +1,16 @@
 
 services:
   publicgraph-web:
-    volumes:
-      - ./docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./public:/app/public:ro
-
-  publicgraph-php:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
-    # `.env.local` est lu par Symfony au boot via le montage `.:/app`.
+    # Dev : code source monté pour les modifications en temps réel.
+    # nginx.dev.conf remplace la config embarquée dans l'image prod.
     volumes:
       - .:/app
-      # vendor dans un volume Docker : un `composer install` sur l'hôte ne met pas à jour ce répertoire.
-      # Après clone ou changement du lock : `make install` (exécute composer dans le conteneur, PHP zip/redis OK).
       - app_vendor:/app/vendor
+      - ./docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${HTTP_PORT:-8080}:80"
 
   publicgraph-worker:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
     volumes:
       - .:/app
       - app_vendor:/app/vendor
@@ -28,7 +19,7 @@ services:
     environment:
       MEILI_ENV: ${MEILI_ENV:-development}
     ports:
-      - "${MEILISEARCH_HTTP_PORT}:7700"
+      - "${MEILISEARCH_HTTP_PORT:-7700}:7700"
 
 ###> doctrine/doctrine-bundle ###
   # MariaDB est fourni hors compose (Coolify ou service managé), via DATABASE_URL.

@@ -17,32 +17,20 @@ x-symfony-env: &symfony-env
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
 
 # Déploiement type Coolify / reverse-proxy managé :
-# — Un seul domaine public : **publicgraph-web** (Nginx, HTTP :80).
-# — Pas de FQDN pour **publicgraph-php** (PHP-FPM :9000), **publicgraph-worker**, **publicgraph-search**
-#   (réseau interne : `http://publicgraph-php:9000`, `http://publicgraph-search:7700`, etc.).
-# Coolify : champ domaine rempli seulement pour publicgraph-web.
+# — publicgraph-web : image unique Nginx+PHP-FPM, expose le port 80 (pas de ports: pour éviter les
+#   conflits sur l'hôte). Coolify route le domaine public vers ce conteneur via le réseau interne.
+# — publicgraph-worker : même image, commande overridée pour le messenger (sans Nginx).
+# — publicgraph-search : Meilisearch officiel, accès interne uniquement.
 
 services:
 
   publicgraph-web:
-    # Valeurs par défaut : Coolify ne met pas toujours ces clés dans build-time.env (voir .env.example).
-    image: ${NGINX_IMAGE:-nginx:1.27-alpine}
-    ports:
-      - "${NGINX_HTTP_PORT:-80}:80"
-    volumes:
-      - ./docker/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./public:/app/public:ro
-      - nginx_logs:/var/log/nginx
-    depends_on:
-      - publicgraph-php
-    restart: unless-stopped
-
-  publicgraph-php:
     build:
       context: .
       dockerfile: Dockerfile
+      target: app
     expose:
-      - "9000"
+      - "80"
     environment:
       <<: *symfony-env
     depends_on:
@@ -50,12 +38,13 @@ services:
         condition: service_started
     restart: unless-stopped
     volumes:
-      - app_var_log:/app/var/log
+      - app_var:/app/var
 
   publicgraph-worker:
     build:
       context: .
       dockerfile: Dockerfile
+      target: app
     command: ["php", "bin/console", "messenger:consume", "async", "scheduler", "-vv", "--time-limit=3600", "--memory-limit=200M"]
     environment:
       <<: *symfony-env
@@ -64,7 +53,7 @@ services:
         condition: service_started
     restart: unless-stopped
     volumes:
-      - app_var_log:/app/var/log
+      - app_var:/app/var
 
   publicgraph-search:
     image: ${MEILISEARCH_IMAGE:-getmeili/meilisearch:v1.10}
@@ -77,5 +66,4 @@ services:
 
 volumes:
   meili_data:
-  nginx_logs:
-  app_var_log:
+  app_var:
