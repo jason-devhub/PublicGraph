@@ -8,7 +8,8 @@ FROM php:8.5-fpm-alpine
 # applicatif. Ils sont retirés à la fin de ce RUN (`apk del .build-deps`). En runtime on garde surtout
 # icu-libs et libzip (bibliothèques partagées pour intl/zip déjà compilées).
 # -j2 : évite les OOM sur les builders Coolify / CI quand nproc est élevé.
-# redis-6.3.0 : PECL épinglée (compat PHP 8.5 ; `pecl install redis` sans version peut casser sur 8.5).
+# Extension PECL « redis » (phpredis), version du *paquet PECL* (ici 6.3.0) — ce n’est PAS la version du
+# serveur Redis/Valkey (ex. redis:7.2-alpine en infra). phpredis 6.x parle RESP à un serveur 6.x ou 7.x.
 RUN apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         icu-dev \
