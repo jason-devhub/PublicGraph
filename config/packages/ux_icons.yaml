@@ -22,3 +22,8 @@ when@prod:
     ux_icons:
         # Suppress exceptions for missing icons in production
         ignore_not_found: true
+        # Build Docker/Coolify sans dépendance réseau vers api.iconify.design.
+        # Les icônes locales restent disponibles ; les icônes distantes manquantes sont ignorées.
+        iconify:
+            enabled: false
+            on_demand: false
