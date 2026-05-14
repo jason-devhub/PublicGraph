@@ -41,7 +41,7 @@ services:
       redis:
         condition: service_healthy
       publicgraph-search:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1/health']
       interval: 30s
@@ -64,7 +64,7 @@ services:
       redis:
         condition: service_healthy
       publicgraph-search:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       - app_var:/app/var
@@ -76,6 +76,12 @@ services:
       MEILI_ENV: production
     volumes:
       - meili_data:/meili_data
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:7700/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     restart: unless-stopped
 
   redis:
