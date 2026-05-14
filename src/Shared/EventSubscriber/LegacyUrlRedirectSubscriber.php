@@ -68,6 +68,7 @@ final class LegacyUrlRedirectSubscriber implements EventSubscriberInterface
             '/admin',
             '/_profiler',
             '/_wdt',
+            '/_components',
             '/assets/',
             '/build/',
             '/bundles/',
