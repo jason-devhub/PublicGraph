@@ -30,7 +30,7 @@ L’entité **`Membership`** (module Influence) relie une **personne** à une **
 |----------------------|----------------------|------------------|
 | Structure permanente (réseau, comité de pilotage) — **Bilderberg** | **Q184937** Bilderberg Group ; **Q63344709** Steering Committee | Une **`Organization`** par QID retenu ; adhésions **`year` nul** ou plage **`startDate` / `endDate`** si qualifié sur WD. |
 | Structure permanente — **Forum économique mondial** | **Q170418** World Economic Forum ; éventuellement programmes / filiales distincts sur WD (ex. **Q2624519** *Young Global Leaders*) si la source porte sur ce programme précis | Idem : une org par QID pertinent ; temporalité sur les mandats « institutionnels ». |
-| Participation à **une édition** (une année) | Item **édition** (conférence Bilderberg 20xx ; **World Economic Forum Annual Meeting 20xx**) | **Stratégie A (recommandée)** : une seule `Organization` = item **permanent** (**Q184937** ou **Q170418**), et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate`). **Stratégie B** : une `Organization` par item d’édition WD ; `year` aligné ou vide. |
+| Participation à **une édition** (une année) | Item **édition** (conférence Bilderberg 20xx ; **World Economic Forum Annual Meeting** — tableau **1986–2026** dans la [section WEF](#wef-wikidata)) | **Stratégie A (recommandée)** : une seule `Organization` = item **permanent** (**Q184937** ou **Q170418**), et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate`). **Stratégie B** : une `Organization` par item d’édition WD ; `year` aligné ou vide. |
 
 **Import automatisé depuis Wikidata aujourd’hui** : la commande `app:wikidata:sync-org-members` et le flux `P463` → `WikidataPersonImporter` créent des adhésions avec **`year` non renseigné** pour les organisations du DTO. Pour **remplir `year` / dates** à partir des **qualificatifs** de déclaration (`P580` début, `P582` fin) ou depuis **`P1344`** (participant à l’item édition), il faut **étendre** la requête SPARQL / le `PersonDto` et l’importeur — le présent document fixe la **cible métier** et les **QID** ; l’implémentation suit la spec tâches dédiée.
 
@@ -77,6 +77,8 @@ On distingue :
 
 ---
 
+<a id="wef-wikidata"></a>
+
 ## Forum économique mondial / World Economic Forum (WEF)
 
 ### QID de référence
@@ -85,10 +87,42 @@ On distingue :
 |-----|---------------------|-------------|
 | **Q170418** | World Economic Forum | Organisation **permanente** (siège, gouvernance, marque Davos) : cible **`Organization`** PublicGraph « WEF » pour mandats, **membres** institutionnels (`P463` si présent sur WD), etc. |
 | **Q2624519** | Young Global Leaders | **Programme / communauté** distincte du WEF au sens large ; n’utiliser ce QID que si la source parle **explicitement** des YGL (pas d’une simple participation au *Annual Meeting*). |
-| *Série d’items « Annual Meeting »* | World Economic Forum Annual Meeting **2014** … **2026** | **Événements** (éditions annuelles Davos / *Annual Meeting*). Les **participant·e·s** sont en pratique relié·e·s sur WD à **l’item de l’édition** (`P1344` *participant·e à*), pas toujours à **Q170418** avec un qualificatif d’année. Tableau ci-dessous **2014 → 2026** (QID vérifiés sur Wikidata en **2026-05-14**) ; les années futures ou éditions spéciales peuvent avoir d’autres items — recherche ou SPARQL sur le libellé. |
+| *Série d’items « Annual Meeting »* | World Economic Forum Annual Meeting **1986** … **2026** | **Événements** (éditions Davos). **1986–1987** : Q116273… ; **1988–2022** : Q114717204 … Q114717238 ; **2023–2026** : items séparés (tableau). Vérification WD **2026-05-14**. **≤ 1985** : pas d’item sous ce libellé exact en recherche API — chercher d’éventuels intitulés historiques (*European Management Forum*, etc.). |
+
+> **Astuce (1988–2022)** : le numéro d’item suit `114717206 + (année − 1990)` (ex. 2005 → `Q114717221`). Ne s’applique pas à 1986–1987 ni à 2023–2026.
+
+Les **participant·e·s** d’une édition sont en général relié·e·s via **`P1344`** à l’item de la ligne correspondante, plutôt que par un **`P463`** seul vers **Q170418** avec année en qualificatif.
 
 | Année | QID item « Annual Meeting » (référence Wikidata) |
 |-------|---------------------------------------------------|
+| 1986 | [Q116273545](https://www.wikidata.org/wiki/Q116273545) |
+| 1987 | [Q116273538](https://www.wikidata.org/wiki/Q116273538) |
+| 1988 | [Q114717204](https://www.wikidata.org/wiki/Q114717204) |
+| 1989 | [Q114717205](https://www.wikidata.org/wiki/Q114717205) |
+| 1990 | [Q114717206](https://www.wikidata.org/wiki/Q114717206) |
+| 1991 | [Q114717207](https://www.wikidata.org/wiki/Q114717207) |
+| 1992 | [Q114717208](https://www.wikidata.org/wiki/Q114717208) |
+| 1993 | [Q114717209](https://www.wikidata.org/wiki/Q114717209) |
+| 1994 | [Q114717210](https://www.wikidata.org/wiki/Q114717210) |
+| 1995 | [Q114717211](https://www.wikidata.org/wiki/Q114717211) |
+| 1996 | [Q114717212](https://www.wikidata.org/wiki/Q114717212) |
+| 1997 | [Q114717213](https://www.wikidata.org/wiki/Q114717213) |
+| 1998 | [Q114717214](https://www.wikidata.org/wiki/Q114717214) |
+| 1999 | [Q114717215](https://www.wikidata.org/wiki/Q114717215) |
+| 2000 | [Q114717216](https://www.wikidata.org/wiki/Q114717216) |
+| 2001 | [Q114717217](https://www.wikidata.org/wiki/Q114717217) |
+| 2002 | [Q114717218](https://www.wikidata.org/wiki/Q114717218) |
+| 2003 | [Q114717219](https://www.wikidata.org/wiki/Q114717219) |
+| 2004 | [Q114717220](https://www.wikidata.org/wiki/Q114717220) |
+| 2005 | [Q114717221](https://www.wikidata.org/wiki/Q114717221) |
+| 2006 | [Q114717222](https://www.wikidata.org/wiki/Q114717222) |
+| 2007 | [Q114717223](https://www.wikidata.org/wiki/Q114717223) |
+| 2008 | [Q114717224](https://www.wikidata.org/wiki/Q114717224) |
+| 2009 | [Q114717225](https://www.wikidata.org/wiki/Q114717225) |
+| 2010 | [Q114717226](https://www.wikidata.org/wiki/Q114717226) |
+| 2011 | [Q114717227](https://www.wikidata.org/wiki/Q114717227) |
+| 2012 | [Q114717228](https://www.wikidata.org/wiki/Q114717228) |
+| 2013 | [Q114717229](https://www.wikidata.org/wiki/Q114717229) |
 | 2014 | [Q114717230](https://www.wikidata.org/wiki/Q114717230) |
 | 2015 | [Q114717231](https://www.wikidata.org/wiki/Q114717231) |
 | 2016 | [Q114717232](https://www.wikidata.org/wiki/Q114717232) |
