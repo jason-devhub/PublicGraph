@@ -11,7 +11,14 @@
         <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
     {% endblock %}
     {% block javascripts %}
-        {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% block importmap %}
+            {# En prod, nonce CSP requis : script-src inclut data:/jspm et le nonce est fusionné dans l’en-tête. #}
+            {% if app.environment == 'prod' %}
+                {{ importmap('app', { nonce: csp_nonce('script') }) }}
+            {% else %}
+                {{ importmap('app') }}
+            {% endif %}
+        {% endblock %}
     {% endblock %}
 </head>
 <body class="min-h-screen flex flex-col">

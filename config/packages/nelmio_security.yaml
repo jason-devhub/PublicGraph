@@ -28,7 +28,10 @@ when@prod:
             enabled: true
             enforce:
                 default-src: ["'self'"]
-                script-src: ["'self'"]
+                # Doit différer de default-src : sinon Nelmio n’émet pas script-src et les
+                # scripts inline de l’import map sont évalués contre default-src → tout le JS bloqué.
+                # data: = modules générés par AssetMapper ; ga.jspm.io = polyfill import map.
+                script-src: ["'self'", 'https://ga.jspm.io', 'data:']
                 style-src: ["'self'", "'unsafe-inline'"]
                 img-src: ["'self'", 'data:', 'https://commons.wikimedia.org', 'https://upload.wikimedia.org']
                 font-src: ["'self'"]

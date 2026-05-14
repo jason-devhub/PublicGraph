@@ -40,8 +40,12 @@ export default class extends Controller {
                 throw new Error(`HTTP ${res.status}`);
             }
             const data = await res.json();
-            this.renderGraph(data.elements || { nodes: [], edges: [] });
             this.statusTarget.textContent = '';
+            try {
+                this.renderGraph(data.elements || { nodes: [], edges: [] });
+            } catch {
+                this.statusTarget.textContent = this.msgErrorValue || '';
+            }
         } catch (e) {
             this.statusTarget.textContent = this.msgErrorValue || '';
         }
@@ -86,7 +90,14 @@ export default class extends Controller {
                     },
                 },
             ],
-            layout: { name: 'fcose', animate: false, randomize: true },
+            layout: {
+                name: 'fcose',
+                quality: 'draft',
+                randomize: true,
+                animate: false,
+                fit: true,
+                padding: 40,
+            },
             wheelSensitivity: 0.35,
         });
         this.cy.on('tap', 'node', (evt) => {
