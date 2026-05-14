@@ -75,6 +75,7 @@ final class PersonCatalogFilterType extends AbstractType
             ])
             ->add('sort', ChoiceType::class, [
                 'required' => true,
+                'label' => 'Classement',
                 'choices' => [
                     'Alphabétique' => 'alpha',
                     'Plus récent' => 'recent',

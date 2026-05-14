@@ -1,117 +1,114 @@
 {% import 'catalog/_macros.html.twig' as catalog %}
 
-{# Panneau type catalogue (colonne étroite, facettes listées) — tokens design.md #}
-{% set filter_label = 'mb-2 block font-sans text-[11px] font-semibold uppercase tracking-wider text-text-secondary' %}
+{# Barre de filtres horizontale en tête (type catalogue vitrine) — tokens design.md #}
+{% set filter_label = 'mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-wider text-text-secondary' %}
 {% set ts_skin = '[&_.ts-wrapper]:w-full [&_.ts-control]:rounded-xs [&_.ts-control]:border [&_.ts-control]:border-rule-medium [&_.ts-control]:bg-surface-primary [&_.ts-control]:min-h-[2.625rem] [&_.ts-control]:px-3 [&_.ts-control]:py-2 [&_.ts-control]:font-sans [&_.ts-control]:text-sm [&_.ts-control]:text-text-primary [&_.ts-control]:shadow-none [&_.ts-dropdown]:border [&_.ts-dropdown]:border-rule-medium [&_.ts-dropdown]:bg-surface-primary' %}
+{% set chk_row = 'flex flex-row-reverse items-center gap-2.5 border border-rule-subtle bg-surface-primary px-3 py-2' %}
+{% set chk_label = 'grow font-sans text-xs leading-snug text-text-secondary' %}
+{% set chk_input = 'size-4 shrink-0 accent-accent' %}
 
-<div {{ attributes.defaults({class: 'person-catalog-filters'}) }}>
-    <div class="flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(0,17.5rem)_1fr] lg:items-start lg:gap-x-12">
-        <aside
-            class="border border-rule-medium bg-surface-secondary lg:sticky lg:top-6 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:self-start"
-            data-catalog="person-filters"
-            aria-labelledby="person-catalog-filters-heading"
-        >
-            <div class="flex items-start justify-between gap-3 border-b border-rule-medium px-5 py-4">
-                <h2 id="person-catalog-filters-heading" class="font-serif text-xl font-medium tracking-tight text-text-primary">
-                    {{ 'catalog.person_index.heading'|trans }}
-                </h2>
-                <a
-                    href="{{ path('app_person_index') }}"
-                    class="shrink-0 whitespace-nowrap border border-transparent pt-0.5 font-sans text-xs text-accent underline decoration-rule-medium underline-offset-4 hover:text-accent-hover hover:decoration-accent"
-                >
-                    {{ 'catalog.person_index.clear'|trans }}
-                </a>
+<div {{ attributes.defaults({class: 'person-catalog-filters space-y-8'}) }}>
+    <section
+        class="border border-rule-medium bg-surface-secondary"
+        data-catalog="person-filters"
+        aria-labelledby="person-catalog-filters-heading"
+    >
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-rule-medium px-4 py-3 sm:px-5">
+            <h2 id="person-catalog-filters-heading" class="font-serif text-lg font-medium tracking-tight text-text-primary sm:text-xl">
+                {{ 'catalog.person_index.heading'|trans }}
+            </h2>
+            <a
+                href="{{ path('app_person_index') }}"
+                class="shrink-0 whitespace-nowrap font-sans text-xs text-accent underline decoration-rule-medium underline-offset-4 hover:text-accent-hover hover:decoration-accent"
+            >
+                {{ 'catalog.person_index.clear'|trans }}
+            </a>
+        </div>
+
+        {{ form_start(form, {
+            attr: {
+                'data-model': 'defer',
+                'data-action': 'change->live#update',
+                role: 'search',
+                class: 'space-y-4 px-4 py-4 font-sans text-sm text-text-primary sm:space-y-5 sm:px-5 sm:py-5',
+            }
+        }) }}
+
+        <p class="font-sans text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+            {{ 'catalog.person_index.section_links'|trans }}
+        </p>
+        <div class="flex flex-wrap items-end gap-x-4 gap-y-4 md:gap-x-5">
+            <div class="min-w-[min(100%,12rem)] flex-1 basis-[14rem] {{ ts_skin }}">
+                {{ form_row(form.countries, { label_attr: { class: filter_label } }) }}
             </div>
+            <div class="min-w-[min(100%,12rem)] flex-1 basis-[14rem] {{ ts_skin }}">
+                {{ form_row(form.organization, { label_attr: { class: filter_label } }) }}
+            </div>
+            <div class="min-w-[min(100%,12rem)] flex-1 basis-[14rem] {{ ts_skin }}">
+                {{ form_row(form.party, { label_attr: { class: filter_label } }) }}
+            </div>
+            <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[10rem]">
+                {{ form_row(form.sort, { label_attr: { class: filter_label } }) }}
+            </div>
+        </div>
 
-            {{ form_start(form, {
-                attr: {
-                    'data-model': 'defer',
-                    'data-action': 'change->live#update',
-                    class: 'divide-y divide-rule-subtle px-5 py-1 font-sans text-sm text-text-primary',
-                }
-            }) }}
-
-            <div class="py-5">
-                <h3 class="font-serif text-base font-medium text-text-primary">{{ 'catalog.person_index.section_links'|trans }}</h3>
-                <div class="mt-4 space-y-4">
-                    <div class="{{ ts_skin }}">
-                        {{ form_row(form.countries, { label_attr: { class: filter_label } }) }}
-                    </div>
-                    <div class="{{ ts_skin }}">
-                        {{ form_row(form.organization, { label_attr: { class: filter_label } }) }}
-                    </div>
-                    <div class="{{ ts_skin }}">
-                        {{ form_row(form.party, { label_attr: { class: filter_label } }) }}
-                    </div>
+        <div class="border-t border-rule-subtle pt-4">
+            <p class="mb-3 font-sans text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+                {{ 'catalog.person_index.section_period'|trans }} · {{ 'catalog.person_index.section_status'|trans }}
+            </p>
+            <div class="flex flex-wrap items-end gap-x-4 gap-y-3 md:items-center">
+                <div class="min-w-[min(100%,18rem)] max-w-xl flex-1">
+                    {{ form_row(form.filterYear, {
+                        row_attr: { class: chk_row },
+                        label_attr: { class: chk_label },
+                        attr: { class: chk_input },
+                    }) }}
                 </div>
-            </div>
-
-            <div class="py-5">
-                <h3 class="font-serif text-base font-medium text-text-primary">{{ 'catalog.person_index.section_period'|trans }}</h3>
-                <div class="mt-4 space-y-4">
-                    <div class="border border-rule-subtle bg-surface-primary px-3 py-3">
-                        {{ form_row(form.filterYear, {
-                            row_attr: { class: 'flex flex-row-reverse items-start gap-3 border border-rule-subtle bg-surface-primary px-3 py-3' },
-                            label_attr: { class: 'grow pt-0.5 font-sans text-sm leading-snug text-text-secondary' },
-                            attr: { class: 'mt-1 size-4 shrink-0 accent-accent' },
-                        }) }}
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        {{ form_row(form.yearMin, { label_attr: { class: filter_label } }) }}
-                        {{ form_row(form.yearMax, { label_attr: { class: filter_label } }) }}
-                    </div>
+                <div class="grid w-full max-w-[16rem] grid-cols-2 gap-3 sm:w-auto">
+                    {{ form_row(form.yearMin, { label_attr: { class: filter_label } }) }}
+                    {{ form_row(form.yearMax, { label_attr: { class: filter_label } }) }}
                 </div>
-            </div>
-
-            <div class="py-5">
-                <h3 class="font-serif text-base font-medium text-text-primary">{{ 'catalog.person_index.section_status'|trans }}</h3>
-                <div class="mt-4 space-y-3">
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                     {{ form_row(form.aliveOnly, {
-                        row_attr: { class: 'flex flex-row-reverse items-start gap-3 border border-rule-subtle bg-surface-primary px-3 py-2.5' },
-                        label_attr: { class: 'grow pt-0.5 font-sans text-sm leading-snug text-text-secondary' },
-                        attr: { class: 'mt-1 size-4 shrink-0 accent-accent' },
+                        row_attr: { class: chk_row ~ ' max-w-md' },
+                        label_attr: { class: chk_label },
+                        attr: { class: chk_input },
                     }) }}
                     {{ form_row(form.activeOnly, {
-                        row_attr: { class: 'flex flex-row-reverse items-start gap-3 border border-rule-subtle bg-surface-primary px-3 py-2.5' },
-                        label_attr: { class: 'grow pt-0.5 font-sans text-sm leading-snug text-text-secondary' },
-                        attr: { class: 'mt-1 size-4 shrink-0 accent-accent' },
+                        row_attr: { class: chk_row ~ ' max-w-md' },
+                        label_attr: { class: chk_label },
+                        attr: { class: chk_input },
                     }) }}
                 </div>
             </div>
+        </div>
 
-            <div class="py-5">
-                <h3 class="font-serif text-base font-medium text-text-primary">{{ 'catalog.person_index.section_categories'|trans }}</h3>
-                <div class="mt-4 border border-rule-subtle bg-surface-primary">
-                    <ul class="divide-y divide-rule-subtle" role="list">
-                        {% for child in form.roleCategories %}
-                            <li>
-                                <label class="flex cursor-pointer items-start gap-3 px-3 py-2.5 hover:bg-surface-secondary">
-                                    {{ form_widget(child, { attr: { class: 'mt-1 size-4 shrink-0 accent-accent' } }) }}
-                                    <span class="font-sans text-sm leading-snug text-text-secondary">{{ child.vars.label }}</span>
-                                </label>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    {{ form_errors(form.roleCategories) }}
-                    {% do form.roleCategories.setRendered() %}
+        <div class="border-t border-rule-subtle pt-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
+                <span class="shrink-0 font-sans text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+                    {{ 'catalog.person_index.section_categories'|trans }}
+                </span>
+                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                    {% for child in form.roleCategories %}
+                        <label class="inline-flex cursor-pointer items-center gap-2 border border-transparent py-0.5 font-sans text-xs text-text-secondary hover:text-text-primary">
+                            {{ form_widget(child, { attr: { class: 'size-3.5 shrink-0 accent-accent' } }) }}
+                            <span>{{ child.vars.label }}</span>
+                        </label>
+                    {% endfor %}
                 </div>
             </div>
+            {{ form_errors(form.roleCategories) }}
+            {% do form.roleCategories.setRendered() %}
+        </div>
 
-            <div class="py-5">
-                <h3 class="font-serif text-base font-medium text-text-primary">{{ 'catalog.person_index.section_sort'|trans }}</h3>
-                <div class="mt-4">
-                    {{ form_row(form.sort, { label_attr: { class: filter_label } }) }}
-                </div>
-            </div>
+        {{ form_end(form) }}
+    </section>
 
-            {{ form_end(form) }}
-        </aside>
+    {% set pc = personCatalog %}
+    {% set pager = pc.pager %}
+    {% set topOrgsByPerson = pc.topOrgsByPerson %}
 
-        {% set pc = personCatalog %}
-        {% set pager = pc.pager %}
-        {% set topOrgsByPerson = pc.topOrgsByPerson %}
-
-        <div class="min-w-0">
+    <div class="min-w-0">
             <p class="border-b border-rule-medium pb-3 font-sans text-sm text-text-secondary">
                 {{ 'site.search_page.results_count'|trans({ '%count%': pager.nbResults }) }}
             </p>
@@ -264,6 +261,5 @@
                     </div>
                 </nav>
             {% endif %}
-        </div>
     </div>
 </div>
