@@ -6,16 +6,15 @@ x-symfony-env: &symfony-env
   APP_SECRET: ${APP_SECRET:?definir APP_SECRET}
   APP_SHARE_DIR: ${APP_SHARE_DIR:-var/share}
   DATABASE_URL: ${DATABASE_URL:?definir DATABASE_URL}
-  REDIS_URL: ${REDIS_URL:?definir REDIS_URL}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
   MEILISEARCH_URL: ${MEILISEARCH_URL:-http://publicgraph-search:7700}
   MEILISEARCH_KEY: ${MEILISEARCH_KEY:?definir MEILISEARCH_KEY}
   MAILER_DSN: ${MAILER_DSN:-null://null}
   SENTRY_DSN: ${SENTRY_DSN:-}
   DEFAULT_URI: ${DEFAULT_URI:-http://localhost}
-  # DSN requis pour le worker (messenger:consume). Exemple : redis://host:6379/messages
-  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN:-}
-  # DSN requis pour le scheduler (tâches cron). Exemple : redis://host:6379/scheduler
-  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN:-}
+  # Files Redis distinctes (streams Symfony Messenger). Même hôte que REDIS_URL.
+  MESSENGER_ASYNC_DSN: ${MESSENGER_ASYNC_DSN:-redis://redis:6379/messages}
+  MESSENGER_SCHEDULER_DSN: ${MESSENGER_SCHEDULER_DSN:-redis://redis:6379/scheduler}
   APP_DEFAULT_LOCALE: ${APP_DEFAULT_LOCALE:-en}
   APP_ENABLED_LOCALES: ${APP_ENABLED_LOCALES:-en,fr}
   STATUS_SHOW_TELEMETRY: ${STATUS_SHOW_TELEMETRY:-0}
@@ -24,6 +23,7 @@ x-symfony-env: &symfony-env
 # — publicgraph-web : image unique Nginx+PHP-FPM, expose le port 80 (pas de ports: pour éviter les
 #   conflits sur l'hôte). Coolify route le domaine public vers ce conteneur via le réseau interne.
 # — publicgraph-worker : même image, commande overridée pour le messenger (sans Nginx).
+# — redis : Redis officiel, accès interne uniquement, persistant via volume.
 # — publicgraph-search : Meilisearch officiel, accès interne uniquement.
 
 services:
@@ -38,6 +38,8 @@ services:
     environment:
       <<: *symfony-env
     depends_on:
+      redis:
+        condition: service_healthy
       publicgraph-search:
         condition: service_started
     restart: unless-stopped
@@ -53,6 +55,8 @@ services:
     environment:
       <<: *symfony-env
     depends_on:
+      redis:
+        condition: service_healthy
       publicgraph-search:
         condition: service_started
     restart: unless-stopped
@@ -68,6 +72,19 @@ services:
       - meili_data:/meili_data
     restart: unless-stopped
 
+  redis:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
 volumes:
   meili_data:
+  redis_data:
   app_var:
