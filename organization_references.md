@@ -85,10 +85,10 @@ On distingue :
 |-----|---------------------|-------------|
 | **Q170418** | World Economic Forum | Organisation **permanente** (siège, gouvernance, marque Davos) : cible **`Organization`** PublicGraph « WEF » pour mandats, **membres** institutionnels (`P463` si présent sur WD), etc. |
 | **Q2624519** | Young Global Leaders | **Programme / communauté** distincte du WEF au sens large ; n’utiliser ce QID que si la source parle **explicitement** des YGL (pas d’une simple participation au *Annual Meeting*). |
-| *Q114717230 … Q114717236* (exemples) | World Economic Forum Annual Meeting **2014** … **2020** | **Événements** (éditions annuelles de Davos / *Annual Meeting*). Les **participant·e·s** sont en pratique relié·e·s sur WD à **l’item de l’édition** (`P1344` *participant·e à*), pas toujours à **Q170418** avec un qualificatif d’année. D’autres Q « Annual Meeting 20xx » existent au-delà de cette plage — les retrouver par recherche ou requête SPARQL sur le libellé. |
+| *Série d’items « Annual Meeting »* | World Economic Forum Annual Meeting **2014** … **2026** | **Événements** (éditions annuelles Davos / *Annual Meeting*). Les **participant·e·s** sont en pratique relié·e·s sur WD à **l’item de l’édition** (`P1344` *participant·e à*), pas toujours à **Q170418** avec un qualificatif d’année. Tableau ci-dessous **2014 → 2026** (QID vérifiés sur Wikidata en **2026-05-14**) ; les années futures ou éditions spéciales peuvent avoir d’autres items — recherche ou SPARQL sur le libellé. |
 
-| Année (exemple) | QID item « Annual Meeting » (instantané indicatif) |
-|-----------------|---------------------------------------------------|
+| Année | QID item « Annual Meeting » (référence Wikidata) |
+|-------|---------------------------------------------------|
 | 2014 | [Q114717230](https://www.wikidata.org/wiki/Q114717230) |
 | 2015 | [Q114717231](https://www.wikidata.org/wiki/Q114717231) |
 | 2016 | [Q114717232](https://www.wikidata.org/wiki/Q114717232) |
@@ -96,6 +96,12 @@ On distingue :
 | 2018 | [Q114717234](https://www.wikidata.org/wiki/Q114717234) |
 | 2019 | [Q114717235](https://www.wikidata.org/wiki/Q114717235) |
 | 2020 | [Q114717236](https://www.wikidata.org/wiki/Q114717236) |
+| 2021 | [Q114717237](https://www.wikidata.org/wiki/Q114717237) |
+| 2022 | [Q114717238](https://www.wikidata.org/wiki/Q114717238) |
+| 2023 | [Q116227461](https://www.wikidata.org/wiki/Q116227461) |
+| 2024 | [Q130581184](https://www.wikidata.org/wiki/Q130581184) |
+| 2025 | [Q131827908](https://www.wikidata.org/wiki/Q131827908) |
+| 2026 | [Q137829647](https://www.wikidata.org/wiki/Q137829647) |
 
 - Wikidata : [Q170418](https://www.wikidata.org/wiki/Q170418), [Q2624519](https://www.wikidata.org/wiki/Q2624519)
 
