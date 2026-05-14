@@ -71,6 +71,7 @@ final class LegacyUrlRedirectSubscriber implements EventSubscriberInterface
             '/assets/',
             '/build/',
             '/bundles/',
+            '/health',
             '/sitemap',
             '/robots.txt',
             '/.well-known',

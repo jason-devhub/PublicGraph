@@ -13,11 +13,17 @@ public_controllers_localized:
     exclude:
         - ../src/Controller/Admin/
         - ../src/Controller/TestFrontendController.php
+        - ../src/Controller/HealthController.php
     prefix: '/{_locale}'
     defaults:
         _locale: '%app.default_locale%'
     requirements:
         _locale: '[a-z]{2}'
+
+# Sonde HTTP (Coolify / Docker) : hors préfixe de locale, JSON + vérification BDD.
+health_controller:
+    resource: ../src/Controller/HealthController.php
+    type: attribute
 
 module_controllers_localized:
     resource: ../src/Module/

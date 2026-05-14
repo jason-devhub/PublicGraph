@@ -38,6 +38,10 @@ final class MaintenanceModeSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ('/health' === $request->getPathInfo()) {
+            return;
+        }
+
         $flag = $this->projectDir.'/.maintenance';
         if (!is_file($flag)) {
             return;
