@@ -30,7 +30,7 @@ L’entité **`Membership`** (module Influence) relie une **personne** à une **
 |----------------------|----------------------|------------------|
 | Structure permanente (réseau, comité de pilotage) — **Bilderberg** | **Q184937** Bilderberg Group ; **Q63344709** Steering Committee | Une **`Organization`** par QID retenu ; adhésions **`year` nul** ou plage **`startDate` / `endDate`** si qualifié sur WD. |
 | Structure permanente — **Forum économique mondial** | **Q170418** World Economic Forum ; éventuellement programmes / filiales distincts sur WD (ex. **Q2624519** *Young Global Leaders*) si la source porte sur ce programme précis | Idem : une org par QID pertinent ; temporalité sur les mandats « institutionnels ». |
-| Participation à **une édition** (une année) | Item **édition** (conférence Bilderberg 20xx ; **World Economic Forum Annual Meeting** — tableau **1986–2026** dans la [section WEF](#wef-wikidata)) | **Stratégie A (recommandée)** : une seule `Organization` = item **permanent** (**Q184937** ou **Q170418**), et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate`). **Stratégie B** : une `Organization` par item d’édition WD ; `year` aligné ou vide. |
+| Participation à **une édition** (une année) | Item **édition** (conférences Bilderberg — tableau **1954–2026** dans la [section Bilderberg](#bilderberg-wikidata) ; **World Economic Forum Annual Meeting** — tableau **1986–2026** dans la [section WEF](#wef-wikidata)) | **Stratégie A (recommandée)** : une seule `Organization` = item **permanent** (**Q184937** ou **Q170418**), et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate`). **Stratégie B** : une `Organization` par item d’édition WD ; `year` aligné ou vide. |
 
 **Import automatisé depuis Wikidata aujourd’hui** : la commande `app:wikidata:sync-org-members` et le flux `P463` → `WikidataPersonImporter` créent des adhésions avec **`year` non renseigné** pour les organisations du DTO. Pour **remplir `year` / dates** à partir des **qualificatifs** de déclaration (`P580` début, `P582` fin) ou depuis **`P1344`** (participant à l’item édition), il faut **étendre** la requête SPARQL / le `PersonDto` et l’importeur — le présent document fixe la **cible métier** et les **QID** ; l’implémentation suit la spec tâches dédiée.
 
@@ -47,6 +47,8 @@ L’entité **`Membership`** (module Influence) relie une **personne** à une **
 
 ---
 
+<a id="bilderberg-wikidata"></a>
+
 ## Groupe de Bilderberg (Bilderberg Conference / Group)
 
 ### QID de référence
@@ -55,20 +57,102 @@ L’entité **`Membership`** (module Influence) relie une **personne** à une **
 |-----|---------------------|-------------|
 | **Q184937** | Bilderberg Group | Structure **permanente** / marque de la conférence (cible naturelle d’une **`Organization`** PublicGraph « Bilderberg »). |
 | **Q63344709** | Steering Committee of the Bilderberg Meetings | **Sous-organisation** (comité d’orientation) : membres **structurellement** liés au pilotage ; n’utiliser ce QID que si les données WD ou la source documentaire parlent explicitement de ce comité. |
-| *Q59799074, …* | éditions annuelles (ex. « 2018 Bilderberg Conference ») | **Événements** (une conférence = une année / un lieu). Sur WD, les **participant·e·s** d’une édition sont souvent relié·e·s à **l’item de l’édition** (`P1344` *participant·e à*), pas nécessairement à Q184937 avec une année en qualificatif. |
+| *Série d’items « YYYY Bilderberg Conference »* | Conférences **1954** … **2026** (libellé anglais exact sur WD) | **Événements** : les **participant·e·s** sont en général relié·e·s via **`P1344`** à l’item de l’édition. **Pas de formule** de numéro QID par année (contrairement au WEF 1988–2022) : utiliser le tableau ci-dessous. Vérification WD **2026-05-14**. **Années sans item** sous ce libellé : **1955**, **1957** ; **2020**, **2021** (réunions annulées — pandémie ; aucun item « YYYY Bilderberg Conference » trouvé en recherche API). |
 
 - Wikidata : [Q184937](https://www.wikidata.org/wiki/Q184937), [Q63344709](https://www.wikidata.org/wiki/Q63344709)
+
+> **Remarque** : chaque ligne du tableau correspond au libellé anglais exact « NNNN Bilderberg Conference » sur Wikidata lorsqu’un QID est présent (NNNN = année à quatre chiffres).
+
+Les **participant·e·s** d’une édition sont en général relié·e·s via **`P1344`** à l’item de la ligne correspondante, plutôt que par un **`P463`** seul vers **Q184937** avec année en qualificatif.
+
+| Année | QID item « YYYY Bilderberg Conference » (référence Wikidata) |
+|-------|----------------------------------------------------------------|
+| 1954 | [Q2199534](https://www.wikidata.org/wiki/Q2199534) |
+| 1955 | — |
+| 1956 | [Q3485005](https://www.wikidata.org/wiki/Q3485005) |
+| 1957 | — |
+| 1958 | [Q2660277](https://www.wikidata.org/wiki/Q2660277) |
+| 1959 | [Q2076799](https://www.wikidata.org/wiki/Q2076799) |
+| 1960 | [Q1910425](https://www.wikidata.org/wiki/Q1910425) |
+| 1961 | [Q4972068](https://www.wikidata.org/wiki/Q4972068) |
+| 1962 | [Q2622914](https://www.wikidata.org/wiki/Q2622914) |
+| 1963 | [Q2661267](https://www.wikidata.org/wiki/Q2661267) |
+| 1964 | [Q2173447](https://www.wikidata.org/wiki/Q2173447) |
+| 1965 | [Q2597468](https://www.wikidata.org/wiki/Q2597468) |
+| 1966 | [Q2854858](https://www.wikidata.org/wiki/Q2854858) |
+| 1967 | [Q2198052](https://www.wikidata.org/wiki/Q2198052) |
+| 1968 | [Q5032340](https://www.wikidata.org/wiki/Q5032340) |
+| 1969 | [Q2245579](https://www.wikidata.org/wiki/Q2245579) |
+| 1970 | [Q1909108](https://www.wikidata.org/wiki/Q1909108) |
+| 1971 | [Q2801965](https://www.wikidata.org/wiki/Q2801965) |
+| 1972 | [Q5044799](https://www.wikidata.org/wiki/Q5044799) |
+| 1973 | [Q2321479](https://www.wikidata.org/wiki/Q2321479) |
+| 1974 | [Q1842198](https://www.wikidata.org/wiki/Q1842198) |
+| 1975 | [Q4892014](https://www.wikidata.org/wiki/Q4892014) |
+| 1976 | [Q3283349](https://www.wikidata.org/wiki/Q3283349) |
+| 1977 | [Q13439375](https://www.wikidata.org/wiki/Q13439375) |
+| 1978 | [Q2734715](https://www.wikidata.org/wiki/Q2734715) |
+| 1979 | [Q2666061](https://www.wikidata.org/wiki/Q2666061) |
+| 1980 | [Q2049185](https://www.wikidata.org/wiki/Q2049185) |
+| 1981 | [Q5253461](https://www.wikidata.org/wiki/Q5253461) |
+| 1982 | [Q2484253](https://www.wikidata.org/wiki/Q2484253) |
+| 1983 | [Q2396267](https://www.wikidata.org/wiki/Q2396267) |
+| 1984 | [Q2926097](https://www.wikidata.org/wiki/Q2926097) |
+| 1985 | [Q3396284](https://www.wikidata.org/wiki/Q3396284) |
+| 1986 | [Q2695547](https://www.wikidata.org/wiki/Q2695547) |
+| 1987 | [Q3449638](https://www.wikidata.org/wiki/Q3449638) |
+| 1988 | [Q2050430](https://www.wikidata.org/wiki/Q2050430) |
+| 1989 | [Q2594264](https://www.wikidata.org/wiki/Q2594264) |
+| 1990 | [Q2325765](https://www.wikidata.org/wiki/Q2325765) |
+| 1991 | [Q1951596](https://www.wikidata.org/wiki/Q1951596) |
+| 1992 | [Q3290723](https://www.wikidata.org/wiki/Q3290723) |
+| 1993 | [Q13439376](https://www.wikidata.org/wiki/Q13439376) |
+| 1994 | [Q3522479](https://www.wikidata.org/wiki/Q3522479) |
+| 1995 | [Q2832111](https://www.wikidata.org/wiki/Q2832111) |
+| 1996 | [Q2540837](https://www.wikidata.org/wiki/Q2540837) |
+| 1997 | [Q2161251](https://www.wikidata.org/wiki/Q2161251) |
+| 1998 | [Q2078846](https://www.wikidata.org/wiki/Q2078846) |
+| 1999 | [Q2586625](https://www.wikidata.org/wiki/Q2586625) |
+| 2000 | [Q2207871](https://www.wikidata.org/wiki/Q2207871) |
+| 2001 | [Q2125414](https://www.wikidata.org/wiki/Q2125414) |
+| 2002 | [Q2717394](https://www.wikidata.org/wiki/Q2717394) |
+| 2003 | [Q2118846](https://www.wikidata.org/wiki/Q2118846) |
+| 2004 | [Q13439377](https://www.wikidata.org/wiki/Q13439377) |
+| 2005 | [Q3149529](https://www.wikidata.org/wiki/Q3149529) |
+| 2006 | [Q2943925](https://www.wikidata.org/wiki/Q2943925) |
+| 2007 | [Q2689792](https://www.wikidata.org/wiki/Q2689792) |
+| 2008 | [Q2251337](https://www.wikidata.org/wiki/Q2251337) |
+| 2009 | [Q2610047](https://www.wikidata.org/wiki/Q2610047) |
+| 2010 | [Q2564087](https://www.wikidata.org/wiki/Q2564087) |
+| 2011 | [Q1955837](https://www.wikidata.org/wiki/Q1955837) |
+| 2012 | [Q2327460](https://www.wikidata.org/wiki/Q2327460) |
+| 2013 | [Q13419271](https://www.wikidata.org/wiki/Q13419271) |
+| 2014 | [Q17144373](https://www.wikidata.org/wiki/Q17144373) |
+| 2015 | [Q20078597](https://www.wikidata.org/wiki/Q20078597) |
+| 2016 | [Q24456212](https://www.wikidata.org/wiki/Q24456212) |
+| 2017 | [Q30111361](https://www.wikidata.org/wiki/Q30111361) |
+| 2018 | [Q59799074](https://www.wikidata.org/wiki/Q59799074) |
+| 2019 | [Q65116037](https://www.wikidata.org/wiki/Q65116037) |
+| 2020 | — |
+| 2021 | — |
+| 2022 | [Q118904714](https://www.wikidata.org/wiki/Q118904714) |
+| 2023 | [Q119131008](https://www.wikidata.org/wiki/Q119131008) |
+| 2024 | [Q126679102](https://www.wikidata.org/wiki/Q126679102) |
+| 2025 | [Q135111494](https://www.wikidata.org/wiki/Q135111494) |
+| 2026 | [Q139571708](https://www.wikidata.org/wiki/Q139571708) |
+
+Copie tabulaire TSV : [`data/bilderberg_conference_years_wikidata.tsv`](data/bilderberg_conference_years_wikidata.tsv).
 
 ### Membres permanents vs invité·e·s / participant·e·s par année
 
 On distingue :
 
 1. **Liens durables** (réseau, comité, label « membre » au sens institutionnel) → modéliser vers **Q184937** ou **Q63344709** selon la source ; adhésion avec **`year` vide** ou plage **`startDate` / `endDate`** si les sources donnent des mandats datés.
-2. **Présence à une édition donnée** (invitation / participation à Turin 2018, etc.) → pour chaque **année** (ou édition) : **importer ou mettre à jour** la personne et créer (ou mettre à jour) un **`Membership`** vers l’**organisation Bilderberg retenue** (en pratique **Q184937** côté WD) avec **`year` = année de l’édition** (voir [Modèle PublicGraph : adhésion à une organisation dans le temps](#modele-adhesion-organisation)). Ainsi la même personne peut avoir plusieurs lignes : une par année de participation, sans confondre avec un « membre permanent » si la source ne le dit pas.
+2. **Présence à une édition donnée** (invitation / participation, ex. Turin 2018) → pour chaque **année** `Y` : **importer ou mettre à jour** la personne et créer (ou mettre à jour) un **`Membership`** vers l’**organisation Bilderberg** (**Q184937**) avec **`year` = `Y`** (voir [modèle d’adhésion](#modele-adhesion-organisation) et le [tableau des QID par année](#bilderberg-wikidata)). Une ligne par année de participation.
 
 **Workflow opérationnel par année** (objectif cible, une fois l’import WD enrichi ou via saisie assistée) :
 
-1. Identifier l’**item Wikidata de l’édition** (ex. « 2018 Bilderberg Conference ») et l’**année** `Y`.
+1. Identifier l’**item Wikidata de l’édition** (libellé « YYYY Bilderberg Conference », QID dans le [tableau par année](#bilderberg-wikidata) ci-dessus) et l’**année** `Y`.
 2. Lister les personnes **participant·e·s** (WD : `P1344` depuis la personne vers l’édition, ou listes sourcées hors WD).
 3. Pour chaque personne : assurer la fiche **Person** ; créer ou mettre à jour un **`Membership`** vers l’**`Organization`** alignée sur **Q184937**, avec **`year` = `Y`**, source = URL WD de la déclaration ou source secondaire conforme charte.
 4. Répéter pour chaque année / édition à couvrir (`--force` si recalcul complet).
@@ -935,7 +1019,7 @@ php bin/console app:wikidata:sync-org-members --organization-qid=Q3227220 --nati
 php bin/console app:wikidata:sync-org-members --fr-wiki-title=Le_Siècle --nationality-iso=FR
 ```
 
-Pour Bilderberg ou le WEF, une fois l’organisation **Q184937** ou **Q170418** créée en base, la même commande avec `--organization-qid=Q184937` (ou `Q170418`) importe les **`P463`** connus ; les **présences annuelles** restent à modéliser avec **`year`** (workflow décrit plus haut).
+Pour Bilderberg ou le WEF, une fois l’organisation **Q184937** ou **Q170418** créée en base, la même commande avec `--organization-qid=Q184937` (ou `Q170418`) importe les **`P463`** connus ; les **présences par édition** restent à modéliser avec **`year`** et les QID d’**événement** des tableaux [Bilderberg](#bilderberg-wikidata) et [WEF](#wef-wikidata) (workflows décrits plus haut).
 
 Remplacer le `Q…` par l’item retenu dans les tableaux de ce document après vérification sur Wikidata.
 
