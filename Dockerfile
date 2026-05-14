@@ -86,3 +86,9 @@ RUN chmod +x /usr/local/bin/docker-entrypoint-app
 
 ENTRYPOINT ["docker-entrypoint-app"]
 CMD ["nginx", "-g", "daemon off;"]
+
+# Métadonnée HEALTHCHECK : utilisée par l’image (publicgraph-web) et visible aux outils qui
+# inspectent le Dockerfile (ex. Coolify). Le service worker surcharge ce healthcheck dans
+# docker-compose.yml car il n’expose pas Nginx sur le port 80.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=5 \
+  CMD curl -fsS http://127.0.0.1/health || exit 1

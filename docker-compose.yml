@@ -25,6 +25,10 @@ x-symfony-env: &symfony-env
 # — publicgraph-worker : même image, commande overridée pour le messenger (sans Nginx).
 # — redis : Redis officiel, accès interne uniquement, persistant via volume.
 # — publicgraph-search : Meilisearch officiel, accès interne uniquement.
+#
+# Healthchecks : Coolify agrège l’état des conteneurs du compose ; tout service long-running doit
+# avoir un healthcheck Docker natif (sinon état « inconnu » dans le tableau de bord). On n’utilise
+# pas la clé Coolify-only exclude_from_hc ici : elle est rejetée par docker compose validate.
 
 services:
 
@@ -65,6 +69,13 @@ services:
         condition: service_healthy
       publicgraph-search:
         condition: service_healthy
+    # Pas d’HTTP dans ce conteneur : vérifier que le processus principal (PID 1) est vivant.
+    healthcheck:
+      test: ['CMD-SHELL', 'kill -0 1 || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
     restart: unless-stopped
     volumes:
       - app_var:/app/var
