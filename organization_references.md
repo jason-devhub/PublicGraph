@@ -1009,6 +1009,41 @@ SELECT DISTINCT ?item WHERE {
 
 ---
 
+## Presse française : concentration de la propriété (repères)
+
+Cette section **ne donne pas de pourcentage unique « officiel »** : le niveau de concentration dépend du **périmètre** (presse quotidienne nationale payante, audience TV d’information en continu, radios généralistes, pure players, etc.). En revanche, plusieurs **sources journalistiques et académiques** décrivent une **forte concentration** entre **un petit nombre de très grandes fortunes, familles et groupes industriels** dont le cœur d’activité est souvent **extérieur aux médias** — parfois résumée dans la presse grand public par l’ordre de grandeur **« une dizaine de milliardaires »** pour une **large majorité** de l’offre d’**information générale** (les **80 %** ou **90 %** cités dans certains articles valent pour **un découpage précis** : ex. **quotidiens nationaux vendus en kiosque** ; vérifier toujours la définition dans la source).
+
+### Sources d’ensemble (à consulter avant toute affirmation chiffrée)
+
+- **Euromedia Ownership Monitor 2025** (rapport de pays France, commission européenne / chercheurs) : [France — EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/) — décrit les **grands patrons de fait** (Bolloré / Vivendi, Arnault / LVMH, Saadé / CMA CGM, Pinault / Artemis, Bouygues, Dassault, etc.) et les **risques** pour la transparence des chaînes de contrôle.
+- **Le Monde diplomatique** / **Acrimed** — carte et dossier *« Médias français : qui possède quoi ? »* : [article Le Monde diplomatique (dossier 2025)](https://www.monde-diplomatique.fr/56954) et [page Acrimed](https://www.acrimed.org/Medias-francais-qui-possede-quoi) (partenariat carte A3).
+- **Reporters sans frontières** — actualités sur la **concentration** et le cadre légal européen : [RSF — concentration des médias](https://rsf.org/fr/concentration-des-m%C3%A9dias-la-france-prise-en-d%C3%A9faut-rsf-et-les-syndicats-saisissent-le-conseil-d) (exemple de saisine 2026).
+- Synthèses grand public (listes de noms, chiffres à prendre avec la **méthode** indiquée dans l’article) : [Sud Ouest — « Qui sont les milliardaires des médias français ? »](https://www.sudouest.fr/culture/medias/bernard-arnault-xavier-niel-francois-pinaut-qui-sont-les-milliardaires-des-medias-francais-7793696.php), [L’Essentiel de l’Éco — « Qui possède les médias en France ? »](https://lessentieldeleco.fr/2322-qui-possede-les-medias-en-france/).
+
+### Repères : principales fortunes / familles citées dans ces synthèses (ordre non hiérarchique)
+
+| Personne, famille ou contrôle dominant | Groupe ou holding médiatique (repère) | Exemples de médias souvent cités (non exhaustif) |
+|----------------------------------------|--------------------------------------|--------------------------------------------------|
+| **Vincent Bolloré** et famille **Bolloré** | **Vivendi** et filiales issues du démantèlement 2024 (**Canal+ Group**, **Louis Hachette Group**, etc.) | Chaînes et radios (ex. **CNews**, **Canal+**, **Europe 1**, **RMC**), presse et magazines (ex. **JDD**, titres **Prisma** / **Hachette** selon périmètre) — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Bernard Arnault** et famille (**LVMH**, holding **UFIPAR** pour les médias) | Presse éco & grand public | **Les Échos**, **Le Parisien**, **Challenges**, **Paris Match** (selon période / cessions) — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/) ; [Sud Ouest](https://www.sudouest.fr/culture/medias/bernard-arnault-xavier-niel-francois-pinaut-qui-sont-les-milliardaires-des-medias-francais-7793696.php). |
+| **Rodolphe Saadé** et famille (**CMA CGM**) | Pôle médias (ex. rachat **Altice Media**) | **BFMTV**, **RMC**, titres régionaux (**La Provence**, **Corse-Matin**, etc.) — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **François Pinault** (**Artemis**) | Presse magazine | **Le Point**, **Point de vue** (selon sources) — [Sud Ouest](https://www.sudouest.fr/culture/medias/bernard-arnault-xavier-niel-francois-pinaut-qui-sont-les-milliardaires-des-medias-francais-7793696.php). |
+| **Martin Bouygues** et famille (**Bouygues**) | Audiovisuel | **TF1**, **LCI**, **TMC**… — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Famille Dassault** (**Dassault Médias** / **Groupe Marcel Dassault**) | Presse nationale | **Le Figaro** — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Xavier Niel** | **NJJ** / structures du **groupe Le Monde** | **Le Monde**, **Télérama**, **L’Obs**, **La Vie**… ; presse régionale (**Nice-Matin**) — EurOMo insiste sur la **complexité** des montages et le rôle des minoritaires ; [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Daniel Kretinsky** (**Czech Media Invest**) | Participations presse & magazines | **Marianne**, autres titres et **parts** variables (ex. **TF1**, **Editis** selon périodes) — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Patrick Drahi** (**Altice**) | Télécoms / médias | EurOMo 2025 note un **retrait important** d’**Altice France** du champ médiatique français ; reste cité dans les **synthèses récentes** pour l’historique des participations — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+| **Famille Lagardère** (**Lagardère**, **Arnaud Lagardère**) | Conglomérat (édition, voyages, distribution…) | Scission **Vivendi** fin 2024 : les médias historiques **Lagardère** se retrouvent dans les entités **contrôlées par Bolloré** côté **Vivendi** / **Hachette** / **Canal+** — situation **évolutive** ; vérifier l’**actionnariat** à la date visée — [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/). |
+
+**Autres poids lourds** souvent traités à part dans les mêmes dossiers : **actionnariat public** (**France Télévisions**, **Radio France**, **France Médias Monde**, **AFP**…), **presse régionale** à forte gouvernance familiale ou **mutualiste** (ex. **Ouest-France** / famille **Hutin** ; **La Voix du Nord** / **Rossel & Cie** avec parfois **Crédit Agricole** dans le capital, selon les titres), **presse sportive** (**Groupe Amaury** / **L’Équipe**), et **actionnaires étrangers** (ex. fonds souverains, groupes européens) — voir [EurOMo 2025](https://media-ownership.eu/2025-edition/country-reports/france/).
+
+### Usage pour PublicGraph
+
+- Pour **lier une personne à un groupe de presse** dans l’application, viser de préférence l’**item Wikidata de la société éditrice** ou du **groupe** (pas seulement le nom d’un média), avec **source URL** conforme à la charte (article de fond, rapport EurOMo, page ARCOM ou du groupe sur le capital, etc.).
+- Les **pourcentages** du type « X % détenus par N milliardaires » doivent être **recopiés avec la source et le périmètre** (date, définition des médias inclus) — ce document ne fige pas ces chiffres pour éviter les raccourcis faux.
+
+---
+
 ## Rappel commande d’import (membres `P463`)
 
 La commande ci-dessous synchronise les personnes ayant **`P463` → organisation** sur Wikidata. Elle ne couvre **pas** seules les participations **`P1344`** aux éditions annuelles (Bilderberg, WEF, etc.) ni le remplissage automatique de **`Membership.year`** : voir [le modèle d’adhésion et temporalité](#modele-adhesion-organisation) et les sections Bilderberg / WEF.
