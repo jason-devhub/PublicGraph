@@ -10,12 +10,9 @@ use App\Tests\Support\CatalogPublicFixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\UX\LiveComponent\Test\InteractsWithLiveComponents;
 
 final class CatalogPagesTest extends WebTestCase
 {
-    use InteractsWithLiveComponents;
-
     public function testPersonListReturnsTwentyPerPageAndApprovedOnly(): void
     {
         $client = static::createClient();
@@ -69,12 +66,12 @@ final class CatalogPagesTest extends WebTestCase
 
     public function testPersonFiltersLiveComponentBuilds(): void
     {
-        self::bootKernel();
-        CatalogPublicFixture::seed(static::getContainer()->get(EntityManagerInterface::class));
+        $client = static::createClient();
+        CatalogPublicFixture::seed($client->getContainer()->get(EntityManagerInterface::class));
+        $client->request('GET', '/en/people');
 
-        $component = $this->createLiveComponent('CatalogPersonFilters');
-        $rendered = $component->render();
-        self::assertStringContainsString('Filtres', (string) $rendered);
-        self::assertStringContainsString('Nom', (string) $rendered);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Filtres');
+        self::assertSelectorTextContains('body', 'Nom');
     }
 }

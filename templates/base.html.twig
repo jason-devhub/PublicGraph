@@ -17,43 +17,59 @@
 <body class="min-h-screen flex flex-col">
 <a href="#contenu-principal" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-text-inverse">{{ 'site.skip_to_content'|trans }}</a>
 
-<header class="border-b border-rule-medium bg-surface-primary">
-    <div class="mx-auto flex max-w-content flex-wrap items-center gap-4 px-4 py-4 md:justify-between">
-        <a href="{{ path('app_home') }}" class="shrink-0 font-serif text-xl font-medium text-text-primary no-underline hover:text-accent">
-            {{ 'site.name'|trans }}
-        </a>
-        <div class="order-last min-w-0 flex-1 basis-full md:order-none md:max-w-xl md:flex-none md:basis-auto md:px-4">
+<header
+    class="sticky top-0 z-40 border-b border-rule-medium bg-surface-primary"
+    data-controller="site-header"
+    data-action="turbo:before-render@window->site-header#close keydown.escape@window->site-header#close"
+>
+    <div class="mx-auto flex w-full max-w-page flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:gap-4 md:py-4">
+        <div class="flex min-h-11 items-center justify-between gap-3 md:min-h-0">
+            <a href="{{ path('app_home') }}" class="shrink-0 font-serif text-xl font-medium text-text-primary no-underline hover:text-accent">
+                {{ 'site.name'|trans }}
+            </a>
+            <button
+                type="button"
+                class="inline-flex min-h-11 items-center border border-rule-medium px-3 font-sans text-xs font-semibold uppercase tracking-wide text-text-secondary hover:border-accent hover:text-accent md:hidden"
+                aria-controls="site-main-nav"
+                aria-expanded="false"
+                data-site-header-target="button"
+                data-action="site-header#toggle"
+            >
+                Menu
+            </button>
+        </div>
+        <div class="min-w-0 w-full md:max-w-xl md:flex-1 md:px-2 lg:px-4">
             <form action="{{ path('app_search_index') }}" method="get" class="flex gap-2" role="search">
                 <label class="sr-only" for="header-search-q">{{ 'site.search.label'|trans }}</label>
                 <input id="header-search-q" type="search" name="q" value="" placeholder="{{ 'site.search.placeholder'|trans }}" autocomplete="off"
-                       class="w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent">
-                <button type="submit" class="shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">{{ 'site.search.submit'|trans }}</button>
+                       class="min-h-11 w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent">
+                <button type="submit" class="min-h-11 shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">{{ 'site.search.submit'|trans }}</button>
             </form>
         </div>
-        <nav aria-label="{{ 'site.nav.main_aria'|trans }}" class="ml-auto shrink-0 font-sans text-sm md:ml-0">
-            <ul class="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <li><a href="{{ path('app_person_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.persons'|trans }}</a></li>
-                <li><a href="{{ path('app_organization_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.organizations'|trans }}</a></li>
-                <li><a href="{{ path('app_graph_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.graph'|trans }}</a></li>
-                <li><a href="{{ path('app_search_index') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.search'|trans }}</a></li>
-                <li><a href="{{ path('app_contribute_hub') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.contribute'|trans }}</a></li>
+        <nav id="site-main-nav" aria-label="{{ 'site.nav.main_aria'|trans }}" class="hidden border-t border-rule-subtle pt-2 font-sans text-sm md:block md:shrink-0 md:border-t-0 md:pt-0" data-site-header-target="panel" data-action="click->site-header#close">
+            <ul class="flex flex-col gap-1 md:flex-row md:flex-wrap md:items-center md:gap-x-5 md:gap-y-2 lg:gap-x-6">
+                <li><a href="{{ path('app_person_index') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.persons'|trans }}</a></li>
+                <li><a href="{{ path('app_organization_index') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.organizations'|trans }}</a></li>
+                <li><a href="{{ path('app_graph_index') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.graph'|trans }}</a></li>
+                <li><a href="{{ path('app_search_index') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.search'|trans }}</a></li>
+                <li><a href="{{ path('app_contribute_hub') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.contribute'|trans }}</a></li>
                 {% if app.user %}
-                    <li><a href="{{ path('app_contributor_dashboard') }}" class="text-text-secondary no-underline hover:text-text-primary hover:underline">{{ 'site.nav.dashboard'|trans }}</a></li>
+                    <li><a href="{{ path('app_contributor_dashboard') }}" class="block min-h-11 py-3 text-text-secondary no-underline hover:text-text-primary hover:underline md:min-h-0 md:py-0">{{ 'site.nav.dashboard'|trans }}</a></li>
                     <li>
                         <form action="{{ path('app_logout') }}" method="post" class="inline">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
-                            <button type="submit" class="cursor-pointer border-0 bg-transparent p-0 text-accent font-sans text-sm no-underline hover:text-accent-hover hover:underline">{{ 'site.nav.logout'|trans }}</button>
+                            <button type="submit" class="min-h-11 cursor-pointer border-0 bg-transparent px-0 py-3 text-accent font-sans text-sm no-underline hover:text-accent-hover hover:underline md:min-h-0 md:py-0">{{ 'site.nav.logout'|trans }}</button>
                         </form>
                     </li>
                 {% else %}
-                    <li><a href="{{ path('app_login') }}" class="text-accent no-underline hover:text-accent-hover hover:underline">{{ 'site.nav.login'|trans }}</a></li>
+                    <li><a href="{{ path('app_login') }}" class="block min-h-11 py-3 text-accent no-underline hover:text-accent-hover hover:underline md:min-h-0 md:py-0">{{ 'site.nav.login'|trans }}</a></li>
                 {% endif %}
                 {% if app.request.attributes.get('_route') %}
                     {% for loc in app_enabled_locales %}
                         {% if loc != app.request.locale %}
                             <li>
                                 <a href="{{ path(app.request.attributes.get('_route'), (app.request.attributes.get('_route_params')|default({}))|merge({_locale: loc})) }}{% if app.request.queryString %}?{{ app.request.queryString }}{% endif %}"
-                                   class="font-mono text-xs uppercase text-text-tertiary no-underline hover:text-accent"
+                                   class="block min-h-11 py-3 font-mono text-xs uppercase text-text-tertiary no-underline hover:text-accent md:min-h-0 md:py-0"
                                    hreflang="{{ loc }}">{{ loc }}</a>
                             </li>
                         {% endif %}
@@ -64,12 +80,12 @@
     </div>
 </header>
 
-<main id="contenu-principal" class="mx-auto w-full max-w-content flex-1 px-4 py-10">
+<main id="contenu-principal" class="{% block main_container_class %}mx-auto w-full max-w-page min-w-0 flex-1 px-4 py-8 md:py-10{% endblock %}">
     {% block body %}{% endblock %}
 </main>
 
 <footer class="mt-auto border-t border-rule-medium bg-surface-secondary">
-    <div class="mx-auto max-w-content px-4 py-8">
+    <div class="mx-auto max-w-page px-4 py-8">
         <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <p class="font-serif text-sm text-text-secondary">{{ 'site.footer.tagline'|trans }}</p>
             <nav aria-label="{{ 'site.footer.nav_aria'|trans }}">

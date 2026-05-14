@@ -55,6 +55,11 @@ site:
   cookie_banner: 'Ce site ne dépose pas de cookies de mesure d’audience ni de publicité. Aucun traceur tiers n’est chargé sur les pages publiques.'
   cookie_banner_aria: 'Cookies'
 
+home:
+  meta_title: 'Accueil — PublicGraph'
+  hero:
+    title: 'Cartographie d’influence des acteurs publics et privés'
+
 seo:
   person:
     title: '%name% — PublicGraph'

@@ -56,6 +56,11 @@ site:
   cookie_banner: 'This site does not use analytics or advertising cookies. No third-party trackers are loaded on public pages.'
   cookie_banner_aria: 'Cookies'
 
+home:
+  meta_title: 'Home — PublicGraph'
+  hero:
+    title: 'Factual influence mapping of public and private actors'
+
 seo:
   person:
     title: '%name% — PublicGraph'

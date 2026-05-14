@@ -5,6 +5,11 @@ services:
     environment:
       APP_ENV: dev
       APP_DEBUG: "1"
+      # Dev Docker : base locale (service `db`). Surcharge le DATABASE_URL du `.env` hôte (ex. OVH).
+      DATABASE_URL: 'mysql://politic:politic@db:3306/politic?serverVersion=10.11.0-MariaDB&charset=utf8mb4'
+    depends_on:
+      db:
+        condition: service_healthy
     # Dev : code source monté pour les modifications en temps réel.
     # nginx.dev.conf remplace la config embarquée dans l'image prod.
     volumes:
@@ -18,6 +23,10 @@ services:
     environment:
       APP_ENV: dev
       APP_DEBUG: "1"
+      DATABASE_URL: 'mysql://politic:politic@db:3306/politic?serverVersion=10.11.0-MariaDB&charset=utf8mb4'
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
       - app_vendor:/app/vendor
@@ -29,7 +38,24 @@ services:
       - "${MEILISEARCH_HTTP_PORT:-7700}:7700"
 
 ###> doctrine/doctrine-bundle ###
-  # MariaDB est fourni hors compose (Coolify ou service managé), via DATABASE_URL.
+  # MariaDB local : hostname `db` (aligné avec `.env.test`). En prod Coolify, ne pas
+  # utiliser ce override : la base reste externe via DATABASE_URL.
+  db:
+    image: ${MARIADB_IMAGE:-mariadb:10.11}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-politic}
+      MYSQL_USER: ${MYSQL_USER:-politic}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-politic}
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+    # Pas de ports: — évite les conflits avec un MariaDB local ; accès via hostname `db` depuis les conteneurs.
+    volumes:
+      - db_data:/var/lib/mysql
 ###< doctrine/doctrine-bundle ###
 
 ###> symfony/mailer ###
@@ -45,3 +71,4 @@ services:
 
 volumes:
   app_vendor:
+  db_data:

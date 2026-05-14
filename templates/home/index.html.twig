@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 {% import 'catalog/_macros.html.twig' as catalog %}
 
-{% block title %}Accueil — PublicGraph{% endblock %}
+{% block title %}{{ 'home.meta_title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="border-b border-rule-strong pb-10">
         <p class="font-sans text-xs font-semibold uppercase tracking-wider text-text-tertiary">Consultation publique</p>
         <h1 class="mt-3 font-serif text-3xl font-medium tracking-tight text-text-primary md:text-4xl md:leading-tight">
-            Cartographie d’influence des acteurs publics et privés
+            {{ 'home.hero.title'|trans }}
         </h1>
         <p class="mt-5 max-w-2xl font-sans text-base leading-relaxed text-text-secondary">
             PublicGraph recense des appartenances factuelles et sourcées à des organisations d’influence, des mandats et des trajectoires public-privé. Les fiches publiées ont été validées par modération.

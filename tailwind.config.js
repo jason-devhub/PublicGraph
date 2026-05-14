@@ -76,6 +76,14 @@ module.exports = {
             borderRadius: {
                 xs: '2px',
             },
+            maxWidth: {
+                content: '680px',
+                page: '1200px',
+                'page-wide': '1440px',
+            },
+            screens: {
+                xs: '380px',
+            },
         },
     },
     plugins: [],

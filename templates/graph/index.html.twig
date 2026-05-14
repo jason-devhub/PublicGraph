@@ -2,31 +2,40 @@
 
 {% block title %}Graphe — PublicGraph{% endblock %}
 
+{% block main_container_class %}mx-auto w-full max-w-page-wide min-w-0 flex-1 px-0 py-0{% endblock %}
+
 {% block body %}
-    <div class="flex min-h-[calc(100vh-4rem)] flex-col lg:flex-row">
-        <aside class="w-full border-b border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:w-72 lg:border-b-0 lg:border-r">
+    <div class="flex min-h-[calc(100vh-4rem)] min-w-0 flex-col lg:flex-row" data-controller="global-graph"
+         data-global-graph-url-value="{{ path('app_api_graph_data') }}"
+         data-global-graph-query-value="{{ app.request.queryString|e('html_attr') }}"
+         data-global-graph-locale-value="{{ app.request.locale }}"
+         data-global-graph-msg-loading-value="{{ 'global_graph.loading'|trans|e('html_attr') }}"
+         data-global-graph-msg-error-value="{{ 'global_graph.error'|trans|e('html_attr') }}"
+         data-global-graph-msg-selection-value="{{ 'global_graph.selection'|trans|e('html_attr') }}"
+         data-global-graph-msg-view-full-value="{{ 'global_graph.view_full'|trans|e('html_attr') }}">
+        <aside class="order-2 w-full border-t border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:order-1 lg:w-72 lg:border-r lg:border-t-0">
             <h1 class="font-serif text-xl font-medium text-text-primary">Graphe global</h1>
             <form method="get" action="{{ path('app_graph_index') }}" class="mt-4 space-y-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-org">Organisation (slug)</label>
-                    <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="ex. forum-economique-mondial">
+                    <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="ex. forum-economique-mondial">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-countries">Pays ISO (séparés par virgule)</label>
-                    <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
+                    <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-cat">Catégories (séparées par virgule)</label>
-                    <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
+                    <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs text-text-secondary" for="ymin">Année min</label>
-                        <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
+                        <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
                     </div>
                     <div>
                         <label class="block text-xs text-text-secondary" for="ymax">Année max</label>
-                        <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
+                        <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
                     </div>
                 </div>
                 <fieldset>
@@ -42,29 +51,22 @@
                 </fieldset>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="colorMode">Couleur</label>
-                    <select id="colorMode" name="colorMode" class="mt-1 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 text-xs">
+                    <select id="colorMode" name="colorMode" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 text-xs">
                         <option value="category" {% if graph_params.colorMode == 'category' %}selected{% endif %}>Par catégorie</option>
                         <option value="country" {% if graph_params.colorMode == 'country' %}selected{% endif %}>Par pays</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Appliquer</button>
+                <button type="submit" class="min-h-11 w-full border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Appliquer</button>
             </form>
         </aside>
 
-        <div class="relative min-h-[480px] flex-1 bg-ink" data-controller="global-graph"
-             data-global-graph-url-value="{{ path('app_api_graph_data') }}"
-             data-global-graph-query-value="{{ app.request.queryString|e('html_attr') }}"
-             data-global-graph-locale-value="{{ app.request.locale }}"
-             data-global-graph-msg-loading-value="{{ 'global_graph.loading'|trans|e('html_attr') }}"
-             data-global-graph-msg-error-value="{{ 'global_graph.error'|trans|e('html_attr') }}"
-             data-global-graph-msg-selection-value="{{ 'global_graph.selection'|trans|e('html_attr') }}"
-             data-global-graph-msg-view-full-value="{{ 'global_graph.view_full'|trans|e('html_attr') }}">
+        <div class="relative order-1 min-h-[60vh] min-w-0 flex-1 bg-ink lg:order-2 lg:min-h-[640px]">
             <div data-global-graph-target="toolbar" class="absolute left-3 top-3 z-20 flex flex-wrap gap-2 font-sans text-xs">
-                <button type="button" data-action="global-graph#zoomIn" class="border border-[#2A3038] bg-ink px-2 py-1 text-ink-text hover:bg-[#2A3038]">Zoom +</button>
-                <button type="button" data-action="global-graph#zoomOut" class="border border-[#2A3038] bg-ink px-2 py-1 text-ink-text hover:bg-[#2A3038]">Zoom −</button>
-                <button type="button" data-action="global-graph#fit" class="border border-[#2A3038] bg-ink px-2 py-1 text-ink-text hover:bg-[#2A3038]">Ajuster</button>
-                <button type="button" data-action="global-graph#reset" class="border border-[#2A3038] bg-ink px-2 py-1 text-ink-text hover:bg-[#2A3038]">Reset</button>
-                <select data-global-graph-target="layoutSelect" data-action="change->global-graph#changeLayout" class="border border-[#2A3038] bg-ink px-2 py-1 text-ink-text">
+                <button type="button" data-action="global-graph#zoomIn" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Zoom +</button>
+                <button type="button" data-action="global-graph#zoomOut" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Zoom −</button>
+                <button type="button" data-action="global-graph#fit" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Ajuster</button>
+                <button type="button" data-action="global-graph#reset" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Reset</button>
+                <select data-global-graph-target="layoutSelect" data-action="change->global-graph#changeLayout" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text">
                     <option value="fcose">fcose</option>
                     <option value="cose">cose</option>
                     <option value="concentric">concentric</option>
@@ -75,7 +77,7 @@
             <div data-global-graph-target="status" class="absolute inset-0 z-0 flex items-center justify-center font-sans text-sm text-ink-secondary">Chargement…</div>
         </div>
 
-        <aside class="w-full border-t border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:w-80 lg:border-l lg:border-t-0" data-global-graph-target="preview">
+        <aside class="order-3 w-full border-t border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:w-80 lg:border-l lg:border-t-0" data-global-graph-target="preview">
             {% if focus_person is defined and focus_person %}
                 <h2 class="font-serif text-lg font-medium text-text-primary">Sélection</h2>
                 <p class="mt-2 text-text-primary">{{ focus_person.givenName }} {{ focus_person.familyName }}</p>
