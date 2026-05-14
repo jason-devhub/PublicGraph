@@ -85,6 +85,8 @@ SELECT DISTINCT ?item WHERE {
 
 **Exclusions volontaires** : les **temples / bâtiments** (`P31` = [Q1454583](https://www.wikidata.org/wiki/Q1454583) « Masonic building ») ne sont pas dans cette liste ; ce sont des lieux, pas des loges ou obédiences comme organisations.
 
+**Limite** : une obédience ou loge n’apparaît ici **que si** Wikidata la classe (directement ou par sous-classe) en **loge maçonnique** ou **obédience maçonnique**. Des entités réelles mais typées autrement sur WD (ex. seulement « association loi 1901 » sans `P31` vers ces classes) **ne figurent pas** dans cet inventaire.
+
 **Instantané** : **691** items extraits le **2026-05-14** (le nombre peut évoluer sur Wikidata). Copie tabulaire TSV : [`data/masonic_lodges_and_obediences_wikidata.tsv`](data/masonic_lodges_and_obediences_wikidata.tsv).
 
 ### Liste des QID — loges (`loge`) et obédiences (`obédience`)
