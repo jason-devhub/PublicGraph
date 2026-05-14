@@ -4,6 +4,24 @@ import fcose from 'cytoscape-fcose';
 
 cytoscape.use(fcose);
 
+/** Options fcose : nœuds plus espacés (repulsion, séparation, longueur d’arête). */
+function fcoseLayoutOptions(overrides = {}) {
+    return {
+        name: 'fcose',
+        quality: 'draft',
+        randomize: true,
+        animate: false,
+        fit: true,
+        padding: 56,
+        nodeSeparation: 140,
+        idealEdgeLength: () => 88,
+        nodeRepulsion: () => 12000,
+        gravity: 0.12,
+        gravityRange: 4.5,
+        ...overrides,
+    };
+}
+
 export default class extends Controller {
     static values = {
         url: String,
@@ -71,13 +89,20 @@ export default class extends Controller {
                     selector: 'node',
                     style: {
                         label: 'data(label)',
-                        'font-size': 10,
-                        color: '#E8E4DC',
-                        'text-outline-width': 2,
+                        'text-valign': 'bottom',
+                        'text-halign': 'center',
+                        'text-margin-y': 2,
+                        'font-size': 7,
+                        'min-zoomed-font-size': 4,
+                        'font-family': 'system-ui, sans-serif',
+                        color: '#C9C4BC',
+                        'text-outline-width': 1,
                         'text-outline-color': '#0D0F12',
-                        width: 22,
-                        height: 22,
+                        width: 16,
+                        height: 16,
                         'background-color': 'data(bgColor)',
+                        'border-width': 1,
+                        'border-color': '#2A3038',
                     },
                 },
                 {
@@ -90,14 +115,7 @@ export default class extends Controller {
                     },
                 },
             ],
-            layout: {
-                name: 'fcose',
-                quality: 'draft',
-                randomize: true,
-                animate: false,
-                fit: true,
-                padding: 40,
-            },
+            layout: fcoseLayoutOptions(),
             wheelSensitivity: 0.35,
         });
         this.cy.on('tap', 'node', (evt) => {
@@ -123,7 +141,7 @@ export default class extends Controller {
     }
 
     fit() {
-        this.cy?.fit(undefined, 40);
+        this.cy?.fit(undefined, 56);
     }
 
     reset() {
@@ -133,7 +151,11 @@ export default class extends Controller {
 
     changeLayout() {
         const name = this.layoutSelectTarget.value;
-        const layout = this.cy?.layout({ name, animate: true });
+        const opts =
+            name === 'fcose'
+                ? fcoseLayoutOptions({ animate: true })
+                : { name, animate: true, fit: true, padding: 48 };
+        const layout = this.cy?.layout(opts);
         layout?.run();
     }
 }
