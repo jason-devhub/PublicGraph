@@ -59,4 +59,10 @@ return [
     'cytoscape-fcose' => [
         'version' => '2.2.0',
     ],
+    'cose-base' => [
+        'version' => '2.2.0',
+    ],
+    'layout-base' => [
+        'version' => '2.0.1',
+    ],
 ];
