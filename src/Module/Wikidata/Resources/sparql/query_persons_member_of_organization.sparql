@@ -1,0 +1,10 @@
+SELECT ?wikidataId WHERE {
+  {
+    SELECT ?person WHERE {
+      ?person wdt:P31 wd:Q5 .
+      ?person wdt:P463 wd:{{ORG_QID}} .
+    }
+    LIMIT {{LIMIT}}
+  }
+  BIND(STRAFTER(STR(?person), "http://www.wikidata.org/entity/") AS ?wikidataId)
+}

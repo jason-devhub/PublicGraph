@@ -60,6 +60,27 @@ final class WikidataSparqlClient
         return $rows[0] ?? null;
     }
 
+    /** @return ?array<string, array{type: string, value: string}> */
+    public function findOrganizationBindingByQid(string $qid): ?array
+    {
+        $qid = $this->normalizeQid($qid);
+        $sparql = str_replace('{{ORG_QID}}', $qid, $this->loadTemplate('query_organization_by_qid.sparql'));
+        $rows = $this->queryBindings($sparql);
+
+        return $rows[0] ?? null;
+    }
+
+    public function buildPersonsMemberOfOrganizationQuery(string $orgQid, int $limit): string
+    {
+        $qid = $this->normalizeQid($orgQid);
+
+        return str_replace(
+            ['{{ORG_QID}}', '{{LIMIT}}'],
+            [$qid, (string) max(1, min($limit, 5000))],
+            $this->loadTemplate('query_persons_member_of_organization.sparql'),
+        );
+    }
+
     /**
      * @return list<array<string, array{type: string, value: string}>>
      */

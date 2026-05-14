@@ -1,0 +1,11 @@
+SELECT (STRAFTER(STR(?org), "http://www.wikidata.org/entity/") AS ?wikidataId)
+       (SAMPLE(?lab) AS ?orgLabel)
+       (SAMPLE(?instance) AS ?instanceOf)
+WHERE {
+  BIND(wd:{{ORG_QID}} AS ?org)
+  OPTIONAL { ?org rdfs:label ?lf . FILTER(LANG(?lf) = "fr") }
+  OPTIONAL { ?org rdfs:label ?le . FILTER(LANG(?le) = "en") }
+  BIND(COALESCE(?lf, ?le) AS ?lab)
+  OPTIONAL { ?org wdt:P31 ?instance }
+}
+GROUP BY ?org
