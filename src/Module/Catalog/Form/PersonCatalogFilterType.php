@@ -49,23 +49,38 @@ final class PersonCatalogFilterType extends AbstractType
             ])
             ->add('yearMin', IntegerType::class, [
                 'required' => false,
-                'attr' => ['min' => 1800, 'max' => (int) gmdate('Y')],
+                'label' => 'Depuis',
+                'attr' => [
+                    'min' => 1800,
+                    'max' => (int) gmdate('Y'),
+                    'class' => 'w-full border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary',
+                ],
             ])
             ->add('yearMax', IntegerType::class, [
                 'required' => false,
-                'attr' => ['min' => 1800, 'max' => (int) gmdate('Y')],
+                'label' => 'Jusqu’à',
+                'attr' => [
+                    'min' => 1800,
+                    'max' => (int) gmdate('Y'),
+                    'class' => 'w-full border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary',
+                ],
             ])
             ->add('aliveOnly', CheckboxType::class, [
                 'required' => false,
+                'label' => 'Personnes vivantes uniquement',
             ])
             ->add('activeOnly', CheckboxType::class, [
                 'required' => false,
+                'label' => 'Au moins un mandat ou poste en cours',
             ])
             ->add('sort', ChoiceType::class, [
                 'required' => true,
                 'choices' => [
                     'Alphabétique' => 'alpha',
                     'Plus récent' => 'recent',
+                ],
+                'attr' => [
+                    'class' => 'w-full border border-rule-medium bg-surface-primary px-3 py-2.5 font-sans text-sm text-text-primary',
                 ],
             ]);
     }

@@ -71,7 +71,7 @@ final class CatalogPagesTest extends WebTestCase
         $client->request('GET', '/en/people');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Filtres');
+        self::assertSelectorExists('[data-catalog="person-filters"]');
         self::assertSelectorTextContains('body', 'Nom');
     }
 }

@@ -2,6 +2,16 @@
 org:
   official_name_label: 'Official name'
 
+catalog:
+  person_index:
+    heading: 'Filters'
+    clear: 'Clear all'
+    section_links: 'Countries and affiliations'
+    section_period: 'Membership years'
+    section_status: 'Profile status'
+    section_categories: 'Actor types'
+    section_sort: 'Sort order'
+
 site:
   name: 'PublicGraph'
   skip_to_content: 'Skip to content'

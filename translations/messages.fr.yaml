@@ -1,6 +1,16 @@
 org:
   official_name_label: 'Nom officiel'
 
+catalog:
+  person_index:
+    heading: 'Filtres'
+    clear: 'Tout effacer'
+    section_links: 'Pays et rattachements'
+    section_period: 'Années d’appartenance'
+    section_status: 'État des fiches'
+    section_categories: 'Types d’acteurs'
+    section_sort: 'Classement'
+
 site:
   name: 'PublicGraph'
   skip_to_content: 'Aller au contenu'
