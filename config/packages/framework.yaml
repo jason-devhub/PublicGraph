@@ -5,6 +5,11 @@ framework:
     http_client:
         default_options:
             timeout: 10
+        scoped_clients:
+            # WDQS peut rester longtemps sans octet (exécution côté serveur) : éviter l’idle timeout Symfony.
+            wikidata.sparql:
+                base_uri: 'https://query.wikidata.org/'
+                timeout: 120
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true

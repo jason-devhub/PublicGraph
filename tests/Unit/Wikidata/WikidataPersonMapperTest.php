@@ -25,4 +25,50 @@ final class WikidataPersonMapperTest extends TestCase
         self::assertContains('politician', $dto->roleCategories);
         self::assertContains('Q142', $dto->nationalityQids);
     }
+
+    public function testMapMinisterOccupation(): void
+    {
+        $mapper = new WikidataPersonMapper();
+        $binding = [
+            'wikidataId' => ['type' => 'literal', 'value' => 'Q1'],
+            'personLabel' => ['type' => 'literal', 'value' => 'Marie Ministre'],
+            'nationalityQids' => ['type' => 'literal', 'value' => 'Q142'],
+            'occupationQids' => ['type' => 'literal', 'value' => 'Q83307'],
+        ];
+        $dto = $mapper->map($binding);
+        self::assertContains('politician', $dto->roleCategories);
+    }
+
+    public function testMapPresidentOccupation(): void
+    {
+        $mapper = new WikidataPersonMapper();
+        $binding = [
+            'wikidataId' => ['type' => 'literal', 'value' => 'Q2'],
+            'personLabel' => ['type' => 'literal', 'value' => 'Pat Président'],
+            'nationalityQids' => ['type' => 'literal', 'value' => 'Q142'],
+            'occupationQids' => ['type' => 'literal', 'value' => 'Q30461'],
+        ];
+        $dto = $mapper->map($binding);
+        self::assertContains('politician', $dto->roleCategories);
+    }
+
+    public function testMapDeduplicatesBilingualPositionLabels(): void
+    {
+        $mapper = new WikidataPersonMapper();
+        $binding = [
+            'wikidataId' => ['type' => 'literal', 'value' => 'Q99'],
+            'personLabel' => ['type' => 'literal', 'value' => 'Test Dupont'],
+            'nationalityQids' => ['type' => 'literal', 'value' => 'Q142'],
+            'occupationQids' => ['type' => 'literal', 'value' => 'Q82955'],
+            'positionPairs' => ['type' => 'literal', 'value' => 'Q30185:mayor:1956-01-01:;;Q30185:maire:1956-01-01:;;Q193582:député français:1951-06-01:;;Q193582:member of the French National Assembly:1951-06-01:'],
+        ];
+        $dto = $mapper->map($binding);
+        self::assertCount(2, $dto->positionsHeld);
+        $byQ = [];
+        foreach ($dto->positionsHeld as $p) {
+            $byQ[$p['qid']] = $p['label'];
+        }
+        self::assertSame('maire', $byQ['Q30185']);
+        self::assertSame('député français', $byQ['Q193582']);
+    }
 }

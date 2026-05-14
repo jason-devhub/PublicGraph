@@ -21,6 +21,7 @@ use App\Module\Wikidata\Client\WikidataCountryQids;
 use App\Module\Wikidata\Dto\OrganizationDto;
 use App\Module\Wikidata\Dto\PersonDto;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Intl\Countries;
 
 /**
  * Import ou mise à jour d’une Person depuis un PersonDto (flux Wikidata).
@@ -37,9 +38,11 @@ final class WikidataPersonImporter
     }
 
     /**
+     * @param ?string $syncNationalityIso Code ISO-2 du filtre de sync (ex. FR) : si le DTO n’a pas de nationalités WD, on applique ce pays.
+     *
      * @return array{created: bool, updated: bool, skipped: bool}
      */
-    public function importFromDto(PersonDto $dto, bool $force, bool $dryRun, ?User $systemUser): array
+    public function importFromDto(PersonDto $dto, bool $force, bool $dryRun, ?User $systemUser, ?string $syncNationalityIso = null): array
     {
         $existing = $this->personRepository->findOneByWikidataId($dto->wikidataId);
         if (null !== $existing && !$force) {
@@ -67,7 +70,11 @@ final class WikidataPersonImporter
         }
 
         $this->applyPersonScalarFields($person, $dto);
-        $this->syncNationalities($person, $dto);
+        $nationalityQids = $dto->nationalityQids;
+        if ([] === $nationalityQids && null !== $syncNationalityIso && 2 === \strlen($syncNationalityIso) && ctype_alpha($syncNationalityIso)) {
+            $nationalityQids = WikidataCountryQids::nationalityQidsForIso(strtoupper($syncNationalityIso));
+        }
+        $this->syncNationalities($person, $nationalityQids);
 
         if (null === $person->getId()) {
             $this->entityManager->persist($person);
@@ -112,7 +119,8 @@ final class WikidataPersonImporter
         }
     }
 
-    private function syncNationalities(Person $person, PersonDto $dto): void
+    /** @param array<int, string> $nationalityQids */
+    private function syncNationalities(Person $person, array $nationalityQids): void
     {
         if ($person->isFieldManuallyEditedForWikidata('nationalities')) {
             return;
@@ -120,16 +128,42 @@ final class WikidataPersonImporter
         foreach ($person->getNationalities()->toArray() as $c) {
             $person->getNationalities()->removeElement($c);
         }
-        foreach ($dto->nationalityQids as $qid) {
+        foreach ($nationalityQids as $qid) {
             $iso = WikidataCountryQids::isoForNationalityQid($qid);
             if (null === $iso) {
                 continue;
             }
-            $country = $this->entityManager->find(Country::class, $iso);
+            $country = $this->ensureCountryFromIso($iso);
             if ($country instanceof Country) {
                 $person->addNationality($country);
             }
         }
+    }
+
+    private function ensureCountryFromIso(string $iso): ?Country
+    {
+        $iso = strtoupper($iso);
+        $country = $this->entityManager->find(Country::class, $iso);
+        if ($country instanceof Country) {
+            return $country;
+        }
+        try {
+            $namesFr = Countries::getNames('fr');
+        } catch (\Throwable) {
+            return null;
+        }
+        if (!isset($namesFr[$iso])) {
+            return null;
+        }
+        $country = new Country(
+            $iso,
+            Countries::getName($iso, 'fr'),
+            Countries::getName($iso, 'en'),
+            'Unknown',
+        );
+        $this->entityManager->persist($country);
+
+        return $country;
     }
 
     private function syncMembershipsAndSources(Person $person, PersonDto $dto, Source $source, ?User $systemUser): void
@@ -226,8 +260,9 @@ final class WikidataPersonImporter
             $found = false;
             foreach ($person->getPositions() as $existing) {
                 if ($existing->getOrganization()?->getId() === $org->getId()
-                    && $existing->getTitleFr() === $title
                     && $existing->getStartDate()->format('Y-m-d') === $start->format('Y-m-d')) {
+                    $existing->setTitleFr($title);
+                    $existing->setEndDate($end);
                     $existing->setStatus('approved');
                     $found = true;
                     $id = $existing->getId();
@@ -292,7 +327,7 @@ final class WikidataPersonImporter
             $o->addCountry($c);
         }
         if ($o->getCountries()->isEmpty()) {
-            $fr = $this->entityManager->find(Country::class, 'FR');
+            $fr = $this->ensureCountryFromIso('FR');
             if ($fr instanceof Country) {
                 $o->addCountry($fr);
             }

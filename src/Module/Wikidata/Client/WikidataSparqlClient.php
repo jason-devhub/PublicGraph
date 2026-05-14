@@ -149,11 +149,12 @@ SPARQL;
 
     private function requestWithRetry(string $sparql): ResponseInterface
     {
-        $maxAttempts = 3;
+        $maxAttempts = 5;
         $delayMs = 500;
         $lastException = null;
         for ($i = 0; $i < $maxAttempts; ++$i) {
             try {
+                // URL absolue : le client scoped wikidata.sparql fusionne timeout / base_uri pour ce host.
                 $response = $this->httpClient->request('POST', self::ENDPOINT, [
                     'headers' => [
                         'User-Agent' => self::USER_AGENT,
@@ -161,16 +162,16 @@ SPARQL;
                         'Content-Type' => 'application/x-www-form-urlencoded',
                     ],
                     'body' => http_build_query(['query' => $sparql], '', '&', PHP_QUERY_RFC3986),
-                    'timeout' => 30,
                 ]);
                 $status = $response->getStatusCode();
-                if (429 === $status) {
+                if (429 === $status || $this->isTransientWikidataHttpStatus($status)) {
+                    $response->getContent(false);
                     usleep($delayMs * 1000);
                     $delayMs *= 2;
 
                     continue;
                 }
-                $response->getHeaders();
+                $response->getHeaders(false);
                 if ($status >= 400) {
                     throw new \RuntimeException('SPARQL HTTP '.$status.' : '.$response->getContent(false));
                 }
@@ -189,6 +190,11 @@ SPARQL;
         }
 
         throw new \RuntimeException('Échec requête Wikidata.');
+    }
+
+    private function isTransientWikidataHttpStatus(int $status): bool
+    {
+        return \in_array($status, [502, 503, 504], true);
     }
 
     private function normalizeQid(string $qid): string

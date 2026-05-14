@@ -1,17 +1,21 @@
-SELECT ?person ?personLabel ?birthDate ?deathDate ?gender ?image
-       (STRAFTER(STR(?person), "http://www.wikidata.org/entity/") AS ?wikidataId)
+SELECT ?person (SAMPLE(?personLabel) AS ?personLabel)
+       (SAMPLE(STRAFTER(STR(?person), "http://www.wikidata.org/entity/")) AS ?wikidataId)
        (GROUP_CONCAT(DISTINCT ?natQid; separator="|") AS ?nationalityQids)
        (GROUP_CONCAT(DISTINCT ?occQid; separator="|") AS ?occupationQids)
        (GROUP_CONCAT(DISTINCT CONCAT(?partyQid, ":", STR(?partyLabel)); separator=";;") AS ?partyPairs)
        (GROUP_CONCAT(DISTINCT CONCAT(?orgQid, ":", STR(?orgLabel)); separator=";;") AS ?orgPairs)
        (GROUP_CONCAT(DISTINCT CONCAT(?posQid, ":", STR(?posLabel), ":", STR(?start), ":", STR(?end)); separator=";;") AS ?positionPairs)
 WHERE {
-  ?person wdt:P31 wd:Q5 .
-  VALUES ?country { {{COUNTRY_QIDS}} }
-  ?person wdt:P27 ?country .
-  FILTER EXISTS {
-    ?person wdt:P106 ?occ .
-    VALUES ?occ { {{OCCUPATION_QIDS}} }
+  {
+    SELECT ?person WHERE {
+      ?person wdt:P31 wd:Q5 .
+      VALUES ?country { {{COUNTRY_QIDS}} }
+      ?person wdt:P27 ?country .
+      FILTER EXISTS {
+        ?person wdt:P106 ?occ .
+        VALUES ?occ { {{OCCUPATION_QIDS}} }
+      }
+    } LIMIT {{LIMIT}}
   }
   OPTIONAL { ?person wdt:P569 ?birthDate. }
   OPTIONAL { ?person wdt:P570 ?deathDate. }
@@ -28,22 +32,35 @@ WHERE {
   OPTIONAL {
     ?person wdt:P102 ?party.
     BIND(REPLACE(STR(?party), "http://www.wikidata.org/entity/", "") AS ?partyQid)
-    ?party rdfs:label ?partyLabel. FILTER(LANG(?partyLabel) = "fr" || LANG(?partyLabel) = "en")
+    OPTIONAL { ?party rdfs:label ?partyLabFr . FILTER(LANG(?partyLabFr) = "fr") }
+    OPTIONAL { ?party rdfs:label ?partyLabEn . FILTER(LANG(?partyLabEn) = "en") }
+    BIND(COALESCE(?partyLabFr, ?partyLabEn) AS ?partyLabel)
   }
   OPTIONAL {
     ?person wdt:P463 ?org.
     BIND(REPLACE(STR(?org), "http://www.wikidata.org/entity/", "") AS ?orgQid)
-    ?org rdfs:label ?orgLabel. FILTER(LANG(?orgLabel) = "fr" || LANG(?orgLabel) = "en")
+    OPTIONAL { ?org rdfs:label ?orgLabFr . FILTER(LANG(?orgLabFr) = "fr") }
+    OPTIONAL { ?org rdfs:label ?orgLabEn . FILTER(LANG(?orgLabEn) = "en") }
+    BIND(COALESCE(?orgLabFr, ?orgLabEn) AS ?orgLabel)
   }
   OPTIONAL {
     ?person p:P39 ?st.
     ?st ps:P39 ?position.
     BIND(REPLACE(STR(?position), "http://www.wikidata.org/entity/", "") AS ?posQid)
-    ?position rdfs:label ?posLabel. FILTER(LANG(?posLabel) = "fr" || LANG(?posLabel) = "en")
     OPTIONAL { ?st pq:P580 ?start. }
     OPTIONAL { ?st pq:P582 ?end. }
+    OPTIONAL { ?position rdfs:label ?posLabFr . FILTER(LANG(?posLabFr) = "fr") }
+    OPTIONAL { ?position rdfs:label ?posLabEn . FILTER(LANG(?posLabEn) = "en") }
+    BIND(COALESCE(?posLabFr, ?posLabEn) AS ?posLabel)
   }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+  OPTIONAL {
+    ?person rdfs:label ?personLabFr .
+    FILTER(LANG(?personLabFr) = "fr")
+  }
+  OPTIONAL {
+    ?person rdfs:label ?personLabEn .
+    FILTER(LANG(?personLabEn) = "en")
+  }
+  BIND(COALESCE(?personLabFr, ?personLabEn) AS ?personLabel)
 }
-GROUP BY ?person ?personLabel ?birthDate ?deathDate ?gender ?image
-LIMIT {{LIMIT}}
+GROUP BY ?person ?birthDate ?deathDate ?gender ?image

@@ -109,6 +109,10 @@ services:
         arguments:
             $enabledLocales: '%app.enabled_locales%'
 
+    App\Module\Wikidata\Client\WikidataSparqlClient:
+        arguments:
+            $httpClient: '@wikidata.sparql'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

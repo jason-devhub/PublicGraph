@@ -32,7 +32,7 @@ final class WikidataSyncPeopleCommand extends Command
     {
         $this
             ->addOption('country', null, InputOption::VALUE_REQUIRED, 'Code ISO (FR, DE, …), EU ou G7')
-            ->addOption('category', null, InputOption::VALUE_REQUIRED, 'politician, civil_servant, business_leader ou all')
+            ->addOption('category', null, InputOption::VALUE_REQUIRED, 'politician, minister, president, civil_servant, business_leader ou all')
             ->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'Nombre max de résultats', '500')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Met à jour même si la fiche existe déjà')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Journalise sans persister');
@@ -54,6 +54,11 @@ final class WikidataSyncPeopleCommand extends Command
         $force = (bool) $input->getOption('force');
         $dryRun = (bool) $input->getOption('dry-run');
 
+        $syncNationalityIso = null;
+        if (!\in_array($country, ['EU', 'G7'], true) && 2 === \strlen($country) && ctype_alpha($country)) {
+            $syncNationalityIso = $country;
+        }
+
         $countryQids = match ($country) {
             'G7' => WikidataCountryQids::g7NationalityQids(),
             'EU' => WikidataCountryQids::euNationalityQids(),
@@ -65,13 +70,25 @@ final class WikidataSyncPeopleCommand extends Command
             return Command::FAILURE;
         }
 
-        $occQids = match ($category) {
-            'politician' => ['Q82955'],
-            'civil_servant' => ['Q193391', 'Q486839', 'Q2285706'],
-            'business_leader' => ['Q43845', 'Q15978631'],
-            'all' => ['Q82955', 'Q193391', 'Q486839', 'Q43845', 'Q15978631'],
-            default => ['Q82955'],
-        };
+        try {
+            $occQids = match ($category) {
+                'politician' => ['Q82955'],
+                // Métier « ministre » (Q83307) — beaucoup plus restreint que « politicien » (Q82955).
+                'minister' => ['Q83307'],
+                // Métier « président » (Q30461) — chef d’État / présidence au sens Wikidata ; pas les mandats seuls (P39).
+                'president' => ['Q30461'],
+                'civil_servant' => ['Q193391', 'Q486839', 'Q2285706'],
+                'business_leader' => ['Q43845', 'Q15978631'],
+                'all' => ['Q82955', 'Q83307', 'Q30461', 'Q193391', 'Q486839', 'Q43845', 'Q15978631'],
+            };
+        } catch (\UnhandledMatchError) {
+            $io->error(\sprintf(
+                'Catégorie inconnue : "%s". Utilise : politician, minister, president, civil_servant, business_leader, all.',
+                $category,
+            ));
+
+            return Command::FAILURE;
+        }
 
         $sparql = $this->sparqlClient->buildPersonsByCountryQuery($countryQids, $occQids, $limit);
         $io->note('Requête SPARQL envoyée à Wikidata…');
@@ -88,7 +105,7 @@ final class WikidataSyncPeopleCommand extends Command
         foreach ($bindings as $row) {
             try {
                 $dto = $this->personMapper->map($row);
-                $r = $this->importer->importFromDto($dto, $force, $dryRun, $admin);
+                $r = $this->importer->importFromDto($dto, $force, $dryRun, $admin, $syncNationalityIso);
                 if ($r['skipped']) {
                     ++$skipped;
                 } elseif ($r['created']) {

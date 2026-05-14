@@ -15,6 +15,8 @@ final class WikidataPersonMapper
     /** @var array<string, string> QID occupation → roleCategories locale */
     private const OCCUPATION_TO_ROLE = [
         'Q82955' => 'politician',
+        'Q83307' => 'politician',
+        'Q30461' => 'politician',
         'Q193391' => 'civil_servant',
         'Q486839' => 'civil_servant',
         'Q2285706' => 'civil_servant',
@@ -162,7 +164,7 @@ final class WikidataPersonMapper
             }
         }
 
-        return $out;
+        return $this->dedupeQidLabelRows($out);
     }
 
     /** @return list<array{qid: string, label: string, start: ?string, end: ?string}> */
@@ -196,6 +198,78 @@ final class WikidataPersonMapper
             ];
         }
 
-        return $out;
+        return $this->dedupePositionRows($out);
+    }
+
+    /**
+     * @param list<array{qid: string, label: string, start: ?string, end: ?string}> $rows
+     *
+     * @return list<array{qid: string, label: string, start: ?string, end: ?string}>
+     */
+    private function dedupePositionRows(array $rows): array
+    {
+        $seen = [];
+        foreach ($rows as $row) {
+            $key = $row['qid'].'|'.($row['start'] ?? '').'|'.($row['end'] ?? '');
+            if (!isset($seen[$key])) {
+                $seen[$key] = $row;
+
+                continue;
+            }
+            $seen[$key]['label'] = $this->preferMandateLabel($seen[$key]['label'], $row['label']);
+        }
+
+        return array_values($seen);
+    }
+
+    /**
+     * @param list<array{qid: string, label: string}> $rows
+     *
+     * @return list<array{qid: string, label: string}>
+     */
+    private function dedupeQidLabelRows(array $rows): array
+    {
+        $seen = [];
+        foreach ($rows as $row) {
+            $k = $row['qid'];
+            if (!isset($seen[$k])) {
+                $seen[$k] = $row;
+
+                continue;
+            }
+            $seen[$k]['label'] = $this->preferMandateLabel($seen[$k]['label'], $row['label']);
+        }
+
+        return array_values($seen);
+    }
+
+    /**
+     * Préfère un libellé typiquement français (ou non anglais générique) quand WD renvoie fr+en en doublon.
+     */
+    private function preferMandateLabel(string $a, string $b): string
+    {
+        if ($a === $b) {
+            return $a;
+        }
+        $rank = static function (string $s): int {
+            if (preg_match('/[àâäéèêëïîôùûüÿçœæ]/ui', $s)) {
+                return 2;
+            }
+            if (preg_match('/^(mayor|member of the|deputy |chief |chair(man|woman)?\b)/i', trim($s))) {
+                return 0;
+            }
+
+            return 1;
+        };
+        $ra = $rank($a);
+        $rb = $rank($b);
+        if ($ra > $rb) {
+            return $a;
+        }
+        if ($rb > $ra) {
+            return $b;
+        }
+
+        return $a;
     }
 }
