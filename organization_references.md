@@ -28,8 +28,9 @@ L’entité **`Membership`** (module Influence) relie une **personne** à une **
 
 | Rôle côté monde réel | QID Wikidata typique | Côté PublicGraph |
 |----------------------|----------------------|------------------|
-| Structure permanente (réseau, comité de pilotage) | **Q184937** Bilderberg Group ; **Q63344709** Steering Committee | Une **`Organization`** par QID retenu ; adhésions **`year` nul** ou couvrant toute la période connue si qualifié sur WD. |
-| Participation à **une édition** (une année) | Item **édition** (ex. conférence 2018) | **Stratégie A (recommandée)** : une seule `Organization` = Q184937, et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate` si connues). **Stratégie B** : créer une `Organization` par item d’édition WD (Q de la conférence) ; l’adhésion peut alors avoir `year` aligné sur l’année ou rester non renseigné. |
+| Structure permanente (réseau, comité de pilotage) — **Bilderberg** | **Q184937** Bilderberg Group ; **Q63344709** Steering Committee | Une **`Organization`** par QID retenu ; adhésions **`year` nul** ou plage **`startDate` / `endDate`** si qualifié sur WD. |
+| Structure permanente — **Forum économique mondial** | **Q170418** World Economic Forum ; éventuellement programmes / filiales distincts sur WD (ex. **Q2624519** *Young Global Leaders*) si la source porte sur ce programme précis | Idem : une org par QID pertinent ; temporalité sur les mandats « institutionnels ». |
+| Participation à **une édition** (une année) | Item **édition** (conférence Bilderberg 20xx ; **World Economic Forum Annual Meeting 20xx**) | **Stratégie A (recommandée)** : une seule `Organization` = item **permanent** (**Q184937** ou **Q170418**), et chaque présence à une édition = un **`Membership`** avec **`year` = année de l’édition** (et éventuellement `startDate`/`endDate`). **Stratégie B** : une `Organization` par item d’édition WD ; `year` aligné ou vide. |
 
 **Import automatisé depuis Wikidata aujourd’hui** : la commande `app:wikidata:sync-org-members` et le flux `P463` → `WikidataPersonImporter` créent des adhésions avec **`year` non renseigné** pour les organisations du DTO. Pour **remplir `year` / dates** à partir des **qualificatifs** de déclaration (`P580` début, `P582` fin) ou depuis **`P1344`** (participant à l’item édition), il faut **étendre** la requête SPARQL / le `PersonDto` et l’importeur — le présent document fixe la **cible métier** et les **QID** ; l’implémentation suit la spec tâches dédiée.
 
@@ -78,14 +79,43 @@ On distingue :
 
 ## Forum économique mondial / World Economic Forum (WEF)
 
+### QID de référence
+
 | QID | Libellé (indicatif) | Commentaire |
 |-----|---------------------|-------------|
-| **Q170418** | World Economic Forum | Organisation **permanente** : cible **`Organization`** pour adhésions / mandats institutionnels ; temporalité via **`year`** ou **`startDate` / `endDate`** selon les sources. |
-| *Q114717230, Q114717231, …* | World Economic Forum Annual Meeting 20xx | **Réunions annuelles** (éditions Davos / *Annual Meeting*). Comme pour Bilderberg : **participant·e·s** souvent relié·e·s à l’**item d’édition** ; en PublicGraph, stratégie **une `Organization` Q170418 + `Membership.year = année`** pour chaque participation annuelle, sauf choix métier de dupliquer une org par édition (item WD). |
+| **Q170418** | World Economic Forum | Organisation **permanente** (siège, gouvernance, marque Davos) : cible **`Organization`** PublicGraph « WEF » pour mandats, **membres** institutionnels (`P463` si présent sur WD), etc. |
+| **Q2624519** | Young Global Leaders | **Programme / communauté** distincte du WEF au sens large ; n’utiliser ce QID que si la source parle **explicitement** des YGL (pas d’une simple participation au *Annual Meeting*). |
+| *Q114717230 … Q114717236* (exemples) | World Economic Forum Annual Meeting **2014** … **2020** | **Événements** (éditions annuelles de Davos / *Annual Meeting*). Les **participant·e·s** sont en pratique relié·e·s sur WD à **l’item de l’édition** (`P1344` *participant·e à*), pas toujours à **Q170418** avec un qualificatif d’année. D’autres Q « Annual Meeting 20xx » existent au-delà de cette plage — les retrouver par recherche ou requête SPARQL sur le libellé. |
 
-- Wikidata : [Q170418](https://www.wikidata.org/wiki/Q170418)
+| Année (exemple) | QID item « Annual Meeting » (instantané indicatif) |
+|-----------------|---------------------------------------------------|
+| 2014 | [Q114717230](https://www.wikidata.org/wiki/Q114717230) |
+| 2015 | [Q114717231](https://www.wikidata.org/wiki/Q114717231) |
+| 2016 | [Q114717232](https://www.wikidata.org/wiki/Q114717232) |
+| 2017 | [Q114717233](https://www.wikidata.org/wiki/Q114717233) |
+| 2018 | [Q114717234](https://www.wikidata.org/wiki/Q114717234) |
+| 2019 | [Q114717235](https://www.wikidata.org/wiki/Q114717235) |
+| 2020 | [Q114717236](https://www.wikidata.org/wiki/Q114717236) |
 
-**Rappel** : même logique **permanent vs annuel** que pour Bilderberg ; l’extension de l’importeur pour peupler `year` depuis WD reste à faire (voir [modèle d’adhésion](#modele-adhesion-organisation)).
+- Wikidata : [Q170418](https://www.wikidata.org/wiki/Q170418), [Q2624519](https://www.wikidata.org/wiki/Q2624519)
+
+### Membres / cadres permanents vs participant·e·s à une édition Davos
+
+On distingue :
+
+1. **Liens durables** (staff, board, programmes nominatifs, « membre » institutionnel du WEF au sens large) → modéliser vers **Q170418** (ou **Q2624519** si la source ne concerne que les YGL) ; adhésion avec **`year` vide** ou **`startDate` / `endDate`** si mandat daté.
+2. **Présence à une édition donnée du *Annual Meeting*** (invitation, délégation, panéliste pour l’année `Y`) → pour chaque année : **importer ou mettre à jour** la personne et créer (ou mettre à jour) un **`Membership`** vers l’**`Organization`** alignée sur **Q170418**, avec **`year` = `Y`** (voir [modèle d’adhésion](#modele-adhesion-organisation)). Plusieurs lignes par personne = une par année de participation, sans présumer d’un statut permanent si la source ne le dit pas.
+
+**Workflow opérationnel par année** (objectif cible, une fois l’import WD enrichi ou via saisie assistée) :
+
+1. Identifier l’**item Wikidata de l’édition** (*World Economic Forum Annual Meeting YYYY*) et l’**année** `Y` (souvent dans le libellé ; sinon `P585` *point dans le temps* sur l’item événement si renseigné).
+2. Lister les personnes **participant·e·s** (WD : `P1344` depuis la personne vers l’item édition, ou listes officielles / presse sourcées).
+3. Pour chaque personne : assurer la fiche **Person** ; créer ou mettre à jour un **`Membership`** vers l’**`Organization`** **Q170418**, avec **`year` = `Y`**, source = URL WD de la déclaration ou source conforme charte.
+4. Répéter pour chaque édition à couvrir (`--force` si recalcul complet).
+
+**Propriétés Wikidata utiles pour l’implémentation future** : `P1344` (*participant·e à*) vers l’item *Annual Meeting* ; `P463` (*membre de*) vers **Q170418** ou **Q2624519** selon les cas ; `P585` sur l’item événement ; qualificatifs `P580` / `P582` sur les déclarations si présents. Les schémas de déclaration **varient** d’une édition à l’autre : vérifier systématiquement sur l’item.
+
+**Rappel** : la commande `app:wikidata:sync-org-members --organization-qid=Q170418` ne traite que les **`P463`** vers le WEF ; les **présences annuelles** via **`P1344`** et le remplissage automatique de **`Membership.year`** restent à brancher dans l’importeur (voir [modèle d’adhésion](#modele-adhesion-organisation)).
 
 ---
 
