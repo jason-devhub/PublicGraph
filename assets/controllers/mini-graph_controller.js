@@ -33,6 +33,7 @@ export default class extends Controller {
         locale: { type: String, default: 'en' },
         msgAnalyzing: String,
         msgLoadError: String,
+        msgConnectionsZero: String,
         msgConnectionsOne: String,
         msgConnectionsMany: String,
     };
@@ -87,7 +88,9 @@ export default class extends Controller {
 
             if (this.hasCountTarget && typeof data.connectionCount === 'number') {
                 const n = data.connectionCount;
-                if (n === 1 && this.hasMsgConnectionsOneValue) {
+                if (n === 0 && this.hasMsgConnectionsZeroValue) {
+                    this.countTarget.textContent = this.msgConnectionsZeroValue;
+                } else if (n === 1 && this.hasMsgConnectionsOneValue) {
                     this.countTarget.textContent = this.msgConnectionsOneValue;
                 } else if (this.hasMsgConnectionsManyValue) {
                     this.countTarget.textContent = this.msgConnectionsManyValue.replace('%count%', String(n));
@@ -161,6 +164,20 @@ export default class extends Controller {
 
         const loc = this.localeValue || 'en';
 
+        const edgeCount = elements.edges?.length ?? 0;
+        /** fcose peut échouer ou mal se comporter sans arêtes (ex. org. sans membres). */
+        const layout =
+            edgeCount === 0
+                ? { name: 'circle', fit: true, padding: 20, spacingFactor: 1.25 }
+                : {
+                      name: 'fcose',
+                      quality: 'default',
+                      randomize: true,
+                      animate: false,
+                      fit: true,
+                      padding: 12,
+                  };
+
         this.cy = cytoscape({
             container: this.canvasTarget,
             elements: flat,
@@ -203,14 +220,7 @@ export default class extends Controller {
                     },
                 },
             ],
-            layout: {
-                name: 'fcose',
-                quality: 'default',
-                randomize: true,
-                animate: false,
-                fit: true,
-                padding: 12,
-            },
+            layout,
             wheelSensitivity: 0.35,
         });
 

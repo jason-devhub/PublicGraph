@@ -663,19 +663,19 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistApprovedOrg\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: tests/Functional/PersonGraphDataEndpointTest.php
 
 		-
 			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistApprovedPerson\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
 			identifier: argument.type
-			count: 4
+			count: 5
 			path: tests/Functional/PersonGraphDataEndpointTest.php
 
 		-
 			message: '#^Parameter \#1 \$em of method App\\Tests\\Functional\\PersonGraphDataEndpointTest\:\:persistMembership\(\) expects Doctrine\\ORM\\EntityManagerInterface, object given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: tests/Functional/PersonGraphDataEndpointTest.php
 
 		-

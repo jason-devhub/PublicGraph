@@ -44,9 +44,6 @@
                     {% endif %}
                 </div>
             {% endif %}
-            <p class="mt-8">
-                <a href="{{ path('app_graph_index', {organization: organization.slug}) }}" class="inline-block rounded-sm border border-accent bg-transparent px-4 py-2 font-sans text-sm font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">Voir dans le graphe</a>
-            </p>
         </header>
 
         <section class="mt-10 border-t border-rule-medium pt-8">
@@ -56,6 +53,34 @@
             {% else %}
                 <p class="mt-4 font-sans text-sm text-text-secondary">Pas de description pour cette organisation.</p>
             {% endif %}
+        </section>
+
+        <section class="mt-12 border-t border-rule-medium pt-8" aria-labelledby="org-mini-graph-heading">
+            <h2 id="org-mini-graph-heading" class="font-serif text-2xl font-medium text-text-primary">Cartographie des membres</h2>
+            <aside class="mt-6 overflow-hidden rounded-sm border border-[#2A3038] bg-ink text-ink-text shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)]">
+                <header class="flex items-center justify-between gap-3 border-b border-[#2A3038] px-4 py-3 font-sans text-xs uppercase tracking-wider text-ink-secondary">
+                    <span>Organisation et membres publiés</span>
+                    <span data-mini-graph-target="count" class="tabular-nums">—</span>
+                </header>
+                <div
+                    class="relative min-h-[360px] w-full"
+                    data-controller="mini-graph"
+                    data-mini-graph-url-value="{{ path('app_organization_graph_data', { slug: organization.slug }) }}"
+                    data-mini-graph-locale-value="{{ app.request.locale }}"
+                    data-mini-graph-msg-analyzing-value="{{ 'mini_graph.analyzing'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-load-error-value="{{ 'mini_graph.load_error'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-connections-zero-value="{{ 'mini_graph.org_members_zero'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-connections-one-value="{{ 'mini_graph.org_members_one'|trans|e('html_attr') }}"
+                    data-mini-graph-msg-connections-many-value="{{ 'mini_graph.org_members_many'|trans|e('html_attr') }}"
+                >
+                    <div data-mini-graph-target="skeleton" class="absolute inset-0 flex items-center justify-center bg-ink font-sans text-sm text-ink-secondary motion-safe:animate-pulse" aria-hidden="true">Chargement du graphe…</div>
+                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-[360px] w-full bg-ink" role="img" aria-label="Graphe de l’organisation et de ses membres"></div>
+                    <div data-mini-graph-target="analyzing" class="absolute inset-0 z-20 hidden items-center justify-center bg-ink px-6 text-center font-sans text-sm leading-relaxed text-ink-text" role="status"></div>
+                </div>
+                <footer class="border-t border-[#2A3038] px-4 py-3 font-sans text-sm">
+                    <a href="{{ path('app_graph_index', { organization: organization.slug }) }}" class="text-ink-accent no-underline hover:underline">Voir dans le graphe complet ↗</a>
+                </footer>
+            </aside>
         </section>
 
         <section class="mt-12 border-t border-rule-medium pt-8">

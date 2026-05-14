@@ -91,6 +91,9 @@ mini_graph:
   load_error: 'Impossible de charger le graphe pour le moment.'
   connections_one: '1 connexion'
   connections_many: '%count% connexions'
+  org_members_zero: 'Aucun membre publié'
+  org_members_one: '1 membre lié'
+  org_members_many: '%count% membres liés'
 
 global_graph:
   loading: 'Chargement du graphe…'
