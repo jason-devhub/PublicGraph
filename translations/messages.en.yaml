@@ -98,3 +98,4 @@ global_graph:
   error: 'Unable to load the graph.'
   selection: 'Selection'
   view_full: 'View full profile'
+  zoom_hint: 'Scroll or use « Zoom + » to read names; hover a node to highlight its label.'

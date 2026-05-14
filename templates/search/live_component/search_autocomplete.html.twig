@@ -9,9 +9,9 @@
             placeholder="Rechercher…"
             value="{{ q }}"
             data-model="debounce(250)|q"
-            class="w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="pg-input w-full min-w-0 px-3 py-2 font-sans text-sm"
         />
-        <button type="submit" class="shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">
+        <button type="submit" class="pg-btn-primary shrink-0 px-3 py-2 font-sans text-xs uppercase tracking-wide">
             OK
         </button>
         {% if autocomplete.persons is not empty or autocomplete.organizations is not empty %}

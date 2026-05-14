@@ -1,5 +1,6 @@
 SELECT ?person (SAMPLE(?personLabel) AS ?personLabel)
        (SAMPLE(STRAFTER(STR(?person), "http://www.wikidata.org/entity/")) AS ?wikidataId)
+       (SAMPLE(?image) AS ?image)
        (GROUP_CONCAT(DISTINCT ?natQid; separator="|") AS ?nationalityQids)
        (GROUP_CONCAT(DISTINCT ?occQid; separator="|") AS ?occupationQids)
        (GROUP_CONCAT(DISTINCT CONCAT(?partyQid, ":", STR(?partyLabel)); separator=";;") AS ?partyPairs)
@@ -54,4 +55,4 @@ WHERE {
   }
   BIND(COALESCE(?personLabFr, ?personLabEn) AS ?personLabel)
 }
-GROUP BY ?person ?birthDate ?deathDate ?gender ?image
+GROUP BY ?person ?birthDate ?deathDate ?gender

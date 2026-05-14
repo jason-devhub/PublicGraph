@@ -22,10 +22,10 @@
     {% endblock %}
 </head>
 <body class="min-h-screen flex flex-col">
-<a href="#contenu-principal" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-text-inverse">{{ 'site.skip_to_content'|trans }}</a>
+<a href="#contenu-principal" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-accent focus:px-3 focus:py-2 focus:text-text-inverse focus:shadow-btn-primary">{{ 'site.skip_to_content'|trans }}</a>
 
 <header
-    class="sticky top-0 z-40 border-b border-rule-medium bg-surface-primary"
+    class="sticky top-0 z-40 border-b border-rule-medium bg-surface-primary shadow-header-bar"
     data-controller="site-header"
     data-action="turbo:before-render@window->site-header#close keydown.escape@window->site-header#close"
 >
@@ -36,7 +36,7 @@
             </a>
             <button
                 type="button"
-                class="inline-flex min-h-11 items-center border border-rule-medium px-3 font-sans text-xs font-semibold uppercase tracking-wide text-text-secondary hover:border-accent hover:text-accent md:hidden"
+                class="pg-btn-outline inline-flex min-h-11 items-center px-3 font-sans text-xs font-semibold uppercase tracking-wide text-text-secondary md:hidden"
                 aria-controls="site-main-nav"
                 aria-expanded="false"
                 data-site-header-target="button"
@@ -49,8 +49,8 @@
             <form action="{{ path('app_search_index') }}" method="get" class="flex gap-2" role="search">
                 <label class="sr-only" for="header-search-q">{{ 'site.search.label'|trans }}</label>
                 <input id="header-search-q" type="search" name="q" value="" placeholder="{{ 'site.search.placeholder'|trans }}" autocomplete="off"
-                       class="min-h-11 w-full min-w-0 border border-rule-medium bg-surface-primary px-3 py-2 font-sans text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent">
-                <button type="submit" class="min-h-11 shrink-0 border border-accent bg-accent px-3 py-2 font-sans text-xs uppercase tracking-wide text-text-inverse hover:bg-accent-hover">{{ 'site.search.submit'|trans }}</button>
+                       class="pg-input min-h-11 w-full min-w-0 px-3 py-2 font-sans text-sm">
+                <button type="submit" class="pg-btn-primary min-h-11 shrink-0 px-3 py-2 font-sans text-xs uppercase tracking-wide">{{ 'site.search.submit'|trans }}</button>
             </form>
         </div>
         <nav id="site-main-nav" aria-label="{{ 'site.nav.main_aria'|trans }}" class="hidden border-t border-rule-subtle pt-2 font-sans text-sm md:block md:shrink-0 md:border-t-0 md:pt-0" data-site-header-target="panel" data-action="click->site-header#close">
@@ -91,7 +91,7 @@
     {% block body %}{% endblock %}
 </main>
 
-<footer class="mt-auto border-t border-rule-medium bg-surface-secondary">
+<footer class="mt-auto border-t border-rule-medium bg-surface-secondary shadow-[0_-1px_0_rgba(255,255,255,0.55)_inset,0_-8px_32px_-12px_rgba(26,24,21,0.06)]">
     <div class="mx-auto max-w-page px-4 py-8">
         <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <p class="font-serif text-sm text-text-secondary">{{ 'site.footer.tagline'|trans }}</p>
@@ -111,7 +111,7 @@
     </div>
 </footer>
 
-<aside class="border-t border-rule-subtle bg-surface-inset px-4 py-3 text-center font-sans text-xs text-text-secondary" role="status" aria-label="{{ 'site.cookie_banner_aria'|trans }}">
+<aside class="border-t border-rule-subtle bg-surface-inset px-4 py-3 text-center font-sans text-xs text-text-secondary shadow-[0_-1px_0_rgba(255,255,255,0.4)_inset]" role="status" aria-label="{{ 'site.cookie_banner_aria'|trans }}">
     {{ 'site.cookie_banner'|trans }}
 </aside>
 </body>

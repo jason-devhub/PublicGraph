@@ -38,14 +38,14 @@
                     {% if party.colorHex %}
                         <p class="mt-2 inline-flex items-center gap-2">
                             <span class="text-text-secondary">Couleur :</span>
-                            <span class="inline-block h-4 w-8 border border-rule-medium" style="background-color: {{ party.colorHex|e('html_attr') }};" title="{{ party.colorHex|e('html_attr') }}"></span>
+                            <span class="inline-block h-4 w-8 rounded-sm border border-rule-medium shadow-subtle" style="background-color: {{ party.colorHex|e('html_attr') }};" title="{{ party.colorHex|e('html_attr') }}"></span>
                             <span class="font-mono text-xs">{{ party.colorHex }}</span>
                         </p>
                     {% endif %}
                 </div>
             {% endif %}
             <p class="mt-8">
-                <a href="{{ path('app_graph_index', {organization: organization.slug}) }}" class="inline-block border border-accent px-4 py-2 font-sans text-sm font-medium text-accent no-underline hover:bg-accent-subtle">Voir dans le graphe</a>
+                <a href="{{ path('app_graph_index', {organization: organization.slug}) }}" class="inline-block rounded-sm border border-accent bg-transparent px-4 py-2 font-sans text-sm font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">Voir dans le graphe</a>
             </p>
         </header>
 

@@ -97,3 +97,4 @@ global_graph:
   error: 'Impossible de charger le graphe.'
   selection: 'Sélection'
   view_full: 'Voir la fiche complète'
+  zoom_hint: "Molette ou « Zoom + » pour lire les noms ; survol d'un nœud pour le mettre en avant."

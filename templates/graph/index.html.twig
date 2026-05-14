@@ -18,24 +18,24 @@
             <form method="get" action="{{ path('app_graph_index') }}" class="mt-4 space-y-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-org">Organisation (slug)</label>
-                    <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="ex. forum-economique-mondial">
+                    <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="ex. forum-economique-mondial">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-countries">Pays ISO (séparés par virgule)</label>
-                    <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
+                    <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-cat">Catégories (séparées par virgule)</label>
-                    <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
+                    <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs text-text-secondary" for="ymin">Année min</label>
-                        <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
+                        <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
                     </div>
                     <div>
                         <label class="block text-xs text-text-secondary" for="ymax">Année max</label>
-                        <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1 font-mono text-xs">
+                        <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
                     </div>
                 </div>
                 <fieldset>
@@ -51,27 +51,30 @@
                 </fieldset>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="colorMode">Couleur</label>
-                    <select id="colorMode" name="colorMode" class="mt-1 min-h-11 w-full border border-rule-medium bg-surface-primary px-2 py-1.5 text-xs">
+                    <select id="colorMode" name="colorMode" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 text-xs">
                         <option value="category" {% if graph_params.colorMode == 'category' %}selected{% endif %}>Par catégorie</option>
                         <option value="country" {% if graph_params.colorMode == 'country' %}selected{% endif %}>Par pays</option>
                     </select>
                 </div>
-                <button type="submit" class="min-h-11 w-full border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Appliquer</button>
+                <button type="submit" class="pg-btn-primary min-h-11 w-full px-3 py-2 no-underline">Appliquer</button>
             </form>
         </aside>
 
         <div class="relative order-1 min-h-[60vh] min-w-0 flex-1 bg-ink lg:order-2 lg:min-h-[640px]">
-            <div data-global-graph-target="toolbar" class="absolute left-3 top-3 z-20 flex flex-wrap gap-2 font-sans text-xs">
-                <button type="button" data-action="global-graph#zoomIn" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Zoom +</button>
-                <button type="button" data-action="global-graph#zoomOut" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Zoom −</button>
-                <button type="button" data-action="global-graph#fit" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Ajuster</button>
-                <button type="button" data-action="global-graph#reset" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text hover:bg-[#2A3038]">Reset</button>
-                <select data-global-graph-target="layoutSelect" data-action="change->global-graph#changeLayout" class="min-h-11 border border-[#2A3038] bg-ink px-3 py-2 text-ink-text">
-                    <option value="fcose">fcose</option>
-                    <option value="cose">cose</option>
-                    <option value="concentric">concentric</option>
-                    <option value="breadthfirst">breadthfirst</option>
-                </select>
+            <div data-global-graph-target="toolbar" class="absolute left-3 top-3 z-20 flex max-w-[min(26rem,calc(100%-1.5rem))] flex-col gap-2 font-sans text-xs">
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" data-action="global-graph#zoomIn" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Zoom +</button>
+                    <button type="button" data-action="global-graph#zoomOut" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Zoom −</button>
+                    <button type="button" data-action="global-graph#fit" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Ajuster</button>
+                    <button type="button" data-action="global-graph#reset" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Reset</button>
+                    <select data-global-graph-target="layoutSelect" data-action="change->global-graph#changeLayout" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:shadow-btn-ink-hover">
+                        <option value="fcose">fcose</option>
+                        <option value="cose">cose</option>
+                        <option value="concentric">concentric</option>
+                        <option value="breadthfirst">breadthfirst</option>
+                    </select>
+                </div>
+                <p class="m-0 leading-snug text-[0.65rem] text-ink-secondary">{{ 'global_graph.zoom_hint'|trans }}</p>
             </div>
             <div data-global-graph-target="canvas" class="absolute inset-0 z-10" role="img" aria-label="Graphe global"></div>
             <div data-global-graph-target="status" class="absolute inset-0 z-0 flex items-center justify-center font-sans text-sm text-ink-secondary">Chargement…</div>
@@ -81,7 +84,7 @@
             {% if focus_person is defined and focus_person %}
                 <h2 class="font-serif text-lg font-medium text-text-primary">Sélection</h2>
                 <p class="mt-2 text-text-primary">{{ focus_person.givenName }} {{ focus_person.familyName }}</p>
-                <a href="{{ path('app_person_show', { slug: focus_person.slug }) }}" class="mt-3 inline-block border border-accent px-3 py-2 text-accent no-underline hover:bg-accent-subtle">Voir la fiche complète</a>
+                <a href="{{ path('app_person_show', { slug: focus_person.slug }) }}" class="mt-3 inline-block rounded-sm border border-accent bg-transparent px-3 py-2 font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">Voir la fiche complète</a>
             {% else %}
                 <p class="text-text-secondary">Cliquez sur un nœud pour un aperçu.</p>
             {% endif %}

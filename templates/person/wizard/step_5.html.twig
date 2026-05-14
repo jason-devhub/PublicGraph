@@ -9,7 +9,7 @@
         <pre class="mt-6 overflow-x-auto border border-rule-medium bg-surface-inset p-4 font-mono text-xs text-text-secondary">{{ fullJson|json_encode }}</pre>
         <form method="post" class="mt-8">
             <input type="hidden" name="_token" value="{{ csrf_token('wizard_step') }}">
-            <button type="submit" class="border border-accent bg-accent px-4 py-2 font-medium text-text-inverse hover:bg-accent-hover">Soumettre pour modération</button>
+            <button type="submit" class="pg-btn-primary px-4 py-2 font-medium">Soumettre pour modération</button>
         </form>
     </div>
 {% endblock %}

@@ -45,6 +45,29 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         self::assertSame([], $data['elements']['edges']);
     }
 
+    public function testGraphDataReturnsOrgsWhenNoSimilarityButMembershipExists(): void
+    {
+        $client = static::createClient();
+        $suffix = bin2hex(random_bytes(4));
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $person = $this->persistApprovedPerson($em, $suffix.'mem');
+        $org = $this->persistApprovedOrg($em, $suffix.'org');
+        $this->persistMembership($em, $person, $org, 2023);
+
+        $client->request('GET', '/en/people/'.$person->getSlug().'/graph-data');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertFalse($data['analyzing']);
+        self::assertSame(1, $data['connectionCount']);
+        $nodeIds = array_map(
+            static fn (array $n): string => (string) $n['data']['id'],
+            $data['elements']['nodes'],
+        );
+        self::assertContains('person-'.$person->getId(), $nodeIds);
+        self::assertContains('org-'.$org->getId(), $nodeIds);
+    }
+
     public function testGraphDataReturnsNodesAndEdgesWithSimilarity(): void
     {
         $client = static::createClient();

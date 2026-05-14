@@ -17,4 +17,14 @@ final class WikimediaImageUrlTest extends TestCase
         self::assertStringContainsString('width=250', $url);
         self::assertStringNotContainsString('File:', $url);
     }
+
+    public function testBuildThumbnailAcceptsWikidataP18CommonsUri(): void
+    {
+        $uri = 'http://commons.wikimedia.org/wiki/Special:FilePath/Douglas%20adams%20portrait.jpg';
+        $url = WikimediaImageUrl::buildThumbnail($uri, 200);
+
+        self::assertStringStartsWith('https://commons.wikimedia.org/wiki/Special:FilePath/', $url);
+        self::assertStringContainsString('width=200', $url);
+        self::assertStringContainsString('Douglas', $url);
+    }
 }

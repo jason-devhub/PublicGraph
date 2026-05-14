@@ -7,3 +7,105 @@
         @apply bg-surface-paper text-text-primary font-sans antialiased;
     }
 }
+
+@layer components {
+    /**
+     * Bouton plein accent : léger relief (ombre + reflet haut), sans dégradé de fond.
+     * specs/design.md §2.4–2.6
+     */
+    .pg-btn-primary {
+        @apply rounded-sm border border-accent bg-accent font-sans font-medium text-text-inverse;
+        @apply shadow-btn-primary transition-[box-shadow,background-color,transform] duration-150 ease-out;
+    }
+
+    .pg-btn-primary:hover {
+        @apply border-accent-hover bg-accent-hover shadow-btn-primary-hover;
+    }
+
+    .pg-btn-primary:active {
+        @apply shadow-btn-primary-active;
+        transform: translateY(0.5px);
+    }
+
+    .pg-btn-primary:focus-visible {
+        @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface-paper;
+    }
+
+    /** Champs texte : encart légèrement enfoncé + focus lumineux */
+    .pg-input {
+        @apply rounded-sm border border-rule-medium bg-surface-primary font-sans text-text-primary shadow-input-inset;
+        @apply transition-[box-shadow,border-color] duration-150 ease-out placeholder:text-text-tertiary;
+    }
+
+    .pg-input:focus {
+        @apply border-accent shadow-input-focus outline-none ring-0;
+    }
+
+    /** Portraits / vignettes : rayon md + cadre lumineux type tirage encadré */
+    .pg-photo {
+        @apply rounded-md border border-rule-medium object-cover shadow-photo-frame;
+    }
+
+    /** Placeholder quand il n’y a pas de photo (même rayon / lumière que .pg-photo) */
+    .pg-photo-placeholder {
+        @apply flex items-center justify-center rounded-md border border-rule-medium bg-surface-inset font-mono text-text-tertiary shadow-photo-frame;
+    }
+
+    /** Bouton contour (menu mobile, filtres) — la couleur du texte reste au template */
+    .pg-btn-outline {
+        @apply rounded-sm border border-rule-medium bg-surface-primary font-sans shadow-none;
+        @apply transition-[box-shadow,border-color,background-color,color] duration-150 ease-out;
+    }
+
+    .pg-btn-outline:hover {
+        @apply border-accent text-accent shadow-subtle;
+    }
+
+    .pg-btn-outline:focus-visible {
+        @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface-paper;
+    }
+
+    /** Liens / boutons secondaires bord filet fort */
+    .pg-btn-secondary {
+        @apply rounded-sm border border-rule-strong bg-transparent font-sans text-text-primary shadow-none;
+        @apply transition-[box-shadow,border-color,color,background-color] duration-150 ease-out;
+    }
+
+    .pg-btn-secondary:hover {
+        @apply border-accent text-accent shadow-subtle;
+    }
+
+    /** CTA texte accent, fond papier au survol */
+    .pg-btn-tertiary {
+        @apply rounded-sm border border-rule-medium bg-transparent font-sans text-accent shadow-none;
+        @apply transition-[box-shadow,border-color,background-color,color] duration-150 ease-out;
+    }
+
+    .pg-btn-tertiary:hover {
+        @apply border-accent bg-surface-secondary text-accent shadow-subtle;
+    }
+
+    /** Texte secondaire → primaire au survol (ex. lien « À propos ») */
+    .pg-btn-muted {
+        @apply rounded-sm border border-rule-medium bg-transparent font-sans text-text-secondary shadow-none;
+        @apply transition-[box-shadow,border-color,color] duration-150 ease-out;
+    }
+
+    .pg-btn-muted:hover {
+        @apply border-accent text-text-primary shadow-subtle;
+    }
+
+    /** Variante accent en contour (ex. renvoyer e-mail) */
+    .pg-btn-accent-outline {
+        @apply rounded-sm border border-accent bg-transparent font-sans font-medium text-accent shadow-none;
+        @apply transition-[box-shadow,background-color,color] duration-150 ease-out;
+    }
+
+    .pg-btn-accent-outline:hover {
+        @apply bg-accent text-text-inverse shadow-btn-primary;
+    }
+
+    .pg-btn-accent-outline:focus-visible {
+        @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface-paper;
+    }
+}

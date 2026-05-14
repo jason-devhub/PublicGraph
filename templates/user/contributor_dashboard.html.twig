@@ -14,7 +14,7 @@
                 <p>Validez votre adresse e-mail pour contribuer.</p>
                 <form method="post" action="{{ path('app_resend_verification_email') }}" class="mt-2">
                     <input type="hidden" name="_token" value="{{ csrf_token('resend_verification') }}">
-                    <button type="submit" class="border border-accent px-3 py-1 font-medium text-accent hover:bg-accent hover:text-text-inverse">Renvoyer l'e-mail de vérification</button>
+                    <button type="submit" class="pg-btn-accent-outline px-3 py-1">Renvoyer l'e-mail de vérification</button>
                 </form>
             </div>
         {% endif %}
@@ -23,7 +23,7 @@
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <h2 class="font-serif text-xl font-medium text-text-primary">Mes fiches</h2>
                 {% if is_granted('create_person') %}
-                    <a href="{{ path('app_person_wizard_start') }}" class="border border-accent bg-accent px-4 py-2 font-sans text-sm font-medium text-text-inverse no-underline hover:bg-accent-hover">Créer une fiche personne</a>
+                    <a href="{{ path('app_person_wizard_start') }}" class="pg-btn-primary inline-block px-4 py-2 font-sans text-sm no-underline">Créer une fiche personne</a>
                 {% endif %}
             </div>
             <ul class="mt-4 space-y-2 font-sans text-sm">

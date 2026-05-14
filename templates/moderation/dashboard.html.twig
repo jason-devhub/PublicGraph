@@ -34,7 +34,7 @@
                         <span>{{ person.givenName }} {{ person.familyName }}</span>
                         <form method="post" action="{{ path('app_moderation_person_approve', {id: person.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('moderate_person_' ~ person.id) }}">
-                            <button type="submit" class="border border-accent px-3 py-1 text-accent">Approuver</button>
+                            <button type="submit" class="pg-btn-accent-outline px-3 py-1">Approuver</button>
                         </form>
                     </li>
                 {% else %}
@@ -51,7 +51,7 @@
                         <span>{{ org.officialName }}</span>
                         <form method="post" action="{{ path('app_moderation_organization_approve', {id: org.id}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('moderate_org_' ~ org.id) }}">
-                            <button type="submit" class="border border-accent px-3 py-1 text-accent">Approuver</button>
+                            <button type="submit" class="pg-btn-accent-outline px-3 py-1">Approuver</button>
                         </form>
                     </li>
                 {% else %}

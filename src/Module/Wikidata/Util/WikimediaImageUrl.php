@@ -11,7 +11,13 @@ final class WikimediaImageUrl
 {
     public static function buildThumbnail(string $filename, int $width = 250): string
     {
-        $name = preg_replace('#^File:#i', '', trim($filename));
+        $raw = trim($filename);
+        if (preg_match('#commons\.wikimedia\.org/wiki/Special:FilePath/(.+?)(?:\?|$)#i', $raw, $m)) {
+            $name = rawurldecode($m[1]);
+        } else {
+            $name = $raw;
+        }
+        $name = preg_replace('#^File:#i', '', $name);
         $name = str_replace(' ', '_', (string) $name);
 
         return 'https://commons.wikimedia.org/wiki/Special:FilePath/'.rawurlencode($name).'?width='.$width;

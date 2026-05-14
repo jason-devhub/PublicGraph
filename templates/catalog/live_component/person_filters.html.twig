@@ -133,9 +133,9 @@
                         <tr class="border-b border-rule-subtle">
                             <td class="py-3 pr-4 align-top">
                                 {% if person.photoUrl %}
-                                    <img src="{{ person.photoUrl }}" alt="" class="h-12 w-12 border border-rule-medium object-cover" loading="lazy" width="48" height="48">
+                                    <img src="{{ person.photoUrl }}" alt="" class="pg-photo h-12 w-12" loading="lazy" width="48" height="48">
                                 {% else %}
-                                    <div class="flex h-12 w-12 items-center justify-center border border-rule-medium bg-surface-inset font-mono text-xs text-text-tertiary" aria-hidden="true">?</div>
+                                    <div class="pg-photo-placeholder h-12 w-12 text-xs" aria-hidden="true">?</div>
                                 {% endif %}
                             </td>
                             <td class="py-3 pr-4 align-top">
@@ -199,9 +199,9 @@
                     <article class="bg-surface-primary py-4">
                         <div class="flex gap-3">
                             {% if person.photoUrl %}
-                                <img src="{{ person.photoUrl }}" alt="" class="h-16 w-16 shrink-0 border border-rule-medium object-cover" loading="lazy" width="64" height="64">
+                                <img src="{{ person.photoUrl }}" alt="" class="pg-photo h-16 w-16 shrink-0" loading="lazy" width="64" height="64">
                             {% else %}
-                                <div class="flex h-16 w-16 shrink-0 items-center justify-center border border-rule-medium bg-surface-inset font-mono text-sm text-text-tertiary">?</div>
+                                <div class="pg-photo-placeholder h-16 w-16 shrink-0 text-sm" aria-hidden="true">?</div>
                             {% endif %}
                             <div class="min-w-0 flex-1">
                                 <h3 class="font-serif text-lg font-medium text-text-primary">
@@ -249,14 +249,14 @@
                     <div class="flex gap-2">
                         {% if pager.hasPreviousPage %}
                             <button type="button"
-                                    class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                                    class="pg-btn-outline px-3 py-2 text-text-primary"
                                     data-action="live#action"
                                     data-live-action-param="setPage"
                                     data-live-page-param="{{ pager.currentPage - 1 }}">{{ 'site.search_page.prev'|trans }}</button>
                         {% endif %}
                         {% if pager.hasNextPage %}
                             <button type="button"
-                                    class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                                    class="pg-btn-outline px-3 py-2 text-text-primary"
                                     data-action="live#action"
                                     data-live-action-param="setPage"
                                     data-live-page-param="{{ pager.currentPage + 1 }}">{{ 'site.search_page.next'|trans }}</button>

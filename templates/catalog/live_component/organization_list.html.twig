@@ -59,14 +59,14 @@
             <div class="flex gap-2">
                 {% if pager.hasPreviousPage %}
                     <button type="button"
-                            class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                            class="pg-btn-outline px-3 py-2 text-text-primary"
                             data-action="live#action"
                             data-live-action-param="setPage"
                             data-live-page-param="{{ pager.currentPage - 1 }}">Précédent</button>
                 {% endif %}
                 {% if pager.hasNextPage %}
                     <button type="button"
-                            class="border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary hover:bg-surface-secondary"
+                            class="pg-btn-outline px-3 py-2 text-text-primary"
                             data-action="live#action"
                             data-live-action-param="setPage"
                             data-live-page-param="{{ pager.currentPage + 1 }}">Suivant</button>

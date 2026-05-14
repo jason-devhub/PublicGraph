@@ -74,7 +74,34 @@ module.exports = {
                 serif: ['ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
             },
             borderRadius: {
+                /* specs/design.md §2.4 */
                 xs: '2px',
+                sm: '4px',
+                md: '6px',
+                lg: '12px',
+            },
+            boxShadow: {
+                /* specs/design.md §2.6 + chaleur éditoriale (pas de dégradés sur les fonds) */
+                subtle: '0 1px 2px rgba(26, 24, 21, 0.04)',
+                modal: '0 8px 32px rgba(26, 24, 21, 0.12)',
+                'focus-ring': '0 0 0 3px rgba(123, 26, 26, 0.25)',
+                'header-bar':
+                    '0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 1px 0 rgba(200, 194, 181, 0.5), 0 8px 24px -6px rgba(26, 24, 21, 0.07)',
+                'btn-primary':
+                    '0 1px 0 rgba(255, 255, 255, 0.14) inset, 0 1px 1px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(91, 19, 19, 0.28)',
+                'btn-primary-hover':
+                    '0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 2px 3px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(91, 19, 19, 0.32)',
+                'btn-primary-active': 'inset 0 2px 4px rgba(0, 0, 0, 0.22)',
+                'input-inset':
+                    'inset 0 1px 2px rgba(26, 24, 21, 0.05), 0 1px 0 rgba(255, 255, 255, 0.75)',
+                'input-focus':
+                    'inset 0 1px 2px rgba(26, 24, 21, 0.06), 0 0 0 1px rgba(123, 26, 26, 0.35), 0 0 0 4px rgba(123, 26, 26, 0.12)',
+                'photo-frame':
+                    '0 0 0 1px rgba(255, 255, 255, 0.55), 0 1px 1px rgba(26, 24, 21, 0.06), 0 6px 20px -4px rgba(26, 24, 21, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.45)',
+                'btn-ink':
+                    '0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 14px -2px rgba(0, 0, 0, 0.45)',
+                'btn-ink-hover':
+                    '0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 22px -4px rgba(0, 0, 0, 0.5)',
             },
             maxWidth: {
                 content: '680px',

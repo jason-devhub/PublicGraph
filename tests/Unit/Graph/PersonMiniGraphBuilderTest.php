@@ -35,6 +35,31 @@ final class PersonMiniGraphBuilderTest extends TestCase
         self::assertSame([], $out['elements']['edges']);
     }
 
+    public function testNotAnalyzingWhenApprovedMembershipsExistWithoutSimilarities(): void
+    {
+        $repo = $this->createMock(PersonSimilarityRepository::class);
+        $repo->expects(self::once())->method('findTopForPerson')->willReturn([]);
+
+        $central = $this->personWithId(7, 'Solo', 'Membre', 'solo-membre', ['politician']);
+        $org = $this->organizationWithId(99, 'Org seule', 'org-seule', Organization::TYPE_CORPORATION);
+        $m = new Membership();
+        $m->setPerson($central);
+        $m->setOrganization($org);
+        $m->setYear(2020);
+        $m->setStatus('approved');
+        $central->getMemberships()->add($m);
+
+        $builder = new PersonMiniGraphBuilder($repo, new LocalizedContentResolver(['en', 'fr']), $this->requestStackWithLocale('en'));
+        $out = $builder->build($central);
+
+        self::assertFalse($out['analyzing']);
+        self::assertSame(1, $out['connectionCount']);
+        $ids = array_map(static fn (array $n): string => $n['data']['id'], $out['elements']['nodes']);
+        self::assertContains('person-7', $ids);
+        self::assertContains('org-99', $ids);
+        self::assertCount(1, $out['elements']['edges']);
+    }
+
     public function testBuildIncludesSimilarPersonsAndMembershipOrgs(): void
     {
         $central = $this->personWithId(1, 'A', 'Centrale', 'a-centrale', ['politician']);

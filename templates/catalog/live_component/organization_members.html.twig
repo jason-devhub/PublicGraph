@@ -5,7 +5,7 @@
             <select id="member-year-select"
                     data-model="memberYear"
                     data-action="change->live#update"
-                    class="mt-1 border border-rule-medium bg-surface-primary px-3 py-2 text-text-primary">
+                    class="pg-input mt-1 px-3 py-2 text-text-primary">
                 <option value="" {% if memberYear is null or memberYear == '' %}selected{% endif %}>Toutes les années</option>
                 {% for y in 1950..2030 %}
                     <option value="{{ y }}" {% if memberYear == (y ~ '') %}selected{% endif %}>{{ y }}</option>
@@ -62,14 +62,14 @@
             <div class="flex gap-2">
                 {% if pager.hasPreviousPage %}
                     <button type="button"
-                            class="border border-rule-medium bg-surface-primary px-3 py-2"
+                            class="pg-btn-outline px-3 py-2 text-text-primary"
                             data-action="live#action"
                             data-live-action-param="setMembersPage"
                             data-live-members-page-param="{{ pager.currentPage - 1 }}">Précédent</button>
                 {% endif %}
                 {% if pager.hasNextPage %}
                     <button type="button"
-                            class="border border-rule-medium bg-surface-primary px-3 py-2"
+                            class="pg-btn-outline px-3 py-2 text-text-primary"
                             data-action="live#action"
                             data-live-action-param="setMembersPage"
                             data-live-members-page-param="{{ pager.currentPage + 1 }}">Suivant</button>

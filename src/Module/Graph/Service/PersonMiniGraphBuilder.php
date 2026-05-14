@@ -34,18 +34,6 @@ final class PersonMiniGraphBuilder
     {
         $centralId = (int) $person->getId();
         $similarities = $this->personSimilarityRepository->findTopForPerson($person, 20);
-        $analyzing = [] === $similarities;
-
-        if ($analyzing) {
-            return [
-                'analyzing' => true,
-                'connectionCount' => 0,
-                'elements' => [
-                    'nodes' => [$this->personNode($person, true)],
-                    'edges' => [],
-                ],
-            ];
-        }
 
         $nodes = [];
         $edges = [];
@@ -101,8 +89,10 @@ final class PersonMiniGraphBuilder
             ];
         }
 
+        $hasConnections = [] !== $edges;
+
         return [
-            'analyzing' => false,
+            'analyzing' => !$hasConnections,
             'connectionCount' => \count($edges),
             'elements' => [
                 'nodes' => $nodes,

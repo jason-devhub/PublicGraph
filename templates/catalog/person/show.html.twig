@@ -11,9 +11,9 @@
             <div class="flex flex-col gap-6 md:flex-row md:items-start">
                 <div class="shrink-0">
                     {% if person.photoUrl %}
-                        <img src="{{ person.photoUrl }}" alt="" class="mx-auto max-h-[250px] max-w-[250px] border border-rule-medium object-cover md:mx-0" width="250" height="250" loading="lazy">
+                        <img src="{{ person.photoUrl }}" alt="" class="pg-photo mx-auto max-h-[250px] max-w-[250px] md:mx-0" width="250" height="250" loading="lazy">
                     {% else %}
-                        <div class="mx-auto flex h-[200px] w-[200px] items-center justify-center border border-rule-medium bg-surface-inset font-mono text-text-tertiary md:mx-0">Sans photo</div>
+                        <div class="pg-photo-placeholder mx-auto h-[200px] w-[200px] font-mono text-sm text-text-tertiary md:mx-0">Sans photo</div>
                     {% endif %}
                 </div>
                 <div class="min-w-0 flex-1">
@@ -37,11 +37,11 @@
                     </div>
                     <div class="mt-6 flex flex-wrap gap-3 font-sans text-sm">
                         {% if person.status == 'approved' and is_granted('create_proposal') %}
-                            <a href="{{ path('app_contribution_propose_section', {entityType: 'person', id: person.id, sectionType: 'identity'}) }}" class="border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Proposer une modification (identité)</a>
+                            <a href="{{ path('app_contribution_propose_section', {entityType: 'person', id: person.id, sectionType: 'identity'}) }}" class="pg-btn-primary inline-block px-3 py-2 no-underline">Proposer une modification (identité)</a>
                         {% elseif app.user %}
-                            <span class="border border-rule-medium px-3 py-2 text-text-tertiary">Validez votre e-mail pour proposer une modification.</span>
+                            <span class="rounded-sm border border-rule-medium bg-surface-secondary px-3 py-2 text-text-tertiary shadow-subtle">Validez votre e-mail pour proposer une modification.</span>
                         {% else %}
-                            <a href="{{ path('app_login') }}" class="border border-accent bg-accent px-3 py-2 font-medium text-text-inverse no-underline hover:bg-accent-hover">Connexion pour proposer une modification</a>
+                            <a href="{{ path('app_login') }}" class="pg-btn-primary inline-block px-3 py-2 no-underline">Connexion pour proposer une modification</a>
                         {% endif %}
                     </div>
                 </div>
@@ -62,7 +62,7 @@
             <ol class="mt-6 space-y-4 border-l-2 border-accent pl-6 font-sans text-sm text-text-primary">
                 {% for pos in positions %}
                     <li class="relative">
-                        <span class="absolute -left-[7px] top-1.5 h-2 w-2 bg-accent" aria-hidden="true"></span>
+                        <span class="absolute -left-[7px] top-1.5 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_1px_rgba(250,247,242,0.9),0_1px_3px_rgba(91,19,19,0.35)]" aria-hidden="true"></span>
                         <p class="font-medium">{{ position_titles[pos.id] ?? pos.titleFr }}</p>
                         <p class="text-text-secondary">{{ pos.organization.officialName }} — {{ pos.startDate|date('m/Y') }}
                             {% if pos.endDate %}→ {{ pos.endDate|date('m/Y') }}{% else %}→ <span class="text-accent">en cours</span>{% endif %}
@@ -76,7 +76,7 @@
 
         <section class="mt-12 border-t border-rule-medium pt-8" aria-labelledby="mini-graph-heading">
             <h2 id="mini-graph-heading" class="font-serif text-2xl font-medium text-text-primary">Réseau d’influence</h2>
-            <aside class="mt-6 border border-[#2A3038] bg-ink text-ink-text">
+            <aside class="mt-6 overflow-hidden rounded-sm border border-[#2A3038] bg-ink text-ink-text shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)]">
                 <header class="flex items-center justify-between gap-3 border-b border-[#2A3038] px-4 py-3 font-sans text-xs uppercase tracking-wider text-ink-secondary">
                     <span>Cartographie locale</span>
                     <span data-mini-graph-target="count" class="tabular-nums">—</span>
@@ -166,9 +166,9 @@
                             <li class="flex flex-wrap items-start gap-4 py-4">
                                 <div class="shrink-0">
                                     {% if other.photoUrl %}
-                                        <img src="{{ other.photoUrl }}" alt="" class="h-14 w-14 border border-rule-medium object-cover" width="56" height="56" loading="lazy">
+                                        <img src="{{ other.photoUrl }}" alt="" class="pg-photo h-14 w-14" width="56" height="56" loading="lazy">
                                     {% else %}
-                                        <div class="flex h-14 w-14 items-center justify-center border border-rule-medium bg-surface-inset font-mono text-[10px] text-text-tertiary">N/A</div>
+                                        <div class="pg-photo-placeholder h-14 w-14 text-[10px]">N/A</div>
                                     {% endif %}
                                 </div>
                                 <div class="min-w-0 flex-1">

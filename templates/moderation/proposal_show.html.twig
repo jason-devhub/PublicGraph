@@ -13,13 +13,13 @@
         <div class="mt-10 flex flex-wrap gap-4">
             <form method="post" action="{{ path('app_moderation_proposal_approve', {id: proposal.id}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('moderate_proposal_' ~ proposal.id) }}">
-                <button type="submit" class="border border-accent bg-accent px-4 py-2 text-text-inverse">Approuver</button>
+                <button type="submit" class="pg-btn-primary px-4 py-2">Approuver</button>
             </form>
             <form method="post" action="{{ path('app_moderation_proposal_reject', {id: proposal.id}) }}" class="space-y-2">
                 <input type="hidden" name="_token" value="{{ csrf_token('moderate_proposal_' ~ proposal.id) }}">
                 <label class="block text-text-secondary">Motif de rejet</label>
-                <textarea name="rejectionReason" required minlength="10" rows="4" class="w-full border border-rule-medium px-3 py-2"></textarea>
-                <button type="submit" class="border border-rule-strong px-4 py-2">Rejeter</button>
+                <textarea name="rejectionReason" required minlength="10" rows="4" class="pg-input w-full px-3 py-2"></textarea>
+                <button type="submit" class="pg-btn-secondary px-4 py-2">Rejeter</button>
             </form>
         </div>
     </div>

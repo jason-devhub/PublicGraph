@@ -71,4 +71,19 @@ final class WikidataPersonMapperTest extends TestCase
         self::assertSame('maire', $byQ['Q30185']);
         self::assertSame('député français', $byQ['Q193582']);
     }
+
+    public function testMapIncludesPhotoUrlFromP18(): void
+    {
+        $mapper = new WikidataPersonMapper();
+        $binding = [
+            'wikidataId' => ['type' => 'literal', 'value' => 'Q42'],
+            'personLabel' => ['type' => 'literal', 'value' => 'Douglas Adams'],
+            'nationalityQids' => ['type' => 'literal', 'value' => 'Q145'],
+            'occupationQids' => ['type' => 'literal', 'value' => 'Q82955'],
+            'image' => ['type' => 'literal', 'value' => 'Douglas Adams cropped.jpg'],
+        ];
+        $dto = $mapper->map($binding);
+        self::assertStringContainsString('commons.wikimedia.org', (string) $dto->photoUrl);
+        self::assertStringContainsString('Douglas_Adams_cropped.jpg', (string) $dto->photoUrl);
+    }
 }
