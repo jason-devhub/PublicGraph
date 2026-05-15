@@ -20,6 +20,9 @@ final class GraphDataBuilder
     /** Remplissage des nœuds personne (graphe global) : gris unique, hors palette catégorie. */
     private const string PERSON_NODE_FILL = '#6F7A8C';
 
+    /** Nombre max d’organisations (hors org. centrale) dans le mini-graphe organisation. */
+    private const int MAX_AFFILIATED_ORGANIZATIONS = 72;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PersonRepository $personRepository,
@@ -243,6 +246,16 @@ final class GraphDataBuilder
                     ],
                 ];
             }
+
+            if ([] !== $idList) {
+                $this->appendAffiliatedOrganizations(
+                    $nodes,
+                    $edges,
+                    $idList,
+                    $organizationEntity,
+                    $params->locale,
+                );
+            }
         }
 
         return [
@@ -251,6 +264,121 @@ final class GraphDataBuilder
                 'edges' => $edges,
             ],
         ];
+    }
+
+    /**
+     * Ajoute les organisations affiliées (adhésions / mandats approuvés), hors l’organisation centrale du contexte.
+     *
+     * @param list<array<string, mixed>> $nodes
+     * @param list<array<string, mixed>> $edges
+     * @param list<int>                  $subgraphPersonIds
+     */
+    private function appendAffiliatedOrganizations(
+        array &$nodes,
+        array &$edges,
+        array $subgraphPersonIds,
+        Organization $centralOrg,
+        string $locale,
+    ): void {
+        $centralOrgId = (int) $centralOrg->getId();
+        $conn = $this->entityManager->getConnection();
+        $placeholders = implode(',', array_fill(0, \count($subgraphPersonIds), '?'));
+        $approved = Organization::STATUS_APPROVED;
+        $paramsInAndCentral = array_merge($subgraphPersonIds, [$centralOrgId]);
+
+        $sqlMemberships = 'SELECT m.person_id, m.organization_id FROM memberships m '
+            .'INNER JOIN organizations o ON o.id = m.organization_id '
+            .'WHERE m.person_id IN ('.$placeholders.') AND m.organization_id != ? '
+            .'AND m.status = ? AND o.status = ?';
+
+        $sqlPositions = 'SELECT p.person_id, p.organization_id FROM positions p '
+            .'INNER JOIN organizations o ON o.id = p.organization_id '
+            .'WHERE p.person_id IN ('.$placeholders.') AND p.organization_id != ? '
+            .'AND p.status = ? AND o.status = ?';
+
+        /** @var list<array{person_id: string|int, organization_id: string|int}> $rowsM */
+        $rowsM = $conn->fetchAllAssociative($sqlMemberships, array_merge($paramsInAndCentral, [$approved, $approved]));
+        /** @var list<array{person_id: string|int, organization_id: string|int}> $rowsP */
+        $rowsP = $conn->fetchAllAssociative($sqlPositions, array_merge($paramsInAndCentral, [$approved, $approved]));
+
+        /** @var array<int, array<int, true>> $orgToPersonKeys */
+        $orgToPersonKeys = [];
+        /** @var array<string, array{person_id: int, organization_id: int}> $pairByKey */
+        $pairByKey = [];
+        foreach (array_merge($rowsM, $rowsP) as $row) {
+            $pid = (int) $row['person_id'];
+            $orgId = (int) $row['organization_id'];
+            $pkey = $pid.'-'.$orgId;
+            if (isset($pairByKey[$pkey])) {
+                continue;
+            }
+            $pairByKey[$pkey] = ['person_id' => $pid, 'organization_id' => $orgId];
+            if (!isset($orgToPersonKeys[$orgId])) {
+                $orgToPersonKeys[$orgId] = [];
+            }
+            $orgToPersonKeys[$orgId][$pid] = true;
+        }
+
+        if ([] === $orgToPersonKeys) {
+            return;
+        }
+
+        $scores = [];
+        foreach ($orgToPersonKeys as $orgId => $personKeys) {
+            $scores[$orgId] = \count($personKeys);
+        }
+        arsort($scores, \SORT_NUMERIC);
+        $allowedOrgIds = array_slice(array_keys($scores), 0, self::MAX_AFFILIATED_ORGANIZATIONS);
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('o')
+            ->from(Organization::class, 'o')
+            ->andWhere('o.id IN (:ids)')
+            ->andWhere('o.status = :ost')
+            ->setParameter('ids', $allowedOrgIds)
+            ->setParameter('ost', Organization::STATUS_APPROVED);
+        /** @var list<Organization> $orgEntities */
+        $orgEntities = $qb->getQuery()->getResult();
+
+        $existingNodeIds = [];
+        foreach ($nodes as $n) {
+            $existingNodeIds[$n['data']['id']] = true;
+        }
+
+        foreach ($orgEntities as $org) {
+            $nid = 'org-'.(int) $org->getId();
+            if (isset($existingNodeIds[$nid])) {
+                continue;
+            }
+            $orgType = $org->getType();
+            $nodes[] = [
+                'data' => [
+                    'id' => $nid,
+                    'label' => $this->localizedContentResolver->resolveOrganizationDisplayName($org, $locale),
+                    'type' => 'organization',
+                    'slug' => $org->getSlug(),
+                    'orgType' => $orgType,
+                    'bgColor' => $this->organizationBgColor($orgType),
+                ],
+            ];
+            $existingNodeIds[$nid] = true;
+        }
+
+        $allowedSet = array_fill_keys($allowedOrgIds, true);
+        foreach ($pairByKey as $pair) {
+            $pid = $pair['person_id'];
+            $orgId = $pair['organization_id'];
+            if (!isset($allowedSet[$orgId])) {
+                continue;
+            }
+            $edges[] = [
+                'data' => [
+                    'id' => 'e-p-'.$pid.'-o-'.$orgId,
+                    'source' => 'person-'.$pid,
+                    'target' => 'org-'.$orgId,
+                ],
+            ];
+        }
     }
 
     private function organizationBgColor(string $orgType): string

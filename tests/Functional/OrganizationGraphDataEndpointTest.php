@@ -82,6 +82,42 @@ final class OrganizationGraphDataEndpointTest extends WebTestCase
         self::assertTrue($hasOrgToPerson, 'arête organisation → membre attendue');
     }
 
+    public function testGraphDataIncludesOtherOrganizationsLinkedToMembers(): void
+    {
+        $client = static::createClient();
+        $suffix = bin2hex(random_bytes(4));
+        $em = self::getEntityManager();
+        $centralOrg = $this->persistApprovedOrg($em, $suffix.'central');
+        $otherOrg = $this->persistApprovedOrg($em, $suffix.'other');
+        $person = $this->persistApprovedPerson($em, $suffix.'member');
+        $this->persistMembership($em, $person, $centralOrg, 2024);
+        $this->persistMembership($em, $person, $otherOrg, 2023);
+
+        $client->request('GET', '/en/organizations/'.$centralOrg->getSlug().'/graph-data');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $nodeIds = array_map(
+            static fn (array $n): string => (string) $n['data']['id'],
+            $data['elements']['nodes'],
+        );
+        self::assertContains('org-'.$centralOrg->getId(), $nodeIds);
+        self::assertContains('org-'.$otherOrg->getId(), $nodeIds);
+        self::assertContains('person-'.$person->getId(), $nodeIds);
+
+        $hasPersonToOtherOrg = false;
+        foreach ($data['elements']['edges'] as $edge) {
+            $s = $edge['data']['source'] ?? '';
+            $t = $edge['data']['target'] ?? '';
+            if ($s === 'person-'.$person->getId() && $t === 'org-'.$otherOrg->getId()) {
+                $hasPersonToOtherOrg = true;
+                break;
+            }
+        }
+        self::assertTrue($hasPersonToOtherOrg, 'arête personne → organisation affiliée attendue');
+    }
+
     public function testGraphData404WhenOrganizationNotApproved(): void
     {
         $client = static::createClient();
