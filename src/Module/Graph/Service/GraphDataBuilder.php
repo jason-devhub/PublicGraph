@@ -21,8 +21,11 @@ final class GraphDataBuilder
     /** Remplissage des nœuds personne (graphe global) : gris unique, hors palette catégorie. */
     private const string PERSON_NODE_FILL = '#6F7A8C';
 
-    /** Nombre max de nœuds organisation affiliés (mini-graphes personne / organisation). */
+    /** Nombre max de nœuds organisation affiliés (mini-graphes personne / organisation, filtre organisation). */
     private const int MAX_AFFILIATED_ORGANIZATIONS = 72;
+
+    /** Graphe global sans filtre org : plus d’organisations pour refléter les liens adhésions / mandats sur le sous-ensemble personnes. */
+    private const int MAX_GLOBAL_GRAPH_ORGANIZATIONS = 500;
 
     /** Personnes supplémentaires liées aux organisations déjà présentes sur le graphe (co-membres / collègues). */
     private const int MAX_CO_MEMBERS_THROUGH_DISPLAYED_ORGS = 80;
@@ -427,6 +430,14 @@ final class GraphDataBuilder
 
         $focusSlugTrim = \is_string($params->focusPersonSlug) ? trim($params->focusPersonSlug) : '';
 
+        $organizationEntity = null;
+        if (\is_string($params->organizationSlug) && '' !== trim($params->organizationSlug)) {
+            $candidate = $this->entityManager->getRepository(Organization::class)->findOneBy(['slug' => trim($params->organizationSlug)]);
+            if ($candidate instanceof Organization && Organization::STATUS_APPROVED === $candidate->getStatus()) {
+                $organizationEntity = $candidate;
+            }
+        }
+
         $nodes = [];
         foreach ($persons as $p) {
             $nodes[] = $this->buildPersonGraphNode($p, $focusSlugTrim);
@@ -454,12 +465,15 @@ final class GraphDataBuilder
             }
         }
 
-        $organizationEntity = null;
-        if (\is_string($params->organizationSlug) && '' !== trim($params->organizationSlug)) {
-            $candidate = $this->entityManager->getRepository(Organization::class)->findOneBy(['slug' => trim($params->organizationSlug)]);
-            if ($candidate instanceof Organization && Organization::STATUS_APPROVED === $candidate->getStatus()) {
-                $organizationEntity = $candidate;
-            }
+        if ([] !== $idList && !$organizationEntity instanceof Organization) {
+            $this->appendPersonOrganizationAffiliations(
+                $nodes,
+                $edges,
+                $idList,
+                $params->locale,
+                null,
+                self::MAX_GLOBAL_GRAPH_ORGANIZATIONS,
+            );
         }
 
         if ($organizationEntity instanceof Organization) {
@@ -499,13 +513,11 @@ final class GraphDataBuilder
             }
         }
 
-        if ($organizationEntity instanceof Organization || '' !== $focusSlugTrim) {
-            $this->appendCoMembersForDisplayedOrganizations(
-                $nodes,
-                $edges,
-                $focusSlugTrim,
-            );
-        }
+        $this->appendCoMembersForDisplayedOrganizations(
+            $nodes,
+            $edges,
+            $focusSlugTrim,
+        );
 
         return [
             'elements' => [
@@ -813,6 +825,7 @@ final class GraphDataBuilder
      * @param list<array<string, mixed>> $edges
      * @param list<int>                  $subgraphPersonIds
      * @param int|null                   $excludeOrganizationId exclue du graphe (ex. org. déjà centrale sur la fiche organisation)
+     * @param positive-int               $maxOrganizations nombre max d'organisations distinctes (tri par nombre de liens vers le sous-graphe)
      */
     private function appendPersonOrganizationAffiliations(
         array &$nodes,
@@ -820,6 +833,7 @@ final class GraphDataBuilder
         array $subgraphPersonIds,
         string $locale,
         ?int $excludeOrganizationId,
+        int $maxOrganizations = self::MAX_AFFILIATED_ORGANIZATIONS,
     ): void {
         $conn = $this->entityManager->getConnection();
         $placeholders = implode(',', array_fill(0, \count($subgraphPersonIds), '?'));
@@ -872,7 +886,8 @@ final class GraphDataBuilder
             $scores[$orgId] = \count($personKeys);
         }
         arsort($scores, \SORT_NUMERIC);
-        $allowedOrgIds = array_slice(array_keys($scores), 0, self::MAX_AFFILIATED_ORGANIZATIONS);
+        $cap = max(1, $maxOrganizations);
+        $allowedOrgIds = array_slice(array_keys($scores), 0, $cap);
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('o')
