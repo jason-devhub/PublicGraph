@@ -72,7 +72,7 @@ const PERSON_NODE_FILL = '#6F7A8C';
 function wrap32(central, bg, inner) {
     if (central) {
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect x="1" y="1" width="30" height="30" rx="8" fill="#FAF7F2"/>
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="${bg}"/>
   ${inner}
 </svg>`;
     }
@@ -182,8 +182,9 @@ function innerOrganizationGeneric(g, hole) {
  */
 function svgOrganizationBySubtype(orgType, bg, central) {
     const t = normalizeOrgType(orgType);
-    const g = central ? bg : PAPER;
-    const hole = central ? '#FAF7F2' : bg;
+    /** Même recette que le nœud non central : fond type (bg) + glyphes clairs. Le cadre « central » est surtout plus grand côté Cytoscape. */
+    const g = PAPER;
+    const hole = bg;
 
     switch (t) {
         case 'influence_network':

@@ -233,7 +233,7 @@ export default class extends Controller {
                         'border-width': 2,
                         'border-color': '#5DCAA5',
                         'background-color': 'transparent',
-                        color: '#0E1218',
+                        color: '#E8ECF1',
                         'text-outline-width': 0,
                     },
                 },
