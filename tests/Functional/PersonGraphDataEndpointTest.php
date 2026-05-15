@@ -50,7 +50,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         self::assertContains('person-'.$person->getId(), $nodeIds);
     }
 
-    public function testGraphDataPersonProfileDoesNotIncludeOrganizationNodes(): void
+    public function testGraphDataPersonProfileIncludesOrganizationNodesForMemberships(): void
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
@@ -69,7 +69,18 @@ final class PersonGraphDataEndpointTest extends WebTestCase
             $data['elements']['nodes'],
         );
         self::assertContains('person-'.$person->getId(), $nodeIds);
-        self::assertNotContains('org-'.$org->getId(), $nodeIds);
+        self::assertContains('org-'.$org->getId(), $nodeIds);
+
+        $hasPersonToOrg = false;
+        foreach ($data['elements']['edges'] as $edge) {
+            $s = $edge['data']['source'] ?? '';
+            $t = $edge['data']['target'] ?? '';
+            if ($s === 'person-'.$person->getId() && $t === 'org-'.$org->getId()) {
+                $hasPersonToOrg = true;
+                break;
+            }
+        }
+        self::assertTrue($hasPersonToOrg, 'arête personne → organisation attendue sur la fiche personne');
     }
 
     public function testGraphDataReturnsSimilarityEdgeWhenBothPersonsInGraph(): void
@@ -113,7 +124,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
             self::assertTrue($hasPersonEdge, 'arête de similarité attendue lorsque les deux personnes sont dans le sous-graphe');
         }
 
-        self::assertNotContains('org-'.$org->getId(), $nodeIds);
+        self::assertContains('org-'.$org->getId(), $nodeIds);
     }
 
     public function testGraphData404WhenPersonNotApproved(): void

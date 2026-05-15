@@ -20,7 +20,7 @@ final class GraphDataBuilder
     /** Remplissage des nœuds personne (graphe global) : gris unique, hors palette catégorie. */
     private const string PERSON_NODE_FILL = '#6F7A8C';
 
-    /** Nombre max d’organisations (hors org. centrale) dans le mini-graphe organisation. */
+    /** Nombre max de nœuds organisation affiliés (mini-graphes personne / organisation). */
     private const int MAX_AFFILIATED_ORGANIZATIONS = 72;
 
     public function __construct(
@@ -248,14 +248,22 @@ final class GraphDataBuilder
             }
 
             if ([] !== $idList) {
-                $this->appendAffiliatedOrganizations(
+                $this->appendPersonOrganizationAffiliations(
                     $nodes,
                     $edges,
                     $idList,
-                    $organizationEntity,
                     $params->locale,
+                    (int) $organizationEntity->getId(),
                 );
             }
+        } elseif ('' !== $focusSlugTrim && [] !== $idList) {
+            $this->appendPersonOrganizationAffiliations(
+                $nodes,
+                $edges,
+                $idList,
+                $params->locale,
+                null,
+            );
         }
 
         return [
@@ -267,39 +275,43 @@ final class GraphDataBuilder
     }
 
     /**
-     * Ajoute les organisations affiliées (adhésions / mandats approuvés), hors l’organisation centrale du contexte.
+     * Ajoute les organisations (adhésions / mandats approuvés) liées aux personnes du sous-graphe.
      *
      * @param list<array<string, mixed>> $nodes
      * @param list<array<string, mixed>> $edges
      * @param list<int>                  $subgraphPersonIds
+     * @param int|null                   $excludeOrganizationId exclue du graphe (ex. org. déjà centrale sur la fiche organisation)
      */
-    private function appendAffiliatedOrganizations(
+    private function appendPersonOrganizationAffiliations(
         array &$nodes,
         array &$edges,
         array $subgraphPersonIds,
-        Organization $centralOrg,
         string $locale,
+        ?int $excludeOrganizationId,
     ): void {
-        $centralOrgId = (int) $centralOrg->getId();
         $conn = $this->entityManager->getConnection();
         $placeholders = implode(',', array_fill(0, \count($subgraphPersonIds), '?'));
         $approved = Organization::STATUS_APPROVED;
-        $paramsInAndCentral = array_merge($subgraphPersonIds, [$centralOrgId]);
+        $excludeOrgClauseM = null !== $excludeOrganizationId ? ' AND m.organization_id != ?' : '';
+        $excludeOrgClauseP = null !== $excludeOrganizationId ? ' AND pos.organization_id != ?' : '';
+        $paramsBase = null !== $excludeOrganizationId
+            ? array_merge($subgraphPersonIds, [$excludeOrganizationId])
+            : $subgraphPersonIds;
 
         $sqlMemberships = 'SELECT m.person_id, m.organization_id FROM memberships m '
             .'INNER JOIN organizations o ON o.id = m.organization_id '
-            .'WHERE m.person_id IN ('.$placeholders.') AND m.organization_id != ? '
+            .'WHERE m.person_id IN ('.$placeholders.')'.$excludeOrgClauseM.' '
             .'AND m.status = ? AND o.status = ?';
 
-        $sqlPositions = 'SELECT p.person_id, p.organization_id FROM positions p '
-            .'INNER JOIN organizations o ON o.id = p.organization_id '
-            .'WHERE p.person_id IN ('.$placeholders.') AND p.organization_id != ? '
-            .'AND p.status = ? AND o.status = ?';
+        $sqlPositions = 'SELECT pos.person_id, pos.organization_id FROM positions pos '
+            .'INNER JOIN organizations o ON o.id = pos.organization_id '
+            .'WHERE pos.person_id IN ('.$placeholders.')'.$excludeOrgClauseP.' '
+            .'AND pos.status = ? AND o.status = ?';
 
         /** @var list<array{person_id: string|int, organization_id: string|int}> $rowsM */
-        $rowsM = $conn->fetchAllAssociative($sqlMemberships, array_merge($paramsInAndCentral, [$approved, $approved]));
+        $rowsM = $conn->fetchAllAssociative($sqlMemberships, array_merge($paramsBase, [$approved, $approved]));
         /** @var list<array{person_id: string|int, organization_id: string|int}> $rowsP */
-        $rowsP = $conn->fetchAllAssociative($sqlPositions, array_merge($paramsInAndCentral, [$approved, $approved]));
+        $rowsP = $conn->fetchAllAssociative($sqlPositions, array_merge($paramsBase, [$approved, $approved]));
 
         /** @var array<int, array<int, true>> $orgToPersonKeys */
         $orgToPersonKeys = [];
