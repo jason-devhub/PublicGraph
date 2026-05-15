@@ -4,6 +4,3 @@ services:
 
     App\Factory\:
         resource: '../src/Factory/'
-
-    App\Shared\Twig\CspNonceStubExtension:
-        tags: ['twig.extension']

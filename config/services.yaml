@@ -43,10 +43,6 @@ services:
 
     App\Shared\:
         resource: '../src/Shared/'
-        exclude:
-            # Enregistré uniquement en dev/test (voir services_dev.yaml / services_test.yaml) :
-            # évite un doublon avec Nelmio en prod où la CSP est active.
-            - '../src/Shared/Twig/CspNonceStubExtension.php'
 
     # Reste de src/ (Kernel exclu : service implicite du FrameworkBundle)
     App\:
