@@ -37,18 +37,29 @@ export default class extends Controller {
         locale: { type: String, default: 'en' },
         msgLoading: String,
         msgError: String,
-        msgSelection: String,
         msgViewFull: String,
+        msgKindPerson: String,
+        msgKindOrganization: String,
+        msgLabelCategory: String,
+        msgLabelCountries: String,
+        msgLabelOrgType: String,
+        roleLabels: { type: Object, default: {} },
+        orgTypeLabels: { type: Object, default: {} },
+        focusSlug: { type: String, default: '' },
     };
 
-    static targets = ['canvas', 'status', 'preview', 'layoutSelect', 'toolbar'];
+    static targets = ['canvas', 'status', 'layoutSelect', 'toolbar', 'nodeDialog', 'dialogTitle', 'dialogKind', 'dialogLine1', 'dialogLine2', 'dialogLink'];
 
     connect() {
         this.cy = null;
+        this._focusNodeModalDone = false;
         void this.load();
     }
 
     disconnect() {
+        if (this.hasNodeDialogTarget && this.nodeDialogTarget.open) {
+            this.nodeDialogTarget.close();
+        }
         if (this.cy) {
             this.cy.destroy();
             this.cy = null;
@@ -56,6 +67,7 @@ export default class extends Controller {
     }
 
     async load() {
+        this._focusNodeModalDone = false;
         const base = this.urlValue;
         const qs = this.queryValue || '';
         const url = qs ? `${base}?${qs}` : base;
@@ -87,8 +99,6 @@ export default class extends Controller {
             ...(elements.edges || []).map((e) => ({ group: 'edges', ...e })),
         ];
         const loc = this.localeValue || 'en';
-        const sel = this.msgSelectionValue || 'Selection';
-        const viewFull = this.msgViewFullValue || 'View full profile';
 
         this.cy = cytoscape({
             container: this.canvasTarget,
@@ -146,14 +156,12 @@ export default class extends Controller {
             wheelSensitivity: 0.28,
         });
 
-        const runLayout = () => {
-            const layout = this.cy.layout(fcoseLayoutOptions());
-            layout.on('layoutstop', () => {
-                this.cy.fit(undefined, 96);
-            });
-            layout.run();
-        };
-        runLayout();
+        const layout = this.cy.layout(fcoseLayoutOptions());
+        layout.on('layoutstop', () => {
+            this.cy.fit(undefined, 96);
+            this.maybeOpenFocusNode();
+        });
+        layout.run();
 
         this.cy.on('mouseover', 'node', (evt) => {
             evt.target.addClass('gg-hover');
@@ -163,24 +171,71 @@ export default class extends Controller {
         });
 
         this.cy.on('tap', 'node', (evt) => {
-            const n = evt.target;
-            const slug = n.data('slug');
-            const label = n.data('label');
-            const type = n.data('type');
-            if (slug && typeof slug === 'string') {
-                const path =
-                    type === 'organization'
-                        ? `/${encodeURIComponent(loc)}/organizations/${encodeURIComponent(slug)}`
-                        : `/${encodeURIComponent(loc)}/people/${encodeURIComponent(slug)}`;
-                const safeLabel =
-                    typeof label === 'string'
-                        ? label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
-                        : '';
-                this.previewTarget.innerHTML = `<h2 class="font-serif text-lg font-medium text-text-primary">${sel}</h2>
-                    <p class="mt-2 text-text-primary">${safeLabel}</p>
-                    <a href="${path}" class="mt-3 inline-block rounded-sm border border-accent bg-transparent px-3 py-2 font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">${viewFull}</a>`;
-            }
+            this.openNodeDialog(evt.target);
         });
+    }
+
+    openNodeDialog(node) {
+        if (!this.hasNodeDialogTarget) {
+            return;
+        }
+        const d = node.data();
+        const slug = d.slug;
+        if (!slug || typeof slug !== 'string') {
+            return;
+        }
+        const loc = this.localeValue || 'en';
+        const type = d.type === 'organization' ? 'organization' : 'person';
+        const path =
+            type === 'organization'
+                ? `/${encodeURIComponent(loc)}/organizations/${encodeURIComponent(slug)}`
+                : `/${encodeURIComponent(loc)}/people/${encodeURIComponent(slug)}`;
+
+        const label = typeof d.label === 'string' ? d.label : '';
+        this.dialogTitleTarget.textContent = label;
+
+        if (type === 'organization') {
+            this.dialogKindTarget.textContent = this.msgKindOrganizationValue || '';
+            const orgType = typeof d.orgType === 'string' ? d.orgType : '';
+            const orgTypeHuman = this.orgTypeLabelsValue[orgType] ?? orgType;
+            this.dialogLine1Target.textContent = `${this.msgLabelOrgTypeValue || 'Type'} : ${orgTypeHuman || '—'}`;
+            this.dialogLine2Target.textContent = '';
+            this.dialogLine2Target.classList.add('hidden');
+        } else {
+            this.dialogKindTarget.textContent = this.msgKindPersonValue || '';
+            const cat = typeof d.category === 'string' ? d.category : '';
+            const catHuman = this.roleLabelsValue[cat] ?? cat;
+            this.dialogLine1Target.textContent = `${this.msgLabelCategoryValue || 'Category'} : ${catHuman || '—'}`;
+            const codes = Array.isArray(d.countryCodes) ? d.countryCodes.filter((c) => typeof c === 'string' && c !== '') : [];
+            if (codes.length > 0) {
+                this.dialogLine2Target.textContent = `${this.msgLabelCountriesValue || 'Countries'} : ${codes.join(', ')}`;
+                this.dialogLine2Target.classList.remove('hidden');
+            } else {
+                this.dialogLine2Target.textContent = '';
+                this.dialogLine2Target.classList.add('hidden');
+            }
+        }
+
+        this.dialogLinkTarget.href = path;
+        this.dialogLinkTarget.textContent = this.msgViewFullValue || '';
+
+        this.nodeDialogTarget.showModal();
+    }
+
+    maybeOpenFocusNode() {
+        if (this._focusNodeModalDone || !this.cy) {
+            return;
+        }
+        const slug = (this.focusSlugValue || '').trim();
+        if (!slug) {
+            return;
+        }
+        const found = this.cy.nodes().filter((ele) => ele.data('slug') === slug).first();
+        if (found.empty()) {
+            return;
+        }
+        this._focusNodeModalDone = true;
+        this.openNodeDialog(found);
     }
 
     zoomIn() {

@@ -26,16 +26,8 @@ function fcoseLayoutOptions(overrides = {}) {
     };
 }
 
-/** Couleurs catégories personne / types org — specs/design.md §2.1 */
-const PERSON_CATEGORY_COLOR = {
-    politician: '#1A2C5B',
-    civil_servant: '#5A5650',
-    business_leader: '#A84B27',
-    media_owner: '#5C1A6B',
-    financier: '#1F4D3F',
-    lobbyist: '#7B1A1A',
-    other_influencer: '#8A8680',
-};
+/** Gris unique pour les personnes (mini-graphes fiches). Même valeur que GraphDataBuilder::PERSON_NODE_FILL. */
+const PERSON_NODE_FILL = '#6F7A8C';
 
 const ORG_TYPE_COLOR = {
     influence_network: '#7B1A1A',
@@ -176,8 +168,7 @@ export default class extends Controller {
                 continue;
             }
             if (d.type === 'person') {
-                const c = typeof d.category === 'string' ? d.category : '';
-                d.bgColor = PERSON_CATEGORY_COLOR[c] || PERSON_CATEGORY_COLOR.other_influencer;
+                d.bgColor = PERSON_NODE_FILL;
             } else if (d.type === 'organization') {
                 const t = typeof d.orgType === 'string' ? d.orgType : '';
                 d.bgColor = ORG_TYPE_COLOR[t] || ORG_TYPE_COLOR.other;

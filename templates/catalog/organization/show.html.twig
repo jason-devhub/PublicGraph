@@ -70,7 +70,7 @@
                     <span data-mini-graph-target="count" class="shrink-0 tabular-nums text-[11px]">—</span>
                 </header>
                 <div
-                    class="relative min-h-[360px] w-full"
+                    class="pg-graph-viewport relative w-full"
                     data-controller="mini-graph"
                     data-mini-graph-url-value="{{ path('app_organization_graph_data', { slug: organization.slug }) }}"
                     data-mini-graph-focus-node-id-value="org-{{ organization.id }}"
@@ -82,7 +82,7 @@
                     data-mini-graph-msg-connections-many-value="{{ 'mini_graph.org_members_many'|trans|e('html_attr') }}"
                 >
                     <div data-mini-graph-target="skeleton" class="absolute inset-0 flex items-center justify-center bg-ink font-sans text-sm text-ink-secondary motion-safe:animate-pulse" aria-hidden="true">Chargement du graphe…</div>
-                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-[360px] w-full bg-ink" role="img" aria-label="Graphe des membres : {{ organization_display_name }}"></div>
+                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-0 w-full bg-ink" role="img" aria-label="Graphe des membres : {{ organization_display_name }}"></div>
                     <div data-mini-graph-target="analyzing" class="absolute inset-0 z-20 hidden items-center justify-center bg-ink px-6 text-center font-sans text-sm leading-relaxed text-ink-text" role="status"></div>
                 </div>
                 <footer class="border-t border-[#2A3038] px-4 py-3 font-sans text-sm">

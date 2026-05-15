@@ -15,6 +15,11 @@
     {{- labels[cat]|default(cat) -}}
 {% endmacro %}
 
+{# Pastilles catégorie neutres (fiches détail personne / org.) — le catalogue liste conserve role_category_classes. #}
+{% macro role_category_classes_detail() %}
+    {{- 'inline-block rounded-sm border border-rule-medium bg-surface-inset px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary' -}}
+{% endmacro %}
+
 {% macro role_category_classes(cat) %}
     {% set map = {
         'politician': 'bg-cat-politician text-text-inverse',

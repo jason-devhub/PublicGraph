@@ -1,72 +1,100 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Graphe — PublicGraph{% endblock %}
+{% block title %}{{ 'global_graph.heading'|trans }} — PublicGraph{% endblock %}
 
-{% block main_container_class %}mx-auto w-full max-w-page-wide min-w-0 flex-1 px-0 py-0{% endblock %}
+{% block main_container_class %}mx-auto flex w-full min-h-0 max-w-none flex-1 flex-col px-0 py-0{% endblock %}
+
+{% set filter_label = 'mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-wider text-text-secondary' %}
 
 {% block body %}
-    <div class="flex min-h-[calc(100vh-4rem)] min-w-0 flex-col lg:flex-row" data-controller="global-graph"
-         data-global-graph-url-value="{{ path('app_api_graph_data') }}"
-         data-global-graph-query-value="{{ app.request.queryString|e('html_attr') }}"
-         data-global-graph-locale-value="{{ app.request.locale }}"
-         data-global-graph-msg-loading-value="{{ 'global_graph.loading'|trans|e('html_attr') }}"
-         data-global-graph-msg-error-value="{{ 'global_graph.error'|trans|e('html_attr') }}"
-         data-global-graph-msg-selection-value="{{ 'global_graph.selection'|trans|e('html_attr') }}"
-         data-global-graph-msg-view-full-value="{{ 'global_graph.view_full'|trans|e('html_attr') }}">
-        <aside class="order-2 w-full border-t border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:order-1 lg:w-72 lg:border-r lg:border-t-0">
-            <h1 class="font-serif text-xl font-medium text-text-primary">Graphe global</h1>
-            <form method="get" action="{{ path('app_graph_index') }}" class="mt-4 space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-org">Organisation (slug)</label>
-                    <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="ex. forum-economique-mondial">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-countries">Pays ISO (séparés par virgule)</label>
-                    <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="g-cat">Catégories (séparées par virgule)</label>
-                    <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs text-text-secondary" for="ymin">Année min</label>
+    <div
+        class="flex min-h-0 min-h-[calc(100dvh-5.5rem)] w-full min-w-0 flex-1 flex-col"
+        data-controller="global-graph"
+        data-global-graph-url-value="{{ path('app_api_graph_data') }}"
+        data-global-graph-query-value="{{ app.request.queryString|e('html_attr') }}"
+        data-global-graph-locale-value="{{ app.request.locale }}"
+        data-global-graph-msg-loading-value="{{ 'global_graph.loading'|trans|e('html_attr') }}"
+        data-global-graph-msg-error-value="{{ 'global_graph.error'|trans|e('html_attr') }}"
+        data-global-graph-msg-view-full-value="{{ 'global_graph.view_full'|trans|e('html_attr') }}"
+        data-global-graph-msg-kind-person-value="{{ 'global_graph.kind_person'|trans|e('html_attr') }}"
+        data-global-graph-msg-kind-organization-value="{{ 'global_graph.kind_organization'|trans|e('html_attr') }}"
+        data-global-graph-msg-label-category-value="{{ 'global_graph.label_category'|trans|e('html_attr') }}"
+        data-global-graph-msg-label-countries-value="{{ 'global_graph.label_countries'|trans|e('html_attr') }}"
+        data-global-graph-msg-label-org-type-value="{{ 'global_graph.label_org_type'|trans|e('html_attr') }}"
+        data-global-graph-role-labels-value="{{ graph_role_labels_json|e('html_attr') }}"
+        data-global-graph-org-type-labels-value="{{ graph_org_type_labels_json|e('html_attr') }}"
+        data-global-graph-focus-slug-value="{{ focus_person is defined and focus_person and focus_person.slug ? focus_person.slug|e('html_attr') : '' }}"
+    >
+        <section class="shrink-0 border-b border-rule-medium bg-surface-secondary" aria-labelledby="global-graph-heading">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-rule-medium px-4 py-3 sm:px-5">
+                <h1 id="global-graph-heading" class="font-serif text-lg font-medium tracking-tight text-text-primary sm:text-xl">
+                    {{ 'global_graph.heading'|trans }}
+                </h1>
+                <a
+                    href="{{ path('app_graph_index') }}"
+                    class="shrink-0 whitespace-nowrap font-sans text-xs text-accent underline decoration-rule-medium underline-offset-4 hover:text-accent-hover hover:decoration-accent"
+                >
+                    {{ 'global_graph.reset_filters'|trans }}
+                </a>
+            </div>
+
+            <form method="get" action="{{ path('app_graph_index') }}" class="space-y-4 px-4 py-4 font-sans text-sm text-text-primary sm:space-y-5 sm:px-5 sm:py-5" role="search">
+                <div class="flex flex-wrap items-end gap-x-4 gap-y-4 md:gap-x-5">
+                    <div class="min-w-[min(100%,10rem)] flex-1 basis-[12rem]">
+                        <label class="{{ filter_label }}" for="g-org">{{ 'global_graph.filter_org'|trans }}</label>
+                        <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="forum-economique-mondial">
+                    </div>
+                    <div class="min-w-[min(100%,10rem)] flex-1 basis-[12rem]">
+                        <label class="{{ filter_label }}" for="g-countries">{{ 'global_graph.filter_countries'|trans }}</label>
+                        <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
+                    </div>
+                    <div class="min-w-[min(100%,10rem)] flex-1 basis-[14rem]">
+                        <label class="{{ filter_label }}" for="g-cat">{{ 'global_graph.filter_categories'|trans }}</label>
+                        <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
+                    </div>
+                    <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[7rem]">
+                        <label class="{{ filter_label }}" for="ymin">{{ 'global_graph.filter_year_min'|trans }}</label>
                         <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
                     </div>
-                    <div>
-                        <label class="block text-xs text-text-secondary" for="ymax">Année max</label>
+                    <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[7rem]">
+                        <label class="{{ filter_label }}" for="ymax">{{ 'global_graph.filter_year_max'|trans }}</label>
                         <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
                     </div>
-                </div>
-                <fieldset>
-                    <legend class="text-xs font-semibold uppercase tracking-wide text-text-secondary">Max nœuds</legend>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        {% for n in [25, 50, 100, 200] %}
-                            <label class="inline-flex items-center gap-1 font-mono text-xs">
-                                <input type="radio" name="maxNodes" value="{{ n }}" {% if graph_params.maxNodes == n %}checked{% endif %}>
-                                {{ n }}
-                            </label>
-                        {% endfor %}
+                    <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[10rem]">
+                        <label class="{{ filter_label }}" for="colorMode">{{ 'global_graph.filter_color'|trans }}</label>
+                        <select id="colorMode" name="colorMode" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 text-xs">
+                            <option value="category" {% if graph_params.colorMode == 'category' %}selected{% endif %}>{{ 'global_graph.color_by_category'|trans }}</option>
+                            <option value="country" {% if graph_params.colorMode == 'country' %}selected{% endif %}>{{ 'global_graph.color_by_country'|trans }}</option>
+                        </select>
                     </div>
-                </fieldset>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wide text-text-secondary" for="colorMode">Couleur</label>
-                    <select id="colorMode" name="colorMode" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 text-xs">
-                        <option value="category" {% if graph_params.colorMode == 'category' %}selected{% endif %}>Par catégorie</option>
-                        <option value="country" {% if graph_params.colorMode == 'country' %}selected{% endif %}>Par pays</option>
-                    </select>
                 </div>
-                <button type="submit" class="pg-btn-primary min-h-11 w-full px-3 py-2 no-underline">Appliquer</button>
-            </form>
-        </aside>
 
-        <div class="relative order-1 min-h-[60vh] min-w-0 flex-1 bg-ink lg:order-2 lg:min-h-[640px]">
+                <div class="flex flex-wrap items-center gap-4 border-t border-rule-subtle pt-4">
+                    <fieldset class="min-w-0 flex-1">
+                        <legend class="{{ filter_label }} !mb-0">{{ 'global_graph.filter_max_nodes'|trans }}</legend>
+                        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs">
+                            {% for n in [25, 50, 100, 200] %}
+                                <label class="inline-flex cursor-pointer items-center gap-2">
+                                    <input type="radio" name="maxNodes" value="{{ n }}" class="size-4 shrink-0 accent-accent" {% if graph_params.maxNodes == n %}checked{% endif %}>
+                                    <span class="font-sans text-text-primary">{{ n }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                    <button type="submit" class="pg-btn-primary min-h-11 shrink-0 px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wide no-underline">
+                        {{ 'global_graph.apply'|trans }}
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <div class="relative flex min-h-0 w-full flex-1 flex-col bg-ink">
             <div data-global-graph-target="toolbar" class="absolute left-3 top-3 z-20 flex max-w-[min(26rem,calc(100%-1.5rem))] flex-col gap-2 font-sans text-xs">
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" data-action="global-graph#zoomIn" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Zoom +</button>
-                    <button type="button" data-action="global-graph#zoomOut" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Zoom −</button>
-                    <button type="button" data-action="global-graph#fit" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Ajuster</button>
-                    <button type="button" data-action="global-graph#reset" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">Reset</button>
+                    <button type="button" data-action="global-graph#zoomIn" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">{{ 'global_graph.zoom_in'|trans }}</button>
+                    <button type="button" data-action="global-graph#zoomOut" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">{{ 'global_graph.zoom_out'|trans }}</button>
+                    <button type="button" data-action="global-graph#fit" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">{{ 'global_graph.fit'|trans }}</button>
+                    <button type="button" data-action="global-graph#reset" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:bg-[#2A3038] hover:shadow-btn-ink-hover">{{ 'global_graph.reset_view'|trans }}</button>
                     <select data-global-graph-target="layoutSelect" data-action="change->global-graph#changeLayout" class="min-h-11 rounded-sm border border-[#2A3038] bg-ink px-3 py-2 text-ink-text shadow-btn-ink transition-shadow duration-150 hover:shadow-btn-ink-hover">
                         <option value="fcose">fcose</option>
                         <option value="cose">cose</option>
@@ -76,18 +104,38 @@
                 </div>
                 <p class="m-0 leading-snug text-[0.65rem] text-ink-secondary">{{ 'global_graph.zoom_hint'|trans }}</p>
             </div>
-            <div data-global-graph-target="canvas" class="absolute inset-0 z-10" role="img" aria-label="Graphe global"></div>
-            <div data-global-graph-target="status" class="absolute inset-0 z-0 flex items-center justify-center font-sans text-sm text-ink-secondary">Chargement…</div>
+
+            <div class="relative min-h-0 w-full flex-1">
+                <div class="pg-graph-viewport pg-graph-viewport--fill absolute inset-0">
+                    <div data-global-graph-target="canvas" class="absolute inset-0 z-10" role="img" aria-label="{{ 'global_graph.heading'|trans }}"></div>
+                    <div data-global-graph-target="status" class="absolute inset-0 z-0 flex items-center justify-center font-sans text-sm text-ink-secondary">{{ 'global_graph.loading'|trans }}</div>
+                </div>
+            </div>
         </div>
 
-        <aside class="order-3 w-full border-t border-rule-medium bg-surface-secondary p-4 font-sans text-sm lg:w-80 lg:border-l lg:border-t-0" data-global-graph-target="preview">
-            {% if focus_person is defined and focus_person %}
-                <h2 class="font-serif text-lg font-medium text-text-primary">Sélection</h2>
-                <p class="mt-2 text-text-primary">{{ focus_person.givenName }} {{ focus_person.familyName }}</p>
-                <a href="{{ path('app_person_show', { slug: focus_person.slug }) }}" class="mt-3 inline-block rounded-sm border border-accent bg-transparent px-3 py-2 font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">Voir la fiche complète</a>
-            {% else %}
-                <p class="text-text-secondary">Cliquez sur un nœud pour un aperçu.</p>
-            {% endif %}
-        </aside>
+        <dialog
+            data-global-graph-target="nodeDialog"
+            class="w-[min(100%,26rem)] max-w-[calc(100vw-2rem)] border border-rule-medium bg-surface-primary p-0 font-sans text-sm text-text-primary shadow-modal backdrop:bg-[rgba(14,18,24,0.5)]"
+            aria-labelledby="global-graph-dialog-title"
+        >
+            <div class="flex items-start justify-between gap-3 border-b border-rule-medium px-4 py-3 sm:px-5">
+                <h2 id="global-graph-dialog-title" data-global-graph-target="dialogTitle" class="min-w-0 flex-1 font-serif text-lg font-medium leading-snug text-text-primary"></h2>
+                <form method="dialog" class="shrink-0">
+                    <button type="submit" class="pg-btn-outline min-h-11 px-3 py-2 font-sans text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                        {{ 'global_graph.close_modal'|trans }}
+                    </button>
+                </form>
+            </div>
+            <div class="space-y-2 px-4 py-4 sm:px-5 sm:py-5">
+                <p data-global-graph-target="dialogKind" class="m-0 font-sans text-[11px] font-semibold uppercase tracking-wider text-text-tertiary"></p>
+                <p data-global-graph-target="dialogLine1" class="m-0 leading-relaxed text-text-secondary"></p>
+                <p data-global-graph-target="dialogLine2" class="m-0 hidden leading-relaxed text-text-secondary"></p>
+                <a
+                    data-global-graph-target="dialogLink"
+                    href="#"
+                    class="pg-btn-primary mt-4 inline-block min-h-11 px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wide no-underline"
+                >{{ 'global_graph.view_full'|trans }}</a>
+            </div>
+        </dialog>
     </div>
 {% endblock %}

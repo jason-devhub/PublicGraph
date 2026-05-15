@@ -36,7 +36,7 @@
                     </div>
                     <div class="mt-4 flex flex-wrap gap-1">
                         {% for cat in person.roleCategories %}
-                            <span class="inline-block rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide {{ catalog.role_category_classes(cat) }}">{{ catalog.role_category_label(cat) }}</span>
+                            <span class="{{ catalog.role_category_classes_detail() }}">{{ catalog.role_category_label(cat) }}</span>
                         {% endfor %}
                     </div>
                     <div class="mt-6 flex flex-wrap gap-3 font-sans text-sm">
@@ -89,7 +89,7 @@
                     <span data-mini-graph-target="count" class="shrink-0 tabular-nums text-[11px]">—</span>
                 </header>
                 <div
-                    class="relative min-h-[320px] w-full"
+                    class="pg-graph-viewport relative w-full"
                     data-controller="mini-graph"
                     data-mini-graph-url-value="{{ path('app_person_graph_data', { slug: person.slug }) }}"
                     data-mini-graph-focus-node-id-value="person-{{ person.id }}"
@@ -100,7 +100,7 @@
                     data-mini-graph-msg-connections-many-value="{{ 'mini_graph.connections_many'|trans|e('html_attr') }}"
                 >
                     <div data-mini-graph-target="skeleton" class="absolute inset-0 flex items-center justify-center bg-ink font-sans text-sm text-ink-secondary motion-safe:animate-pulse" aria-hidden="true">Chargement du graphe…</div>
-                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-[320px] w-full bg-ink" role="img" aria-label="Graphe de proximité : {{ catalog.full_name(person) }}"></div>
+                    <div data-mini-graph-target="canvas" class="absolute inset-0 z-10 hidden h-full min-h-0 w-full bg-ink" role="img" aria-label="Graphe de proximité : {{ catalog.full_name(person) }}"></div>
                     <div data-mini-graph-target="analyzing" class="absolute inset-0 z-20 hidden items-center justify-center bg-ink px-6 text-center font-sans text-sm leading-relaxed text-ink-text" role="status"></div>
                 </div>
                 <footer class="border-t border-[#2A3038] px-4 py-3 font-sans text-sm">

@@ -17,6 +17,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 final class GraphDataBuilder
 {
+    /** Remplissage des nœuds personne (graphe global) : gris unique, hors palette catégorie. */
+    private const string PERSON_NODE_FILL = '#6F7A8C';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PersonRepository $personRepository,
@@ -168,7 +171,6 @@ final class GraphDataBuilder
                 $codes[] = $c->getIsoCode();
             }
             $cat = $p->getRoleCategories()[0] ?? 'other_influencer';
-            $nodeColor = $this->nodeColor($cat, $codes, $params->colorMode);
             $node = [
                 'data' => [
                     'id' => 'person-'.$pid,
@@ -177,8 +179,8 @@ final class GraphDataBuilder
                     'slug' => $p->getSlug(),
                     'category' => $cat,
                     'countryCodes' => $codes,
-                    'nodeColor' => $nodeColor,
-                    'bgColor' => $nodeColor,
+                    'nodeColor' => self::PERSON_NODE_FILL,
+                    'bgColor' => self::PERSON_NODE_FILL,
                 ],
             ];
             if ('' !== $focusSlugTrim && $p->getSlug() === $focusSlugTrim) {
@@ -263,27 +265,6 @@ final class GraphDataBuilder
             Organization::TYPE_THINK_TANK => '#854F0B',
             Organization::TYPE_LOBBY_GROUP => '#5C1313',
             default => '#5A5650',
-        };
-    }
-
-    /** @param list<string> $countryCodes */
-    private function nodeColor(string $category, array $countryCodes, string $colorMode): string
-    {
-        if ('country' === $colorMode) {
-            $c = $countryCodes[0] ?? 'ZZ';
-            $hue = (ord($c[0]) * 37 + (isset($c[1]) ? ord($c[1]) : 0) * 17) % 360;
-
-            return sprintf('hsl(%d, 45%%, 42%%)', $hue);
-        }
-
-        return match ($category) {
-            'politician' => '#1A2C5B',
-            'civil_servant' => '#5A5650',
-            'business_leader' => '#A84B27',
-            'media_owner' => '#5C1A6B',
-            'financier' => '#1F4D3F',
-            'lobbyist' => '#7B1A1A',
-            default => '#8A8680',
         };
     }
 }

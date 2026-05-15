@@ -63,6 +63,9 @@ function isCentralNode(node, focusNodeId) {
 
 const PAPER = 'rgba(250,247,242,0.94)';
 
+/** Gris neutre pour toutes les personnes (graphes). Même valeur que GraphDataBuilder::PERSON_NODE_FILL. */
+const PERSON_NODE_FILL = '#6F7A8C';
+
 /**
  * @param {string} g — couleur du glyphe (traits / formes)
  */
@@ -235,13 +238,13 @@ export function enrichNodesWithGraphIcons(nodes, focusNodeId = null) {
         if (ty !== 'person' && ty !== 'organization') {
             continue;
         }
-        const rawBg = typeof d.bgColor === 'string' ? d.bgColor : '#5A5650';
         const central = isCentralNode(node, focusNodeId);
         const orgType = typeof d.orgType === 'string' ? d.orgType : 'other';
         if (ty === 'organization') {
+            const rawBg = typeof d.bgColor === 'string' ? d.bgColor : '#5A5650';
             d.iconImage = cytoscapeNodeBackgroundImage('organization', rawBg, central, orgType);
         } else {
-            d.iconImage = cytoscapeNodeBackgroundImage('person', rawBg, central);
+            d.iconImage = cytoscapeNodeBackgroundImage('person', PERSON_NODE_FILL, central);
         }
     }
 }
