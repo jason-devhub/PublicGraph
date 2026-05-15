@@ -7,6 +7,10 @@
 
 {% block body %}
     <article>
+        {{ include('catalog/_share_toolbar.html.twig', {
+            share_page_url: url('app_organization_show', { slug: organization.slug }),
+            share_page_title: organization_display_name,
+        }) }}
         <header class="border-b border-rule-strong pb-8">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="min-w-0">

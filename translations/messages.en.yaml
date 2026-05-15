@@ -65,6 +65,16 @@ site:
     contact: 'Contact'
   cookie_banner: 'This site does not use analytics or advertising cookies. No third-party trackers are loaded on public pages.'
   cookie_banner_aria: 'Cookies'
+  share:
+    nav_aria: 'Share this page'
+    label: 'Share'
+    twitter: 'Share on X'
+    facebook: 'Share on Facebook'
+    linkedin: 'Share on LinkedIn'
+    whatsapp: 'Share on WhatsApp'
+    telegram: 'Share on Telegram'
+    bluesky: 'Share on Bluesky'
+    email: 'Share by email'
 
 home:
   meta_title: 'Home — PublicGraph'

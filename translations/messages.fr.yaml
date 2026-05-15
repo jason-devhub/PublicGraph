@@ -64,6 +64,16 @@ site:
     contact: 'Contact'
   cookie_banner: 'Ce site ne dépose pas de cookies de mesure d’audience ni de publicité. Aucun traceur tiers n’est chargé sur les pages publiques.'
   cookie_banner_aria: 'Cookies'
+  share:
+    nav_aria: 'Partager cette fiche'
+    label: 'Partager'
+    twitter: 'Partager sur X'
+    facebook: 'Partager sur Facebook'
+    linkedin: 'Partager sur LinkedIn'
+    whatsapp: 'Partager sur WhatsApp'
+    telegram: 'Partager sur Telegram'
+    bluesky: 'Partager sur Bluesky'
+    email: 'Partager par courriel'
 
 home:
   meta_title: 'Accueil — PublicGraph'
