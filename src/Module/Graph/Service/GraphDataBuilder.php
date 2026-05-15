@@ -27,6 +27,11 @@ final class GraphDataBuilder
     /** Personnes supplémentaires liées aux organisations déjà présentes sur le graphe (co-membres / collègues). */
     private const int MAX_CO_MEMBERS_THROUGH_DISPLAYED_ORGS = 80;
 
+    /** Mini-graphe fiche personne (sans filtre organisation) : similarité + co-membres des orgs du centre uniquement. */
+    private const int PERSON_EGO_MAX_SIMILAR_NEIGHBORS = 40;
+
+    private const int PERSON_EGO_MAX_CO_ORG_MEMBERS = 120;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PersonRepository $personRepository,
@@ -50,10 +55,262 @@ final class GraphDataBuilder
     }
 
     /**
+     * Graphe centré sur une personne : similarités + organisations approuvées + co-membres de ces orgs uniquement
+     * (pas le sous-graphe global `maxNodes`).
+     *
+     * @return array{elements: array{nodes: list<array<string, mixed>>, edges: list<array<string, mixed>>}}
+     */
+    private function buildPersonProfileEgoGraph(GraphQueryParams $params, string $focusSlugTrim): array
+    {
+        $person = $this->personRepository->findBySlug($focusSlugTrim);
+        if (!$person instanceof Person || Person::STATUS_APPROVED !== $person->getStatus() || null !== $person->getDeletedAt()) {
+            return ['elements' => ['nodes' => [], 'edges' => []]];
+        }
+
+        $centerId = (int) $person->getId();
+        $conn = $this->entityManager->getConnection();
+        $approved = Organization::STATUS_APPROVED;
+        $personApproved = Person::STATUS_APPROVED;
+
+        $orgIds = $this->fetchApprovedOrganizationIdsForPerson($conn, $centerId, $approved, $personApproved);
+        sort($orgIds);
+
+        $similarScores = $this->fetchSimilarPersonScoresForCenter($conn, $centerId, self::PERSON_EGO_MAX_SIMILAR_NEIGHBORS);
+        $similarOtherIds = array_keys($similarScores);
+
+        $coMemberCap = min(self::PERSON_EGO_MAX_CO_ORG_MEMBERS, max(40, $params->maxNodes));
+        $coOrgMemberIds = [] !== $orgIds
+            ? $this->fetchCoMemberPersonIdsForOrganizations($conn, $orgIds, $centerId, $approved, $personApproved, $coMemberCap)
+            : [];
+
+        $personIdSet = [$centerId => true];
+        foreach ($similarOtherIds as $sid) {
+            $personIdSet[$sid] = true;
+        }
+        foreach ($coOrgMemberIds as $cid) {
+            $personIdSet[$cid] = true;
+        }
+
+        $allPersonIds = array_keys($personIdSet);
+        sort($allPersonIds);
+
+        /** @var list<Person> $personEntities */
+        $personEntities = $this->personRepository->createQueryBuilder('p')
+            ->where('p.id IN (:ids)')
+            ->andWhere('p.status = :st')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter('ids', $allPersonIds)
+            ->setParameter('st', Person::STATUS_APPROVED)
+            ->getQuery()
+            ->getResult();
+
+        $personById = [];
+        foreach ($personEntities as $pe) {
+            if (null !== $pe->getId()) {
+                $personById[(int) $pe->getId()] = $pe;
+            }
+        }
+
+        $nodes = [];
+        if (isset($personById[$centerId])) {
+            $nodes[] = $this->buildPersonGraphNode($personById[$centerId], $focusSlugTrim);
+        }
+        foreach ($allPersonIds as $pid) {
+            if ($pid === $centerId) {
+                continue;
+            }
+            $pe = $personById[$pid] ?? null;
+            if ($pe instanceof Person) {
+                $nodes[] = $this->buildPersonGraphNode($pe, $focusSlugTrim);
+            }
+        }
+
+        if ([] !== $orgIds) {
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb->select('o')
+                ->from(Organization::class, 'o')
+                ->andWhere('o.id IN (:ids)')
+                ->andWhere('o.status = :ost')
+                ->setParameter('ids', $orgIds)
+                ->setParameter('ost', Organization::STATUS_APPROVED);
+            /** @var list<Organization> $orgEntities */
+            $orgEntities = $qb->getQuery()->getResult();
+            foreach ($orgEntities as $org) {
+                $oid = (int) $org->getId();
+                $orgType = $org->getType();
+                $nodes[] = [
+                    'data' => [
+                        'id' => 'org-'.$oid,
+                        'label' => $this->localizedContentResolver->resolveOrganizationDisplayName($org, $params->locale),
+                        'type' => 'organization',
+                        'slug' => $org->getSlug(),
+                        'orgType' => $orgType,
+                        'bgColor' => $this->organizationBgColor($orgType),
+                    ],
+                ];
+            }
+        }
+
+        /** @var list<array<string, mixed>> $edges */
+        $edges = [];
+        $edgeIds = [];
+
+        foreach ($similarScores as $otherId => $score) {
+            if ($otherId === $centerId || !isset($personById[$otherId])) {
+                continue;
+            }
+            $a = min($centerId, $otherId);
+            $b = max($centerId, $otherId);
+            $eid = 'e-'.$a.'-'.$b;
+            if (isset($edgeIds[$eid])) {
+                continue;
+            }
+            $edgeIds[$eid] = true;
+            $edges[] = [
+                'data' => [
+                    'id' => $eid,
+                    'source' => 'person-'.$a,
+                    'target' => 'person-'.$b,
+                    'weight' => $score,
+                ],
+            ];
+        }
+
+        if ([] !== $orgIds) {
+            $this->appendPersonOrgEdgesForPersonsAndOrgs(
+                $conn,
+                $edges,
+                $allPersonIds,
+                $orgIds,
+                $approved,
+                array_fill_keys($orgIds, true),
+            );
+        }
+
+        return [
+            'elements' => [
+                'nodes' => $nodes,
+                'edges' => $edges,
+            ],
+        ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function fetchApprovedOrganizationIdsForPerson(Connection $conn, int $personId, string $orgApproved, string $personApproved): array
+    {
+        $sql = 'SELECT DISTINCT x.organization_id FROM ('
+            .'SELECT m.organization_id FROM memberships m '
+            .'INNER JOIN organizations o ON o.id = m.organization_id '
+            .'INNER JOIN persons p ON p.id = m.person_id '
+            .'WHERE m.person_id = ? AND m.status = ? AND o.status = ? AND p.status = ? AND p.deleted_at IS NULL '
+            .'UNION '
+            .'SELECT pos.organization_id FROM positions pos '
+            .'INNER JOIN organizations o2 ON o2.id = pos.organization_id '
+            .'INNER JOIN persons p2 ON p2.id = pos.person_id '
+            .'WHERE pos.person_id = ? AND pos.status = ? AND o2.status = ? AND p2.status = ? AND p2.deleted_at IS NULL'
+            .') x';
+        $rows = $conn->fetchFirstColumn($sql, [
+            $personId, $orgApproved, $orgApproved, $personApproved,
+            $personId, $orgApproved, $orgApproved, $personApproved,
+        ]);
+
+        $out = [];
+        foreach ($rows as $v) {
+            $oid = (int) $v;
+            if ($oid > 0) {
+                $out[$oid] = true;
+            }
+        }
+
+        return array_keys($out);
+    }
+
+    /**
+     * @return array<int, float> autre personne => score (tri décroissant implicite)
+     */
+    private function fetchSimilarPersonScoresForCenter(Connection $conn, int $centerId, int $limit): array
+    {
+        $rows = $conn->fetchAllAssociative(
+            'SELECT person_a_id, person_b_id, score FROM person_similarities '
+            .'WHERE person_a_id = ? OR person_b_id = ? ORDER BY score DESC',
+            [$centerId, $centerId],
+        );
+
+        $seen = [];
+        $out = [];
+        foreach ($rows as $row) {
+            $a = (int) $row['person_a_id'];
+            $b = (int) $row['person_b_id'];
+            $other = $a === $centerId ? $b : $a;
+            if ($other === $centerId || isset($seen[$other])) {
+                continue;
+            }
+            $seen[$other] = true;
+            $out[$other] = (float) $row['score'];
+            if (\count($out) >= $limit) {
+                break;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param list<int> $orgIds
+     *
+     * @return list<int>
+     */
+    private function fetchCoMemberPersonIdsForOrganizations(
+        Connection $conn,
+        array $orgIds,
+        int $excludePersonId,
+        string $orgApproved,
+        string $personApproved,
+        int $limit,
+    ): array {
+        $orgPh = implode(',', array_fill(0, \count($orgIds), '?'));
+        $sql = 'SELECT DISTINCT t.person_id FROM ('
+            .'SELECT m.person_id FROM memberships m '
+            .'INNER JOIN persons p ON p.id = m.person_id '
+            .'WHERE m.organization_id IN ('.$orgPh.') AND m.person_id != ? AND m.status = ? '
+            .'AND p.status = ? AND p.deleted_at IS NULL '
+            .'UNION '
+            .'SELECT pos.person_id FROM positions pos '
+            .'INNER JOIN persons p2 ON p2.id = pos.person_id '
+            .'WHERE pos.organization_id IN ('.$orgPh.') AND pos.person_id != ? AND pos.status = ? '
+            .'AND p2.status = ? AND p2.deleted_at IS NULL'
+            .') t ORDER BY t.person_id ASC LIMIT '.$limit;
+
+        $params = array_merge(
+            $orgIds,
+            [$excludePersonId, $orgApproved, $personApproved],
+            $orgIds,
+            [$excludePersonId, $orgApproved, $personApproved],
+        );
+
+        /** @var list<int|string> $col */
+        $col = $conn->fetchFirstColumn($sql, $params);
+        $out = [];
+        foreach ($col as $v) {
+            $out[] = (int) $v;
+        }
+
+        return $out;
+    }
+
+    /**
      * @return array{elements: array{nodes: list<array<string, mixed>>, edges: list<array<string, mixed>>}}
      */
     private function buildUncached(GraphQueryParams $params): array
     {
+        $orgSlugTrim = \is_string($params->organizationSlug) ? trim($params->organizationSlug) : '';
+        $focusTrim = \is_string($params->focusPersonSlug) ? trim($params->focusPersonSlug) : '';
+        if ('' !== $focusTrim && '' === $orgSlugTrim) {
+            return $this->buildPersonProfileEgoGraph($params, $focusTrim);
+        }
+
         $qb = $this->personRepository->createQueryBuilder('p')
             ->select('p')
             ->distinct()
@@ -240,14 +497,6 @@ final class GraphDataBuilder
                     (int) $organizationEntity->getId(),
                 );
             }
-        } elseif ('' !== $focusSlugTrim && [] !== $idList) {
-            $this->appendPersonOrganizationAffiliations(
-                $nodes,
-                $edges,
-                $idList,
-                $params->locale,
-                null,
-            );
         }
 
         if ($organizationEntity instanceof Organization || '' !== $focusSlugTrim) {

@@ -302,10 +302,11 @@ export default class extends Controller {
             return;
         }
 
-        this.cy.fit(this.cy.elements(), 56);
+        const nhood = el.closedNeighborhood();
+        this.cy.fit(nhood, 48);
         this.cy.center(el);
         const z = this.cy.zoom();
-        this.cy.zoom(Math.min(this.cy.maxZoom(), Math.max(this.cy.minZoom(), z * 1.15)));
+        this.cy.zoom(Math.min(this.cy.maxZoom(), Math.max(this.cy.minZoom(), z * 1.12)));
         this.cy.center(el);
     }
 }
