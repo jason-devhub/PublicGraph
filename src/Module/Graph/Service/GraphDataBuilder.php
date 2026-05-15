@@ -11,6 +11,7 @@ use App\Module\Organization\Entity\Organization;
 use App\Module\Person\Entity\Person;
 use App\Module\Person\Repository\PersonRepository;
 use App\Shared\I18n\LocalizedContentResolver;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -22,6 +23,9 @@ final class GraphDataBuilder
 
     /** Nombre max de nœuds organisation affiliés (mini-graphes personne / organisation). */
     private const int MAX_AFFILIATED_ORGANIZATIONS = 72;
+
+    /** Personnes supplémentaires liées aux organisations déjà présentes sur le graphe (co-membres / collègues). */
+    private const int MAX_CO_MEMBERS_THROUGH_DISPLAYED_ORGS = 80;
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -168,30 +172,10 @@ final class GraphDataBuilder
 
         $nodes = [];
         foreach ($persons as $p) {
-            $pid = (int) $p->getId();
-            $codes = [];
-            foreach ($p->getNationalities() as $c) {
-                $codes[] = $c->getIsoCode();
-            }
-            $cat = $p->getRoleCategories()[0] ?? 'other_influencer';
-            $node = [
-                'data' => [
-                    'id' => 'person-'.$pid,
-                    'label' => trim($p->getGivenName().' '.$p->getFamilyName()),
-                    'type' => 'person',
-                    'slug' => $p->getSlug(),
-                    'category' => $cat,
-                    'countryCodes' => $codes,
-                    'nodeColor' => self::PERSON_NODE_FILL,
-                    'bgColor' => self::PERSON_NODE_FILL,
-                ],
-            ];
-            if ('' !== $focusSlugTrim && $p->getSlug() === $focusSlugTrim) {
-                $node['classes'] = 'central';
-            }
-            $nodes[] = $node;
+            $nodes[] = $this->buildPersonGraphNode($p, $focusSlugTrim);
         }
 
+        /** @var list<array<string, mixed>> $edges */
         $edges = [];
         if ([] !== $idList) {
             $conn = $this->entityManager->getConnection();
@@ -266,12 +250,311 @@ final class GraphDataBuilder
             );
         }
 
+        if ($organizationEntity instanceof Organization || '' !== $focusSlugTrim) {
+            $this->appendCoMembersForDisplayedOrganizations(
+                $nodes,
+                $edges,
+                $focusSlugTrim,
+            );
+        }
+
         return [
             'elements' => [
                 'nodes' => $nodes,
                 'edges' => $edges,
             ],
         ];
+    }
+
+    /** @return array<string, mixed> */
+    private function buildPersonGraphNode(Person $p, string $focusSlugTrim): array
+    {
+        $pid = (int) $p->getId();
+        $codes = [];
+        foreach ($p->getNationalities() as $c) {
+            $codes[] = $c->getIsoCode();
+        }
+        $cat = $p->getRoleCategories()[0] ?? 'other_influencer';
+        $node = [
+            'data' => [
+                'id' => 'person-'.$pid,
+                'label' => trim($p->getGivenName().' '.$p->getFamilyName()),
+                'type' => 'person',
+                'slug' => $p->getSlug(),
+                'category' => $cat,
+                'countryCodes' => $codes,
+                'nodeColor' => self::PERSON_NODE_FILL,
+                'bgColor' => self::PERSON_NODE_FILL,
+            ],
+        ];
+        if ('' !== $focusSlugTrim && $p->getSlug() === $focusSlugTrim) {
+            $node['classes'] = 'central';
+        }
+
+        return $node;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $nodes
+     * @param list<array<string, mixed>> $edges
+     *
+     * @param-out list<array<string, mixed>> $edges
+     */
+    private function appendCoMembersForDisplayedOrganizations(
+        array &$nodes,
+        array &$edges,
+        string $focusSlugTrim,
+    ): void {
+        $orgIds = $this->organizationIdsPresentOnGraph($nodes);
+        if ([] === $orgIds) {
+            return;
+        }
+
+        $existingPersonIds = $this->personIdsPresentOnGraph($nodes);
+        if ([] === $existingPersonIds) {
+            return;
+        }
+
+        $conn = $this->entityManager->getConnection();
+        $approved = Organization::STATUS_APPROVED;
+        $personApproved = Person::STATUS_APPROVED;
+
+        $orgPh = implode(',', array_fill(0, \count($orgIds), '?'));
+        $pPh = implode(',', array_fill(0, \count($existingPersonIds), '?'));
+        $notInPerson = ' AND m.person_id NOT IN ('.$pPh.') ';
+        $paramsUnion = array_merge($orgIds, [$approved, $personApproved], $existingPersonIds);
+
+        $sql = 'SELECT t.person_id, COUNT(DISTINCT t.organization_id) AS org_links FROM ('
+            .'SELECT m.person_id, m.organization_id FROM memberships m '
+            .'INNER JOIN persons p ON p.id = m.person_id '
+            .'WHERE m.organization_id IN ('.$orgPh.') AND m.status = ? '
+            .'AND p.status = ? AND p.deleted_at IS NULL'.$notInPerson
+            .' UNION '
+            .'SELECT pos.person_id, pos.organization_id FROM positions pos '
+            .'INNER JOIN persons p2 ON p2.id = pos.person_id '
+            .'WHERE pos.organization_id IN ('.$orgPh.') AND pos.status = ? '
+            .'AND p2.status = ? AND p2.deleted_at IS NULL'
+            .' AND pos.person_id NOT IN ('.$pPh.')'
+            .') t GROUP BY t.person_id ORDER BY org_links DESC, t.person_id ASC LIMIT '.self::MAX_CO_MEMBERS_THROUGH_DISPLAYED_ORGS;
+
+        $paramsUnion = array_merge($paramsUnion, $orgIds, [$approved, $personApproved], $existingPersonIds);
+
+        /** @var list<array{person_id: string|int, org_links: string|int}> $ranked */
+        $ranked = $conn->fetchAllAssociative($sql, $paramsUnion);
+        if ([] === $ranked) {
+            return;
+        }
+
+        $newPersonIds = [];
+        foreach ($ranked as $row) {
+            $newPersonIds[] = (int) $row['person_id'];
+        }
+
+        /** @var list<Person> $newPersons */
+        $newPersons = $this->personRepository->createQueryBuilder('p')
+            ->where('p.id IN (:ids)')
+            ->andWhere('p.status = :st')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter('ids', $newPersonIds)
+            ->setParameter('st', Person::STATUS_APPROVED)
+            ->getQuery()
+            ->getResult();
+
+        $byId = [];
+        foreach ($newPersons as $np) {
+            if (null !== $np->getId()) {
+                $byId[(int) $np->getId()] = $np;
+            }
+        }
+
+        $existingNodeIds = [];
+        foreach ($nodes as $n) {
+            $existingNodeIds[$n['data']['id']] = true;
+        }
+
+        foreach ($newPersonIds as $nid) {
+            $p = $byId[$nid] ?? null;
+            if (!$p instanceof Person) {
+                continue;
+            }
+            $entry = $this->buildPersonGraphNode($p, $focusSlugTrim);
+            $pidStr = $entry['data']['id'];
+            if (isset($existingNodeIds[$pidStr])) {
+                continue;
+            }
+            $nodes[] = $entry;
+            $existingNodeIds[$pidStr] = true;
+        }
+
+        $orgIdSet = array_fill_keys($orgIds, true);
+        $this->appendPersonOrgEdgesForPersonsAndOrgs($conn, $edges, $newPersonIds, $orgIds, $approved, $orgIdSet);
+
+        $allPersonIds = array_values(array_unique(array_merge($existingPersonIds, $newPersonIds)));
+        sort($allPersonIds);
+        $this->appendSimilarityEdgesInvolvingNewPersons($conn, $edges, $allPersonIds, $newPersonIds);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $edges
+     * @param list<int>                  $personIds
+     * @param list<int>                  $orgIds
+     * @param array<int, true>           $orgIdSet
+     *
+     * @param-out list<array<string, mixed>> $edges
+     */
+    private function appendPersonOrgEdgesForPersonsAndOrgs(
+        Connection $conn,
+        array &$edges,
+        array $personIds,
+        array $orgIds,
+        string $orgStatusApproved,
+        array $orgIdSet,
+    ): void {
+        if ([] === $personIds || [] === $orgIds) {
+            return;
+        }
+
+        $edgeIds = [];
+        foreach ($edges as $e) {
+            $edgeIds[$e['data']['id']] = true;
+        }
+
+        $pPh = implode(',', array_fill(0, \count($personIds), '?'));
+        $oPh = implode(',', array_fill(0, \count($orgIds), '?'));
+        $baseParams = array_merge($personIds, $orgIds, [$orgStatusApproved, $orgStatusApproved]);
+
+        $sqlM = 'SELECT m.person_id, m.organization_id FROM memberships m '
+            .'INNER JOIN organizations o ON o.id = m.organization_id '
+            .'WHERE m.person_id IN ('.$pPh.') AND m.organization_id IN ('.$oPh.') '
+            .'AND m.status = ? AND o.status = ?';
+        $sqlP = 'SELECT pos.person_id, pos.organization_id FROM positions pos '
+            .'INNER JOIN organizations o ON o.id = pos.organization_id '
+            .'WHERE pos.person_id IN ('.$pPh.') AND pos.organization_id IN ('.$oPh.') '
+            .'AND pos.status = ? AND o.status = ?';
+
+        foreach ([$sqlM, $sqlP] as $sql) {
+            $rows = $conn->fetchAllAssociative($sql, $baseParams);
+            foreach ($rows as $row) {
+                $pid = (int) $row['person_id'];
+                $oid = (int) $row['organization_id'];
+                if (!isset($orgIdSet[$oid])) {
+                    continue;
+                }
+                $eid = 'e-p-'.$pid.'-o-'.$oid;
+                if (isset($edgeIds[$eid])) {
+                    continue;
+                }
+                $edgeIds[$eid] = true;
+                $edges[] = [
+                    'data' => [
+                        'id' => $eid,
+                        'source' => 'person-'.$pid,
+                        'target' => 'org-'.$oid,
+                    ],
+                ];
+            }
+        }
+    }
+
+    /**
+     * @param list<int>                  $allPersonIds
+     * @param list<int>                  $newPersonIds
+     * @param list<array<string, mixed>> $edges
+     *
+     * @param-out list<array<string, mixed>> $edges
+     */
+    private function appendSimilarityEdgesInvolvingNewPersons(
+        Connection $conn,
+        array &$edges,
+        array $allPersonIds,
+        array $newPersonIds,
+    ): void {
+        if ([] === $newPersonIds || [] === $allPersonIds) {
+            return;
+        }
+
+        $edgeIds = [];
+        foreach ($edges as $e) {
+            $edgeIds[$e['data']['id']] = true;
+        }
+
+        $phAll = implode(',', array_fill(0, \count($allPersonIds), '?'));
+        $phNew = implode(',', array_fill(0, \count($newPersonIds), '?'));
+        $sql = 'SELECT person_a_id, person_b_id, score FROM person_similarities '
+            .'WHERE person_a_id < person_b_id '
+            .'AND person_a_id IN ('.$phAll.') AND person_b_id IN ('.$phAll.') '
+            .'AND (person_a_id IN ('.$phNew.') OR person_b_id IN ('.$phNew.'))';
+        $paramsDb = array_merge($allPersonIds, $allPersonIds, $newPersonIds, $newPersonIds);
+        $rows = $conn->fetchAllAssociative($sql, $paramsDb);
+        foreach ($rows as $row) {
+            $a = (int) $row['person_a_id'];
+            $b = (int) $row['person_b_id'];
+            $eid = 'e-'.$a.'-'.$b;
+            if (isset($edgeIds[$eid])) {
+                continue;
+            }
+            $edgeIds[$eid] = true;
+            $edges[] = [
+                'data' => [
+                    'id' => $eid,
+                    'source' => 'person-'.$a,
+                    'target' => 'person-'.$b,
+                    'weight' => (float) $row['score'],
+                ],
+            ];
+        }
+    }
+
+    /**
+     * @param list<array<string, mixed>> $nodes
+     *
+     * @return list<int>
+     */
+    private function organizationIdsPresentOnGraph(array $nodes): array
+    {
+        $out = [];
+        foreach ($nodes as $n) {
+            $type = $n['data']['type'] ?? null;
+            if ('organization' !== $type) {
+                continue;
+            }
+            $id = $n['data']['id'] ?? '';
+            if (!\is_string($id) || !str_starts_with($id, 'org-')) {
+                continue;
+            }
+            $num = (int) substr($id, 4);
+            if ($num > 0) {
+                $out[$num] = true;
+            }
+        }
+
+        return array_keys($out);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $nodes
+     *
+     * @return list<int>
+     */
+    private function personIdsPresentOnGraph(array $nodes): array
+    {
+        $out = [];
+        foreach ($nodes as $n) {
+            $type = $n['data']['type'] ?? null;
+            if ('person' !== $type) {
+                continue;
+            }
+            $id = $n['data']['id'] ?? '';
+            if (!\is_string($id) || !str_starts_with($id, 'person-')) {
+                continue;
+            }
+            $num = (int) substr($id, 7);
+            if ($num > 0) {
+                $out[$num] = true;
+            }
+        }
+
+        return array_keys($out);
     }
 
     /**

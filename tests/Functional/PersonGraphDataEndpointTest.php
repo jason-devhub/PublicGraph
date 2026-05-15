@@ -83,6 +83,41 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         self::assertTrue($hasPersonToOrg, 'arête personne → organisation attendue sur la fiche personne');
     }
 
+    public function testGraphDataIncludesCoMembersSharingDisplayedOrganization(): void
+    {
+        $client = static::createClient();
+        $suffix = bin2hex(random_bytes(4));
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $pivot = $this->persistApprovedPerson($em, $suffix.'pivot');
+        $coMember = $this->persistApprovedPerson($em, $suffix.'comember');
+        $org = $this->persistApprovedOrg($em, $suffix.'shared');
+        $this->persistMembership($em, $pivot, $org, 2024);
+        $this->persistMembership($em, $coMember, $org, 2023);
+
+        $client->request('GET', '/en/people/'.$pivot->getSlug().'/graph-data');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $nodeIds = array_map(
+            static fn (array $n): string => (string) $n['data']['id'],
+            $data['elements']['nodes'],
+        );
+        self::assertContains('person-'.$coMember->getId(), $nodeIds);
+        self::assertContains('org-'.$org->getId(), $nodeIds);
+
+        $hasCoMemberToOrg = false;
+        foreach ($data['elements']['edges'] as $edge) {
+            $s = $edge['data']['source'] ?? '';
+            $t = $edge['data']['target'] ?? '';
+            if ($s === 'person-'.$coMember->getId() && $t === 'org-'.$org->getId()) {
+                $hasCoMemberToOrg = true;
+                break;
+            }
+        }
+        self::assertTrue($hasCoMemberToOrg, 'arête co-membre → organisation attendue');
+    }
+
     public function testGraphDataReturnsSimilarityEdgeWhenBothPersonsInGraph(): void
     {
         $client = static::createClient();

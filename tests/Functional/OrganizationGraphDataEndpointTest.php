@@ -118,6 +118,44 @@ final class OrganizationGraphDataEndpointTest extends WebTestCase
         self::assertTrue($hasPersonToOtherOrg, 'arête personne → organisation affiliée attendue');
     }
 
+    public function testGraphDataIncludesCoMembersLinkedThroughAffiliatedOrganization(): void
+    {
+        $client = static::createClient();
+        $suffix = bin2hex(random_bytes(4));
+        $em = self::getEntityManager();
+        $centralOrg = $this->persistApprovedOrg($em, $suffix.'central');
+        $otherOrg = $this->persistApprovedOrg($em, $suffix.'other');
+        $bridge = $this->persistApprovedPerson($em, $suffix.'bridge');
+        $onlyOther = $this->persistApprovedPerson($em, $suffix.'onlyother');
+        $this->persistMembership($em, $bridge, $centralOrg, 2024);
+        $this->persistMembership($em, $bridge, $otherOrg, 2023);
+        $this->persistMembership($em, $onlyOther, $otherOrg, 2022);
+
+        $client->request('GET', '/en/organizations/'.$centralOrg->getSlug().'/graph-data');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $nodeIds = array_map(
+            static fn (array $n): string => (string) $n['data']['id'],
+            $data['elements']['nodes'],
+        );
+        self::assertContains('person-'.$bridge->getId(), $nodeIds);
+        self::assertContains('person-'.$onlyOther->getId(), $nodeIds);
+        self::assertContains('org-'.$otherOrg->getId(), $nodeIds);
+
+        $hasCoMemberToAffiliateOrg = false;
+        foreach ($data['elements']['edges'] as $edge) {
+            $s = $edge['data']['source'] ?? '';
+            $t = $edge['data']['target'] ?? '';
+            if ($s === 'person-'.$onlyOther->getId() && $t === 'org-'.$otherOrg->getId()) {
+                $hasCoMemberToAffiliateOrg = true;
+                break;
+            }
+        }
+        self::assertTrue($hasCoMemberToAffiliateOrg, 'co-membre lié à une organisation affiliée attendu');
+    }
+
     public function testGraphData404WhenOrganizationNotApproved(): void
     {
         $client = static::createClient();
