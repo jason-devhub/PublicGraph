@@ -11,6 +11,10 @@ catalog:
     section_status: 'Profile status'
     section_categories: 'Actor types'
     section_sort: 'Sort order'
+  organization_index:
+    heading: 'Filters'
+    clear: 'Clear all'
+    section_criteria: 'Types and countries'
 
 site:
   name: 'PublicGraph'

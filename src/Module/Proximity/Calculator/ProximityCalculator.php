@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Module\Proximity\Calculator;
 
-use App\Module\Influence\Entity\Membership;
-use App\Module\Influence\Entity\Position;
 use App\Module\Organization\Entity\Organization;
-use App\Module\Organization\Entity\Party;
 use App\Module\Person\Entity\Person;
 use App\Module\Proximity\Repository\PersonSimilarityRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -30,7 +29,7 @@ final class ProximityCalculator
     public function calculateForAll(): array
     {
         $conn = $this->entityManager->getConnection();
-        $conn->executeStatement('DELETE FROM person_similarities');
+        $conn->executeStatement('TRUNCATE TABLE person_similarities');
 
         $weights = $this->proximityConfig['weights'];
         $minScore = (float) $this->proximityConfig['min_score_to_store'];
@@ -98,33 +97,32 @@ final class ProximityCalculator
      */
     private function accumulateMembershipScores(array &$pairScore, array &$pairDetails, array $weights): void
     {
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select('m')
-            ->from(Membership::class, 'm')
-            ->innerJoin('m.person', 'p')
-            ->innerJoin('m.organization', 'o')
-            ->andWhere('m.status = :ap')
-            ->andWhere('p.status = :pp')
-            ->andWhere('o.status = :op')
-            ->andWhere('p.deletedAt IS NULL')
-            ->setParameter('ap', 'approved')
-            ->setParameter('pp', Person::STATUS_APPROVED)
-            ->setParameter('op', Organization::STATUS_APPROVED);
+        $sql = <<<'SQL'
+            SELECT m.organization_id AS oid, m.person_id AS pid, m.year AS m_year
+            FROM memberships m
+            INNER JOIN persons p ON p.id = m.person_id AND p.deleted_at IS NULL AND p.status = :pp
+            INNER JOIN organizations o ON o.id = m.organization_id AND o.status = :op
+            WHERE m.status = :ap
+            SQL;
 
-        /** @var list<Membership> $memberships */
-        $memberships = $qb->getQuery()->getResult();
+        $rows = $this->entityManager->getConnection()->fetchAllAssociative($sql, [
+            'ap' => 'approved',
+            'pp' => Person::STATUS_APPROVED,
+            'op' => Organization::STATUS_APPROVED,
+        ], [
+            'ap' => ParameterType::STRING,
+            'pp' => ParameterType::STRING,
+            'op' => ParameterType::STRING,
+        ]);
 
         /** @var array<int, array<int, list<array{year: ?int}>>> $byOrg */
         $byOrg = [];
-        foreach ($memberships as $m) {
-            $p = $m->getPerson();
-            $o = $m->getOrganization();
-            if (null === $p?->getId() || null === $o?->getId()) {
-                continue;
-            }
-            $oid = (int) $o->getId();
-            $pid = (int) $p->getId();
-            $byOrg[$oid][$pid][] = ['year' => $m->getYear()];
+        foreach ($rows as $row) {
+            $oid = (int) $row['oid'];
+            $pid = (int) $row['pid'];
+            $yearRaw = $row['m_year'];
+            $year = null === $yearRaw || '' === $yearRaw ? null : (int) $yearRaw;
+            $byOrg[$oid][$pid][] = ['year' => $year];
         }
 
         $wYear = (float) ($weights['same_event_same_year'] ?? 3.0);
@@ -178,32 +176,30 @@ final class ProximityCalculator
         $w = (float) ($weights['same_party'] ?? 1.0);
         $wEfam = (float) ($weights['same_european_family'] ?? 0.5);
 
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select('m')
-            ->from(Membership::class, 'm')
-            ->innerJoin('m.person', 'p')
-            ->innerJoin('m.organization', 'o')
-            ->andWhere('m.status = :ap')
-            ->andWhere('p.status = :pp')
-            ->andWhere('o.type = :ptype')
-            ->andWhere('o.status = :op')
-            ->setParameter('ap', 'approved')
-            ->setParameter('pp', Person::STATUS_APPROVED)
-            ->setParameter('ptype', Organization::TYPE_POLITICAL_PARTY)
-            ->setParameter('op', Organization::STATUS_APPROVED);
+        $sql = <<<'SQL'
+            SELECT m.organization_id AS oid, m.person_id AS pid
+            FROM memberships m
+            INNER JOIN persons p ON p.id = m.person_id AND p.deleted_at IS NULL AND p.status = :pp
+            INNER JOIN organizations o ON o.id = m.organization_id AND o.type = :ptype AND o.status = :op
+            WHERE m.status = :ap
+            SQL;
 
-        /** @var list<Membership> $memberships */
-        $memberships = $qb->getQuery()->getResult();
+        $rows = $this->entityManager->getConnection()->fetchAllAssociative($sql, [
+            'ap' => 'approved',
+            'pp' => Person::STATUS_APPROVED,
+            'ptype' => Organization::TYPE_POLITICAL_PARTY,
+            'op' => Organization::STATUS_APPROVED,
+        ], [
+            'ap' => ParameterType::STRING,
+            'pp' => ParameterType::STRING,
+            'ptype' => ParameterType::STRING,
+            'op' => ParameterType::STRING,
+        ]);
 
         /** @var array<int, list<int>> $orgToPeople */
         $orgToPeople = [];
-        foreach ($memberships as $m) {
-            $p = $m->getPerson();
-            $o = $m->getOrganization();
-            if (null === $p?->getId() || null === $o?->getId()) {
-                continue;
-            }
-            $orgToPeople[(int) $o->getId()][] = (int) $p->getId();
+        foreach ($rows as $row) {
+            $orgToPeople[(int) $row['oid']][] = (int) $row['pid'];
         }
 
         foreach ($orgToPeople as $people) {
@@ -227,34 +223,40 @@ final class ProximityCalculator
      */
     private function accumulateEuropeanFamilyScores(array &$pairScore, array &$pairDetails, float $wEfam): void
     {
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select('party')
-            ->from(Party::class, 'party')
-            ->innerJoin('party.organization', 'o')
-            ->andWhere('party.europeanFamily IS NOT NULL')
-            ->andWhere('o.status = :op')
-            ->setParameter('op', Organization::STATUS_APPROVED);
+        $sql = <<<'SQL'
+            SELECT m.organization_id AS oid, m.person_id AS pid, party.european_family AS fam
+            FROM memberships m
+            INNER JOIN persons p ON p.id = m.person_id AND p.deleted_at IS NULL AND p.status = :pp
+            INNER JOIN organizations o ON o.id = m.organization_id AND o.status = :op
+            INNER JOIN parties party ON party.organization_id = o.id
+                AND party.european_family IS NOT NULL AND party.european_family <> ''
+            WHERE m.status = :ap
+            SQL;
 
-        /** @var list<Party> $parties */
-        $parties = $qb->getQuery()->getResult();
+        $rows = $this->entityManager->getConnection()->fetchAllAssociative($sql, [
+            'ap' => 'approved',
+            'pp' => Person::STATUS_APPROVED,
+            'op' => Organization::STATUS_APPROVED,
+        ], [
+            'ap' => ParameterType::STRING,
+            'pp' => ParameterType::STRING,
+            'op' => ParameterType::STRING,
+        ]);
 
-        foreach ($parties as $party) {
-            $org = $party->getOrganization();
-            $fam = $party->getEuropeanFamily();
-            if (null === $org || null === $fam || '' === $fam) {
-                continue;
+        /** @var array<int, array{people: list<int>, fam: string}> $byOrg */
+        $byOrg = [];
+        foreach ($rows as $row) {
+            $oid = (int) $row['oid'];
+            $fam = (string) $row['fam'];
+            if (!isset($byOrg[$oid])) {
+                $byOrg[$oid] = ['people' => [], 'fam' => $fam];
             }
-            $people = [];
-            foreach ($org->getMemberships() as $m) {
-                if ('approved' !== $m->getStatus()) {
-                    continue;
-                }
-                $p = $m->getPerson();
-                if ($p instanceof Person && Person::STATUS_APPROVED === $p->getStatus() && null !== $p->getId()) {
-                    $people[] = (int) $p->getId();
-                }
-            }
-            $people = array_values(array_unique($people));
+            $byOrg[$oid]['people'][] = (int) $row['pid'];
+        }
+
+        foreach ($byOrg as $bundle) {
+            $people = array_values(array_unique($bundle['people']));
+            $fam = $bundle['fam'];
             $n = \count($people);
             for ($i = 0; $i < $n; ++$i) {
                 for ($j = $i + 1; $j < $n; ++$j) {
@@ -278,42 +280,42 @@ final class ProximityCalculator
 
         $types = [Organization::TYPE_GOVERNMENT_BODY, Organization::TYPE_INTERNATIONAL_BODY];
 
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select('pos')
-            ->from(Position::class, 'pos')
-            ->innerJoin('pos.person', 'p')
-            ->innerJoin('pos.organization', 'o')
-            ->andWhere('pos.status = :ps')
-            ->andWhere('p.status = :pp')
-            ->andWhere('o.status = :op')
-            ->andWhere('o.type IN (:otypes)')
-            ->setParameter('ps', 'approved')
-            ->setParameter('pp', Person::STATUS_APPROVED)
-            ->setParameter('op', Organization::STATUS_APPROVED)
-            ->setParameter('otypes', $types);
+        $sql = <<<'SQL'
+            SELECT pos.organization_id AS oid, o.type AS org_type, pos.person_id AS pid,
+                   pos.start_date AS start_date, pos.end_date AS end_date
+            FROM positions pos
+            INNER JOIN persons p ON p.id = pos.person_id AND p.deleted_at IS NULL AND p.status = :pp
+            INNER JOIN organizations o ON o.id = pos.organization_id AND o.status = :op
+            WHERE pos.status = :ps AND o.type IN (:otypes)
+            SQL;
 
-        /** @var list<Position> $positions */
-        $positions = $qb->getQuery()->getResult();
+        $rows = $this->entityManager->getConnection()->fetchAllAssociative($sql, [
+            'ps' => 'approved',
+            'pp' => Person::STATUS_APPROVED,
+            'op' => Organization::STATUS_APPROVED,
+            'otypes' => $types,
+        ], [
+            'ps' => ParameterType::STRING,
+            'pp' => ParameterType::STRING,
+            'op' => ParameterType::STRING,
+            'otypes' => ArrayParameterType::STRING,
+        ]);
 
-        /** @var array<int, list<array{person: int, start: \DateTimeImmutable, end: ?\DateTimeImmutable}>> $byOrg */
+        /** @var array<int, list<array{person: int, start: \DateTimeImmutable, end: ?\DateTimeImmutable, org_type: string}>> $byOrg */
         $byOrg = [];
-        foreach ($positions as $pos) {
-            $p = $pos->getPerson();
-            $o = $pos->getOrganization();
-            if (null === $p?->getId() || null === $o?->getId()) {
-                continue;
-            }
-            $oid = (int) $o->getId();
+        foreach ($rows as $row) {
+            $oid = (int) $row['oid'];
             $byOrg[$oid][] = [
-                'person' => (int) $p->getId(),
-                'start' => $pos->getStartDate(),
-                'end' => $pos->getEndDate(),
+                'person' => (int) $row['pid'],
+                'start' => $this->coerceDateTimeImmutable($row['start_date']),
+                'end' => $this->coerceOptionalDateTimeImmutable($row['end_date']),
+                'org_type' => (string) $row['org_type'],
             ];
         }
 
         foreach ($byOrg as $oid => $list) {
-            $o = $this->entityManager->find(Organization::class, $oid);
-            $weight = Organization::TYPE_INTERNATIONAL_BODY === $o?->getType() ? $wInt : $wLeg;
+            $orgType = $list[0]['org_type'] ?? Organization::TYPE_GOVERNMENT_BODY;
+            $weight = Organization::TYPE_INTERNATIONAL_BODY === $orgType ? $wInt : $wLeg;
 
             $n = \count($list);
             for ($i = 0; $i < $n; ++$i) {
@@ -340,10 +342,38 @@ final class ProximityCalculator
         \DateTimeImmutable $s2,
         ?\DateTimeImmutable $e2,
     ): bool {
-        $e1eff = $e1 ?? new \DateTimeImmutable('+100 years');
-        $e2eff = $e2 ?? new \DateTimeImmutable('+100 years');
+        static $farFuture = null;
+        if (null === $farFuture) {
+            $farFuture = new \DateTimeImmutable('+100 years');
+        }
+        $e1eff = $e1 ?? $farFuture;
+        $e2eff = $e2 ?? $farFuture;
 
         return $s1 <= $e2eff && $s2 <= $e1eff;
+    }
+
+    private function coerceDateTimeImmutable(mixed $value): \DateTimeImmutable
+    {
+        if ($value instanceof \DateTimeImmutable) {
+            return $value;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($value);
+        }
+        if (!\is_string($value)) {
+            throw new \UnexpectedValueException('Date attendue depuis la base (chaîne ou DateTimeInterface).');
+        }
+
+        return new \DateTimeImmutable($value);
+    }
+
+    private function coerceOptionalDateTimeImmutable(mixed $value): ?\DateTimeImmutable
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return $this->coerceDateTimeImmutable($value);
     }
 
     private function pairKey(int $a, int $b): string

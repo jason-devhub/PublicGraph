@@ -53,20 +53,28 @@ class PersonSimilarityRepository extends ServiceEntityRepository
 
         $conn = $this->getEntityManager()->getConnection();
         $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
-        foreach ($rows as $row) {
-            $conn->insert('person_similarities', [
-                'person_a_id' => $row['personAId'],
-                'person_b_id' => $row['personBId'],
-                'score' => $row['score'],
-                'details' => json_encode($row['details'], \JSON_THROW_ON_ERROR),
-                'computed_at' => $now,
-            ], [
-                'person_a_id' => ParameterType::INTEGER,
-                'person_b_id' => ParameterType::INTEGER,
-                'score' => ParameterType::STRING,
-                'details' => ParameterType::STRING,
-                'computed_at' => ParameterType::STRING,
-            ]);
+        $chunkSize = 200;
+        foreach (array_chunk($rows, $chunkSize) as $chunk) {
+            $placeholders = [];
+            $params = [];
+            $types = [];
+            foreach ($chunk as $i => $row) {
+                $prefix = 'r'.$i.'_';
+                $placeholders[] = '(:'.$prefix.'a, :'.$prefix.'b, :'.$prefix.'s, :'.$prefix.'d, :'.$prefix.'t)';
+                $params[$prefix.'a'] = $row['personAId'];
+                $params[$prefix.'b'] = $row['personBId'];
+                $params[$prefix.'s'] = $row['score'];
+                $params[$prefix.'d'] = json_encode($row['details'], \JSON_THROW_ON_ERROR);
+                $params[$prefix.'t'] = $now;
+                $types[$prefix.'a'] = ParameterType::INTEGER;
+                $types[$prefix.'b'] = ParameterType::INTEGER;
+                $types[$prefix.'s'] = ParameterType::STRING;
+                $types[$prefix.'d'] = ParameterType::STRING;
+                $types[$prefix.'t'] = ParameterType::STRING;
+            }
+            $sql = 'INSERT INTO person_similarities (person_a_id, person_b_id, score, details, computed_at) VALUES '
+                .implode(', ', $placeholders);
+            $conn->executeStatement($sql, $params, $types);
         }
     }
 }

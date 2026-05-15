@@ -1,0 +1,18 @@
+# Humains liés à l’édition : P1344 (participant·e de) sur la personne, et/ou P710 (participant·e) sur l’item événement.
+SELECT ?wikidataId WHERE {
+  {
+    SELECT DISTINCT ?person WHERE {
+      ?person wdt:P31 wd:Q5 .
+      {
+        ?person wdt:P1344 wd:{{EVENT_QID}} .
+      }
+      UNION
+      {
+        wd:{{EVENT_QID}} wdt:P710 ?person .
+        ?person wdt:P31 wd:Q5 .
+      }
+    }
+    LIMIT {{LIMIT}}
+  }
+  BIND(STRAFTER(STR(?person), "http://www.wikidata.org/entity/") AS ?wikidataId)
+}

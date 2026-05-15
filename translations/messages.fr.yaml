@@ -10,6 +10,10 @@ catalog:
     section_status: 'État des fiches'
     section_categories: 'Types d’acteurs'
     section_sort: 'Classement'
+  organization_index:
+    heading: 'Filtres'
+    clear: 'Tout effacer'
+    section_criteria: 'Types et pays'
 
 site:
   name: 'PublicGraph'

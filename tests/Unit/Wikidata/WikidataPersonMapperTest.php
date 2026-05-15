@@ -24,6 +24,21 @@ final class WikidataPersonMapperTest extends TestCase
         self::assertSame('Dupont', $dto->familyName);
         self::assertContains('politician', $dto->roleCategories);
         self::assertContains('Q142', $dto->nationalityQids);
+        self::assertEqualsCanonicalizing(['FR', 'US'], $dto->nationalityIsoCodes);
+    }
+
+    public function testMapNationalityIsoFromWikidataP297(): void
+    {
+        $mapper = new WikidataPersonMapper();
+        $binding = [
+            'wikidataId' => ['type' => 'literal', 'value' => 'Q1'],
+            'personLabel' => ['type' => 'literal', 'value' => 'Test Person'],
+            'nationalityQids' => ['type' => 'literal', 'value' => 'Q39'],
+            'nationalityIsos' => ['type' => 'literal', 'value' => 'CH'],
+            'occupationQids' => ['type' => 'literal', 'value' => 'Q82955'],
+        ];
+        $dto = $mapper->map($binding);
+        self::assertEqualsCanonicalizing(['CH'], $dto->nationalityIsoCodes);
     }
 
     public function testMapMinisterOccupation(): void

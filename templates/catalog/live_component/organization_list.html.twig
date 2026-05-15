@@ -1,26 +1,63 @@
 {% import 'catalog/_macros.html.twig' as catalog %}
 
-<div {{ attributes.defaults({class: 'space-y-10'}) }}>
-    <div class="border-b border-rule-medium pb-8">
-        <h2 class="font-sans text-xs font-semibold uppercase tracking-wide text-text-tertiary">Filtres</h2>
+{% set filter_label = 'mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-wider text-text-secondary' %}
+{% set ts_skin = '[&_.ts-wrapper]:w-full [&_.ts-control]:rounded-xs [&_.ts-control]:border [&_.ts-control]:border-rule-medium [&_.ts-control]:bg-surface-primary [&_.ts-control]:min-h-[2.625rem] [&_.ts-control]:px-3 [&_.ts-control]:py-2 [&_.ts-control]:font-sans [&_.ts-control]:text-sm [&_.ts-control]:text-text-primary [&_.ts-control]:shadow-none [&_.ts-dropdown]:border [&_.ts-dropdown]:border-rule-medium [&_.ts-dropdown]:bg-surface-primary' %}
+
+<div {{ attributes.defaults({class: 'organization-catalog space-y-8'}) }}>
+    <section
+        class="border border-rule-medium bg-surface-secondary"
+        data-catalog="organization-filters"
+        aria-labelledby="organization-catalog-filters-heading"
+    >
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-rule-medium px-4 py-3 sm:px-5">
+            <h2 id="organization-catalog-filters-heading" class="font-serif text-lg font-medium tracking-tight text-text-primary sm:text-xl">
+                {{ 'catalog.organization_index.heading'|trans }}
+            </h2>
+            <a
+                href="{{ path('app_organization_index') }}"
+                class="shrink-0 whitespace-nowrap font-sans text-xs text-accent underline decoration-rule-medium underline-offset-4 hover:text-accent-hover hover:decoration-accent"
+            >
+                {{ 'catalog.organization_index.clear'|trans }}
+            </a>
+        </div>
+
         {{ form_start(form, {
             attr: {
                 'data-model': 'defer',
                 'data-action': 'change->live#update',
+                role: 'search',
+                class: 'space-y-4 px-4 py-4 font-sans text-sm text-text-primary sm:space-y-5 sm:px-5 sm:py-5',
             }
         }) }}
-        <div class="mt-4 grid gap-6 md:grid-cols-2">
-            {{ form_row(form.types) }}
-            {{ form_row(form.countries) }}
+
+        <p class="font-sans text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+            {{ 'catalog.organization_index.section_criteria'|trans }}
+        </p>
+        <div class="flex flex-wrap items-end gap-x-4 gap-y-4 md:gap-x-5">
+            <div class="min-w-[min(100%,12rem)] flex-1 basis-[14rem]">
+                {{ form_row(form.types, {
+                    label_attr: { class: filter_label },
+                    attr: { class: 'pg-input w-full min-h-11 px-3 py-2 font-sans text-sm' },
+                }) }}
+            </div>
+            <div class="min-w-[min(100%,12rem)] flex-1 basis-[14rem] {{ ts_skin }}">
+                {{ form_row(form.countries, { label_attr: { class: filter_label } }) }}
+            </div>
         </div>
+
         {{ form_end(form) }}
-    </div>
+    </section>
 
     {% set oc = organizationCatalog %}
     {% set pager = oc.pager %}
     {% set memberCounts = oc.memberCounts %}
 
-    <div class="grid gap-4 md:grid-cols-2">
+    <div class="min-w-0">
+        <p class="border-b border-rule-medium pb-3 font-sans text-sm text-text-secondary">
+            {{ 'site.search_page.results_count'|trans({ '%count%': pager.nbResults }) }}
+        </p>
+
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
         {% for org in pager.currentPageResults %}
             {% set oid = org.id %}
             <article class="border-t border-b border-rule-medium bg-surface-primary px-4 py-5">
@@ -51,10 +88,10 @@
         {% else %}
             <p class="text-text-secondary md:col-span-2">Aucune organisation ne correspond aux filtres.</p>
         {% endfor %}
-    </div>
+        </div>
 
     {% if pager.nbPages > 1 %}
-        <nav class="flex flex-col gap-4 border-t border-rule-medium pt-6 font-sans text-sm sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-x-4 sm:gap-y-0" aria-label="{{ 'site.search_page.pagination_orgs_aria'|trans }}">
+        <nav class="mt-8 flex flex-col gap-4 border-t border-rule-medium pt-6 font-sans text-sm sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-x-4 sm:gap-y-0" aria-label="{{ 'site.search_page.pagination_orgs_aria'|trans }}">
             <div class="hidden min-w-0 sm:block" aria-hidden="true"></div>
             <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-self-center">
                 {% if pager.hasPreviousPage %}
@@ -78,4 +115,5 @@
             <p class="text-right text-text-secondary sm:justify-self-end">{{ 'site.search_page.page_of'|trans({ '%page%': pager.currentPage, '%pages%': pager.nbPages }) }}</p>
         </nav>
     {% endif %}
+    </div>
 </div>

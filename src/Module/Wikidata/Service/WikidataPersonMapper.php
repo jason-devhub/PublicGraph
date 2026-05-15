@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\Wikidata\Service;
 
+use App\Module\Wikidata\Client\WikidataCountryQids;
 use App\Module\Wikidata\Dto\PersonDto;
 use App\Module\Wikidata\Util\WikimediaImageUrl;
 
@@ -71,6 +72,7 @@ final class WikidataPersonMapper
         if ([] === $roleCategories) {
             $roleCategories = ['other_influencer'];
         }
+        $nationalityIsoCodes = $this->resolveNationalityIsoCodes($sparqlBinding, $nationalityQids);
 
         return new PersonDto(
             wikidataId: $wikidataId,
@@ -82,6 +84,7 @@ final class WikidataPersonMapper
             gender: $gender,
             photoUrl: $photo,
             nationalityQids: $nationalityQids,
+            nationalityIsoCodes: $nationalityIsoCodes,
             roleCategories: array_values(array_unique($roleCategories)),
             partyMemberships: $this->parseQidLabelPairs(WikidataBindingValue::optionalString($sparqlBinding, 'partyPairs')),
             organizationMemberships: $this->parseQidLabelPairs(WikidataBindingValue::optionalString($sparqlBinding, 'orgPairs')),
@@ -125,6 +128,34 @@ final class WikidataPersonMapper
         }
 
         return array_values(array_filter(array_map('trim', explode('|', $s))));
+    }
+
+    /**
+     * @param BindingRow   $sparqlBinding
+     * @param list<string> $nationalityQids
+     *
+     * @return list<string>
+     */
+    private function resolveNationalityIsoCodes(array $sparqlBinding, array $nationalityQids): array
+    {
+        $out = [];
+        foreach ($this->splitPipe(WikidataBindingValue::optionalString($sparqlBinding, 'nationalityIsos')) as $iso) {
+            $iso = strtoupper(trim($iso));
+            if (2 === \strlen($iso) && ctype_alpha($iso)) {
+                $out[] = $iso;
+            }
+        }
+        foreach ($nationalityQids as $qid) {
+            if (!preg_match('/(Q\d+)/i', $qid, $m)) {
+                continue;
+            }
+            $mapped = WikidataCountryQids::isoForNationalityQid($m[1]);
+            if (null !== $mapped) {
+                $out[] = strtoupper($mapped);
+            }
+        }
+
+        return array_values(array_unique($out));
     }
 
     /** @param list<string> $occupationQids */

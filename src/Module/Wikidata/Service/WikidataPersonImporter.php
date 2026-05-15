@@ -15,7 +15,6 @@ use App\Module\Source\Entity\Source;
 use App\Module\Source\Repository\SourceRepository;
 use App\Module\Source\Service\EntitySourceManager;
 use App\Module\User\Entity\User;
-use App\Module\Wikidata\Client\WikidataCountryQids;
 use App\Module\Wikidata\Dto\OrganizationDto;
 use App\Module\Wikidata\Dto\PersonDto;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,11 +65,11 @@ final class WikidataPersonImporter
         }
 
         $this->applyPersonScalarFields($person, $dto);
-        $nationalityQids = $dto->nationalityQids;
-        if ([] === $nationalityQids && null !== $syncNationalityIso && 2 === \strlen($syncNationalityIso) && ctype_alpha($syncNationalityIso)) {
-            $nationalityQids = WikidataCountryQids::nationalityQidsForIso(strtoupper($syncNationalityIso));
+        $nationalityIsos = $dto->nationalityIsoCodes;
+        if ([] === $nationalityIsos && null !== $syncNationalityIso && 2 === \strlen($syncNationalityIso) && ctype_alpha($syncNationalityIso)) {
+            $nationalityIsos = [strtoupper($syncNationalityIso)];
         }
-        $this->syncNationalities($person, $nationalityQids);
+        $this->syncNationalities($person, $nationalityIsos);
 
         if (null === $person->getId()) {
             $this->em()->persist($person);
@@ -150,8 +149,8 @@ final class WikidataPersonImporter
         }
     }
 
-    /** @param array<int, string> $nationalityQids */
-    private function syncNationalities(Person $person, array $nationalityQids): void
+    /** @param list<string> $countryIsoAlpha2 */
+    private function syncNationalities(Person $person, array $countryIsoAlpha2): void
     {
         if ($person->isFieldManuallyEditedForWikidata('nationalities')) {
             return;
@@ -159,9 +158,9 @@ final class WikidataPersonImporter
         foreach ($person->getNationalities()->toArray() as $c) {
             $person->getNationalities()->removeElement($c);
         }
-        foreach ($nationalityQids as $qid) {
-            $iso = WikidataCountryQids::isoForNationalityQid($qid);
-            if (null === $iso) {
+        foreach ($countryIsoAlpha2 as $iso) {
+            $iso = strtoupper(trim((string) $iso));
+            if (2 !== \strlen($iso) || !ctype_alpha($iso)) {
                 continue;
             }
             $country = $this->ensureCountryFromIso($iso);

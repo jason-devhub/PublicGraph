@@ -2,6 +2,7 @@ SELECT ?person (SAMPLE(?personLabel) AS ?personLabel)
        (SAMPLE(STRAFTER(STR(?person), "http://www.wikidata.org/entity/")) AS ?wikidataId)
        (SAMPLE(?image) AS ?image)
        (GROUP_CONCAT(DISTINCT ?natQid; separator="|") AS ?nationalityQids)
+       (GROUP_CONCAT(DISTINCT ?natIso; separator="|") AS ?nationalityIsos)
        (GROUP_CONCAT(DISTINCT ?occQid; separator="|") AS ?occupationQids)
        (GROUP_CONCAT(DISTINCT CONCAT(?partyQid, ":", STR(?partyLabel)); separator=";;") AS ?partyPairs)
        (GROUP_CONCAT(DISTINCT CONCAT(?orgQid, ":", STR(?orgLabel)); separator=";;") AS ?orgPairs)
@@ -25,6 +26,7 @@ WHERE {
   OPTIONAL {
     ?person wdt:P27 ?nat.
     BIND(REPLACE(STR(?nat), "http://www.wikidata.org/entity/", "") AS ?natQid)
+    OPTIONAL { ?nat wdt:P297 ?natIso. }
   }
   OPTIONAL {
     ?person wdt:P106 ?occAll.
@@ -52,7 +54,7 @@ WHERE {
     OPTIONAL { ?st pq:P582 ?end. }
     OPTIONAL { ?position rdfs:label ?posLabFr . FILTER(LANG(?posLabFr) = "fr") }
     OPTIONAL { ?position rdfs:label ?posLabEn . FILTER(LANG(?posLabEn) = "en") }
-    BIND(COALESCE(?posLabFr, ?posLabEn) AS ?posLabel)
+    BIND(COALESCE(?posLabEn, ?posLabFr) AS ?posLabel)
   }
   OPTIONAL {
     ?person rdfs:label ?personLabFr .

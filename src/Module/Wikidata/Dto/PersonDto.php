@@ -19,6 +19,8 @@ final class PersonDto
         public ?string $gender = null,
         public ?string $photoUrl = null,
         public array $nationalityQids = [],
+        /** @var list<string> Codes ISO-3166-1 alpha-2 (ex. FR, CH), issus de P297 sur l’item pays Wikidata et/ou du mapping QID local */
+        public array $nationalityIsoCodes = [],
         public array $roleCategories = [],
         public array $partyMemberships = [],
         public array $organizationMemberships = [],
