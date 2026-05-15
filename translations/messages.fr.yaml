@@ -13,7 +13,7 @@ catalog:
   organization_index:
     heading: 'Filtres'
     clear: 'Tout effacer'
-    section_criteria: 'Types et pays'
+    section_types: 'Types d’organisations'
 
 site:
   name: 'PublicGraph'

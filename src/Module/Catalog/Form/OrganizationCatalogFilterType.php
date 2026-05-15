@@ -31,8 +31,9 @@ final class OrganizationCatalogFilterType extends AbstractType
             ->add('types', ChoiceType::class, [
                 'required' => false,
                 'multiple' => true,
+                'expanded' => true,
                 'choices' => $typeChoices,
-                'label' => 'Types',
+                'label' => false,
             ])
             ->add('countries', CountryAutocompleteField::class, [
                 'required' => false,

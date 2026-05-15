@@ -5,6 +5,7 @@
 {% block main_container_class %}mx-auto flex w-full min-h-0 max-w-none flex-1 flex-col px-0 py-0{% endblock %}
 
 {% set filter_label = 'mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-wider text-text-secondary' %}
+{% set ts_skin = '[&_.ts-wrapper]:w-full [&_.ts-control]:rounded-xs [&_.ts-control]:border [&_.ts-control]:border-rule-medium [&_.ts-control]:bg-surface-primary [&_.ts-control]:min-h-[2.625rem] [&_.ts-control]:px-3 [&_.ts-control]:py-2 [&_.ts-control]:font-sans [&_.ts-control]:text-sm [&_.ts-control]:text-text-primary [&_.ts-control]:shadow-none [&_.ts-dropdown]:border [&_.ts-dropdown]:border-rule-medium [&_.ts-dropdown]:bg-surface-primary' %}
 
 {% block body %}
     <div
@@ -38,54 +39,46 @@
                 </a>
             </div>
 
-            <form method="get" action="{{ path('app_graph_index') }}" class="space-y-4 px-4 py-4 font-sans text-sm text-text-primary sm:space-y-5 sm:px-5 sm:py-5" role="search">
+            {{ form_start(graph_filter_form, {
+                action: path('app_graph_index'),
+                attr: {
+                    class: 'space-y-4 px-4 py-4 font-sans text-sm text-text-primary sm:space-y-5 sm:px-5 sm:py-5',
+                    role: 'search',
+                },
+            }) }}
+                {% if focus_person is defined and focus_person and focus_person.slug %}
+                    <input type="hidden" name="focus" value="{{ focus_person.slug|e('html_attr') }}">
+                {% endif %}
                 <div class="flex flex-wrap items-end gap-x-4 gap-y-4 md:gap-x-5">
-                    <div class="min-w-[min(100%,10rem)] flex-1 basis-[12rem]">
-                        <label class="{{ filter_label }}" for="g-org">{{ 'global_graph.filter_org'|trans }}</label>
-                        <input id="g-org" name="organization" type="text" value="{{ graph_params.organizationSlug ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="forum-economique-mondial">
+                    <div class="min-w-[min(100%,10rem)] flex-1 basis-[12rem] {{ ts_skin }}">
+                        {{ form_row(graph_filter_form.organization, { label_attr: { class: filter_label } }) }}
                     </div>
                     <div class="min-w-[min(100%,10rem)] flex-1 basis-[12rem]">
-                        <label class="{{ filter_label }}" for="g-countries">{{ 'global_graph.filter_countries'|trans }}</label>
-                        <input id="g-countries" name="countries" type="text" value="{{ graph_params.countryIsoCodes|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="FR,DE">
+                        {{ form_row(graph_filter_form.countries, { label_attr: { class: filter_label } }) }}
                     </div>
                     <div class="min-w-[min(100%,10rem)] flex-1 basis-[14rem]">
-                        <label class="{{ filter_label }}" for="g-cat">{{ 'global_graph.filter_categories'|trans }}</label>
-                        <input id="g-cat" name="categories" type="text" value="{{ graph_params.roleCategories|join(',') }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 font-mono text-xs" placeholder="politician,civil_servant">
+                        {{ form_row(graph_filter_form.categories, { label_attr: { class: filter_label } }) }}
                     </div>
                     <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[7rem]">
-                        <label class="{{ filter_label }}" for="ymin">{{ 'global_graph.filter_year_min'|trans }}</label>
-                        <input id="ymin" name="yearMin" type="number" value="{{ graph_params.yearMin ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
+                        {{ form_row(graph_filter_form.yearMin, { label_attr: { class: filter_label } }) }}
                     </div>
                     <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[7rem]">
-                        <label class="{{ filter_label }}" for="ymax">{{ 'global_graph.filter_year_max'|trans }}</label>
-                        <input id="ymax" name="yearMax" type="number" value="{{ graph_params.yearMax ?? '' }}" class="pg-input mt-1 min-h-11 w-full px-2 py-1 font-mono text-xs">
+                        {{ form_row(graph_filter_form.yearMax, { label_attr: { class: filter_label } }) }}
                     </div>
                     <div class="w-full min-w-0 shrink-0 sm:w-auto sm:min-w-[10rem]">
-                        <label class="{{ filter_label }}" for="colorMode">{{ 'global_graph.filter_color'|trans }}</label>
-                        <select id="colorMode" name="colorMode" class="pg-input mt-1 min-h-11 w-full px-2 py-1.5 text-xs">
-                            <option value="category" {% if graph_params.colorMode == 'category' %}selected{% endif %}>{{ 'global_graph.color_by_category'|trans }}</option>
-                            <option value="country" {% if graph_params.colorMode == 'country' %}selected{% endif %}>{{ 'global_graph.color_by_country'|trans }}</option>
-                        </select>
+                        {{ form_row(graph_filter_form.colorMode, { label_attr: { class: filter_label } }) }}
                     </div>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-4 border-t border-rule-subtle pt-4">
-                    <fieldset class="min-w-0 flex-1">
-                        <legend class="{{ filter_label }} !mb-0">{{ 'global_graph.filter_max_nodes'|trans }}</legend>
-                        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs">
-                            {% for n in [25, 50, 100, 200] %}
-                                <label class="inline-flex cursor-pointer items-center gap-2">
-                                    <input type="radio" name="maxNodes" value="{{ n }}" class="size-4 shrink-0 accent-accent" {% if graph_params.maxNodes == n %}checked{% endif %}>
-                                    <span class="font-sans text-text-primary">{{ n }}</span>
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                    <button type="submit" class="pg-btn-primary min-h-11 shrink-0 px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wide no-underline">
-                        {{ 'global_graph.apply'|trans }}
-                    </button>
+                    {{ form_row(graph_filter_form.maxNodes, { label_attr: { class: filter_label ~ ' !mb-0' } }) }}
+                    <div class="flex shrink-0 items-end pb-0.5">
+                        <button type="submit" class="pg-btn-primary min-h-11 shrink-0 px-4 py-2 font-sans text-xs font-semibold uppercase tracking-wide no-underline">
+                            {{ 'global_graph.apply'|trans }}
+                        </button>
+                    </div>
                 </div>
-            </form>
+            {{ form_end(graph_filter_form) }}
         </section>
 
         <div class="relative flex min-h-0 w-full flex-1 flex-col bg-ink">

@@ -32,8 +32,8 @@ final class GraphQueryParams
         $yearMin = $request->query->get('yearMin');
         $yearMax = $request->query->get('yearMax');
 
-        $countries = self::parseCommaList($request->query->get('countries'));
-        $categories = self::parseCommaList($request->query->get('categories'));
+        $countries = self::parseCountryIsoList($request->query->get('countries'));
+        $categories = self::parseCategoriesList($request->query->get('categories'));
 
         return new self(
             organizationSlug: self::stringOrNull($request->query->get('organization')),
@@ -51,10 +51,22 @@ final class GraphQueryParams
     }
 
     /**
+     * Codes ISO pays (GET : liste ou chaîne « FR,DE »).
+     *
      * @return list<string>
      */
-    private static function parseCommaList(mixed $raw): array
+    private static function parseCountryIsoList(mixed $raw): array
     {
+        if (\is_array($raw)) {
+            $out = [];
+            foreach ($raw as $p) {
+                if (\is_string($p) && '' !== trim($p)) {
+                    $out[] = strtoupper(trim($p));
+                }
+            }
+
+            return array_values(array_unique($out));
+        }
         if (!\is_string($raw) || '' === trim($raw)) {
             return [];
         }
@@ -63,6 +75,38 @@ final class GraphQueryParams
         foreach ($parts as $p) {
             if ('' !== $p) {
                 $out[] = strtoupper($p);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Catégories de rôle (GET : cases à cocher ou chaîne « politician,lobbyist »).
+     * Les valeurs ne sont pas forcées en majuscules (clés métier en snake_case).
+     *
+     * @return list<string>
+     */
+    private static function parseCategoriesList(mixed $raw): array
+    {
+        if (\is_array($raw)) {
+            $out = [];
+            foreach ($raw as $p) {
+                if (\is_string($p) && '' !== trim($p)) {
+                    $out[] = trim($p);
+                }
+            }
+
+            return array_values(array_unique($out));
+        }
+        if (!\is_string($raw) || '' === trim($raw)) {
+            return [];
+        }
+        $parts = array_map('trim', explode(',', $raw));
+        $out = [];
+        foreach ($parts as $p) {
+            if ('' !== $p) {
+                $out[] = $p;
             }
         }
 

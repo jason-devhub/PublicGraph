@@ -14,7 +14,7 @@ catalog:
   organization_index:
     heading: 'Filters'
     clear: 'Clear all'
-    section_criteria: 'Types and countries'
+    section_types: 'Organization types'
 
 site:
   name: 'PublicGraph'
