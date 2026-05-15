@@ -62,3 +62,38 @@
     } %}
     {{- map[type]|default('bg-surface-inset text-text-secondary') -}}
 {% endmacro %}
+
+{# Pagination catalogue (LiveComponent) : 1 … 4 5 6 … N — boutons data-live-action-param="setPage". #}
+{% macro pager_sliding_pages_live(current, total, delta) %}
+    {% set delta = delta|default(1) %}
+    {% set range = [] %}
+    {% for i in 1..total %}
+        {% if i == 1 or i == total or (i >= current - delta and i <= current + delta) %}
+            {% set range = range|merge([i]) %}
+        {% endif %}
+    {% endfor %}
+    {% set prev = null %}
+    {% for i in range %}
+        {% if prev is not null %}
+            {% if i - prev == 2 %}
+                <button type="button"
+                        class="pg-btn-outline min-w-[2.25rem] px-2 py-2 text-center text-text-primary tabular-nums"
+                        data-action="live#action"
+                        data-live-action-param="setPage"
+                        data-live-page-param="{{ prev + 1 }}">{{ prev + 1 }}</button>
+            {% elseif i - prev > 2 %}
+                <span class="inline-flex min-w-[2.25rem] items-center justify-center px-1 text-text-tertiary tabular-nums" aria-hidden="true">…</span>
+            {% endif %}
+        {% endif %}
+        {% if i == current %}
+            <span class="inline-flex min-w-[2.25rem] items-center justify-center border border-accent px-2 py-2 font-semibold text-text-primary tabular-nums" aria-current="page">{{ i }}</span>
+        {% else %}
+            <button type="button"
+                    class="pg-btn-outline min-w-[2.25rem] px-2 py-2 text-center text-text-primary tabular-nums"
+                    data-action="live#action"
+                    data-live-action-param="setPage"
+                    data-live-page-param="{{ i }}">{{ i }}</button>
+        {% endif %}
+        {% set prev = i %}
+    {% endfor %}
+{% endmacro %}

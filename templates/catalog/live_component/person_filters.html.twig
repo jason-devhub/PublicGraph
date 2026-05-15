@@ -241,9 +241,9 @@
             </div>
 
             {% if pager.nbPages > 1 %}
-                <nav class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-rule-medium pt-6 font-sans text-sm" aria-label="{{ 'site.search_page.pagination_persons_aria'|trans }}">
+                <nav class="mt-8 flex flex-col gap-4 border-t border-rule-medium pt-6 font-sans text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between" aria-label="{{ 'site.search_page.pagination_persons_aria'|trans }}">
                     <p class="text-text-secondary">{{ 'site.search_page.page_of'|trans({ '%page%': pager.currentPage, '%pages%': pager.nbPages }) }}</p>
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap items-center justify-end gap-2 sm:justify-end">
                         {% if pager.hasPreviousPage %}
                             <button type="button"
                                     class="pg-btn-outline px-3 py-2 text-text-primary"
@@ -251,6 +251,9 @@
                                     data-live-action-param="setPage"
                                     data-live-page-param="{{ pager.currentPage - 1 }}">{{ 'site.search_page.prev'|trans }}</button>
                         {% endif %}
+                        <div class="flex max-w-full flex-wrap items-center justify-center gap-1">
+                            {{- catalog.pager_sliding_pages_live(pager.currentPage, pager.nbPages, 1) -}}
+                        </div>
                         {% if pager.hasNextPage %}
                             <button type="button"
                                     class="pg-btn-outline px-3 py-2 text-text-primary"
