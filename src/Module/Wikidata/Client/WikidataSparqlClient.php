@@ -81,6 +81,17 @@ final class WikidataSparqlClient
         );
     }
 
+    public function buildPersonsParticipantInEventQuery(string $eventQid, int $limit): string
+    {
+        $qid = $this->normalizeQid($eventQid);
+
+        return str_replace(
+            ['{{EVENT_QID}}', '{{LIMIT}}'],
+            [$qid, (string) max(1, min($limit, 5000))],
+            $this->loadTemplate('query_persons_participant_in_event.sparql'),
+        );
+    }
+
     /**
      * @return list<array<string, array{type: string, value: string}>>
      */
@@ -107,7 +118,7 @@ WHERE {
   FILTER(LANG(?personLabel) IN ("fr", "en"))
   FILTER(CONTAINS(LCASE(?personLabel), LCASE("{$escaped}")))
   {$countryFilter}
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
 }
 LIMIT 50
 SPARQL;
@@ -133,7 +144,7 @@ WHERE {
   ?org rdfs:label ?orgLabel .
   FILTER(LANG(?orgLabel) IN ("fr", "en"))
   FILTER(CONTAINS(LCASE(?orgLabel), LCASE("{$escaped}")))
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
 }
 GROUP BY ?org ?orgLabel
 LIMIT 50

@@ -68,8 +68,8 @@ final class WikidataPersonMapperTest extends TestCase
         foreach ($dto->positionsHeld as $p) {
             $byQ[$p['qid']] = $p['label'];
         }
-        self::assertSame('maire', $byQ['Q30185']);
-        self::assertSame('député français', $byQ['Q193582']);
+        self::assertSame('mayor', $byQ['Q30185']);
+        self::assertSame('member of the French National Assembly', $byQ['Q193582']);
     }
 
     public function testMapIncludesPhotoUrlFromP18(): void

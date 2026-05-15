@@ -9,9 +9,7 @@ use App\Module\Influence\Entity\Membership;
 use App\Module\Influence\Entity\Position;
 use App\Module\Organization\Entity\Organization;
 use App\Module\Organization\Entity\Party;
-use App\Module\Organization\Repository\OrganizationRepository;
 use App\Module\Person\Entity\Person;
-use App\Module\Person\Repository\PersonRepository;
 use App\Module\Source\Entity\EntitySource;
 use App\Module\Source\Entity\Source;
 use App\Module\Source\Repository\SourceRepository;
@@ -21,6 +19,7 @@ use App\Module\Wikidata\Client\WikidataCountryQids;
 use App\Module\Wikidata\Dto\OrganizationDto;
 use App\Module\Wikidata\Dto\PersonDto;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Intl\Countries;
 
 /**
@@ -29,10 +28,7 @@ use Symfony\Component\Intl\Countries;
 final class WikidataPersonImporter
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly PersonRepository $personRepository,
-        private readonly OrganizationRepository $organizationRepository,
-        private readonly SourceRepository $sourceRepository,
+        private readonly ManagerRegistry $doctrine,
         private readonly EntitySourceManager $entitySourceManager,
     ) {
     }
@@ -44,7 +40,7 @@ final class WikidataPersonImporter
      */
     public function importFromDto(PersonDto $dto, bool $force, bool $dryRun, ?User $systemUser, ?string $syncNationalityIso = null): array
     {
-        $existing = $this->personRepository->findOneByWikidataId($dto->wikidataId);
+        $existing = $this->doctrine->getRepository(Person::class)->findOneBy(['wikidataId' => strtoupper(trim($dto->wikidataId))]);
         if (null !== $existing && !$force) {
             return ['created' => false, 'updated' => false, 'skipped' => true];
         }
@@ -77,21 +73,56 @@ final class WikidataPersonImporter
         $this->syncNationalities($person, $nationalityQids);
 
         if (null === $person->getId()) {
-            $this->entityManager->persist($person);
+            $this->em()->persist($person);
         }
-        $this->entityManager->flush();
+        $this->em()->flush();
 
         $this->syncMembershipsAndSources($person, $dto, $source, $systemUser);
         $this->syncPositions($person, $dto, $source, $systemUser);
 
         $person->setLastWikidataSyncAt(new \DateTimeImmutable());
-        $this->entityManager->flush();
+        $this->em()->flush();
 
         return [
             'created' => null === $existing,
             'updated' => null !== $existing,
             'skipped' => false,
         ];
+    }
+
+    /**
+     * Ajoute ou met à jour une adhésion annuelle à une organisation cible, sourcée par l’item Wikidata de l’édition (conférence, etc.).
+     *
+     * Utile lorsque {@see importFromDto} a été ignoré (`skipped` sans --force) : l’adhésion événementielle est quand même enregistrée.
+     */
+    public function ensureParticipationMembershipFromEvent(
+        string $personWikidataId,
+        string $organizationWikidataQid,
+        int $year,
+        string $eventQid,
+        bool $dryRun,
+        ?User $systemUser,
+    ): void {
+        if ($dryRun) {
+            return;
+        }
+        $personWd = strtoupper(trim($personWikidataId));
+        $orgWd = strtoupper(trim($organizationWikidataQid));
+        $eventWd = strtoupper(trim($eventQid));
+        if (!preg_match('/^Q\d+$/', $personWd) || !preg_match('/^Q\d+$/', $orgWd) || !preg_match('/^Q\d+$/', $eventWd)) {
+            return;
+        }
+        $person = $this->doctrine->getRepository(Person::class)->findOneBy(['wikidataId' => $personWd]);
+        if (!$person instanceof Person) {
+            return;
+        }
+        $org = $this->doctrine->getRepository(Organization::class)->findOneBy(['wikidataId' => $orgWd]);
+        if (!$org instanceof Organization) {
+            return;
+        }
+        $eventUrl = 'https://www.wikidata.org/wiki/'.$eventWd;
+        $source = $this->getOrCreateWikidataSource($eventUrl);
+        $this->upsertMembership($person, $org, $year, $source, $systemUser);
     }
 
     private function applyPersonScalarFields(Person $person, PersonDto $dto): void
@@ -143,7 +174,7 @@ final class WikidataPersonImporter
     private function ensureCountryFromIso(string $iso): ?Country
     {
         $iso = strtoupper($iso);
-        $country = $this->entityManager->find(Country::class, $iso);
+        $country = $this->em()->find(Country::class, $iso);
         if ($country instanceof Country) {
             return $country;
         }
@@ -161,7 +192,7 @@ final class WikidataPersonImporter
             Countries::getName($iso, 'en'),
             'Unknown',
         );
-        $this->entityManager->persist($country);
+        $this->em()->persist($country);
 
         return $country;
     }
@@ -205,8 +236,8 @@ final class WikidataPersonImporter
         if (null !== $systemUser) {
             $m->setCreatedBy($systemUser);
         }
-        $this->entityManager->persist($m);
-        $this->entityManager->flush();
+        $this->em()->persist($m);
+        $this->em()->flush();
         $this->ensureEntitySource($m, $source, $systemUser);
     }
 
@@ -216,7 +247,7 @@ final class WikidataPersonImporter
         if (null === $id) {
             return;
         }
-        $repo = $this->entityManager->getRepository(EntitySource::class);
+        $repo = $this->em()->getRepository(EntitySource::class);
         $exists = $repo->findOneBy([
             'source' => $source,
             'entityType' => EntitySource::ENTITY_MEMBERSHIP,
@@ -234,7 +265,7 @@ final class WikidataPersonImporter
         if (null === $id) {
             return;
         }
-        $repo = $this->entityManager->getRepository(EntitySource::class);
+        $repo = $this->em()->getRepository(EntitySource::class);
         $exists = $repo->findOneBy([
             'source' => $source,
             'entityType' => EntitySource::ENTITY_POSITION,
@@ -286,8 +317,8 @@ final class WikidataPersonImporter
             if (null !== $systemUser) {
                 $p->setCreatedBy($systemUser);
             }
-            $this->entityManager->persist($p);
-            $this->entityManager->flush();
+            $this->em()->persist($p);
+            $this->em()->flush();
             $this->ensurePositionSource($p, $source, $systemUser);
         }
     }
@@ -314,7 +345,7 @@ final class WikidataPersonImporter
 
     private function findOrCreateOrganizationFromWikidata(OrganizationDto $dto, Person $person): Organization
     {
-        $existing = $this->organizationRepository->findOneByWikidataId($dto->wikidataId);
+        $existing = $this->doctrine->getRepository(Organization::class)->findOneBy(['wikidataId' => strtoupper(trim($dto->wikidataId))]);
         if ($existing instanceof Organization) {
             return $existing;
         }
@@ -332,13 +363,13 @@ final class WikidataPersonImporter
                 $o->addCountry($fr);
             }
         }
-        $this->entityManager->persist($o);
-        $this->entityManager->flush();
+        $this->em()->persist($o);
+        $this->em()->flush();
         if (Organization::TYPE_POLITICAL_PARTY === $dto->organizationType && null === $o->getPartyDetails()) {
             $party = new Party();
             $party->setOrganization($o);
-            $this->entityManager->persist($party);
-            $this->entityManager->flush();
+            $this->em()->persist($party);
+            $this->em()->flush();
         }
 
         return $o;
@@ -346,7 +377,11 @@ final class WikidataPersonImporter
 
     private function getOrCreateWikidataSource(string $url): Source
     {
-        $found = $this->sourceRepository->findOneWikidataItem($url);
+        $repo = $this->doctrine->getRepository(Source::class);
+        if (!$repo instanceof SourceRepository) {
+            throw new \LogicException('SourceRepository attendu pour les sources Wikidata.');
+        }
+        $found = $repo->findOneWikidataItem($url);
         if ($found instanceof Source) {
             return $found;
         }
@@ -355,9 +390,19 @@ final class WikidataPersonImporter
         $s->setTitle('Wikidata');
         $s->setType(Source::TYPE_WIKIDATA);
         $s->setAccessedAt(new \DateTimeImmutable('today'));
-        $this->entityManager->persist($s);
-        $this->entityManager->flush();
+        $this->em()->persist($s);
+        $this->em()->flush();
 
         return $s;
+    }
+
+    private function em(): EntityManagerInterface
+    {
+        $m = $this->doctrine->getManager();
+        if (!$m instanceof EntityManagerInterface) {
+            throw new \LogicException('ORM EntityManager attendu pour WikidataPersonImporter.');
+        }
+
+        return $m;
     }
 }

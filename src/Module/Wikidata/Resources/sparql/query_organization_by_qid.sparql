@@ -5,7 +5,7 @@ WHERE {
   BIND(wd:{{ORG_QID}} AS ?org)
   OPTIONAL { ?org rdfs:label ?lf . FILTER(LANG(?lf) = "fr") }
   OPTIONAL { ?org rdfs:label ?le . FILTER(LANG(?le) = "en") }
-  BIND(COALESCE(?lf, ?le) AS ?lab)
+  BIND(COALESCE(?le, ?lf) AS ?lab)
   OPTIONAL { ?org wdt:P31 ?instance }
 }
 GROUP BY ?org

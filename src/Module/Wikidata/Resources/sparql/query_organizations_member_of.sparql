@@ -5,6 +5,6 @@ WHERE {
   BIND(wd:{{PERSON_QID}} AS ?person)
   ?person wdt:P463 ?org .
   OPTIONAL { ?org wdt:P31 ?instance. }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
 }
 GROUP BY ?org ?orgLabel

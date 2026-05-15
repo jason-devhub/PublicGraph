@@ -26,14 +26,14 @@ WHERE {
     BIND(REPLACE(STR(?party), "http://www.wikidata.org/entity/", "") AS ?partyQid)
     OPTIONAL { ?party rdfs:label ?partyLabFr . FILTER(LANG(?partyLabFr) = "fr") }
     OPTIONAL { ?party rdfs:label ?partyLabEn . FILTER(LANG(?partyLabEn) = "en") }
-    BIND(COALESCE(?partyLabFr, ?partyLabEn) AS ?partyLabel)
+    BIND(COALESCE(?partyLabEn, ?partyLabFr) AS ?partyLabel)
   }
   OPTIONAL {
     ?person wdt:P463 ?org.
     BIND(REPLACE(STR(?org), "http://www.wikidata.org/entity/", "") AS ?orgQid)
     OPTIONAL { ?org rdfs:label ?orgLabFr . FILTER(LANG(?orgLabFr) = "fr") }
     OPTIONAL { ?org rdfs:label ?orgLabEn . FILTER(LANG(?orgLabEn) = "en") }
-    BIND(COALESCE(?orgLabFr, ?orgLabEn) AS ?orgLabel)
+    BIND(COALESCE(?orgLabEn, ?orgLabFr) AS ?orgLabel)
   }
   OPTIONAL {
     ?person p:P39 ?st.
@@ -53,6 +53,6 @@ WHERE {
     ?person rdfs:label ?personLabEn .
     FILTER(LANG(?personLabEn) = "en")
   }
-  BIND(COALESCE(?personLabFr, ?personLabEn) AS ?personLabel)
+  BIND(COALESCE(?personLabEn, ?personLabFr) AS ?personLabel)
 }
 GROUP BY ?person ?birthDate ?deathDate ?gender

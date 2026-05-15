@@ -244,7 +244,7 @@ final class WikidataPersonMapper
     }
 
     /**
-     * Préfère un libellé typiquement français (ou non anglais générique) quand WD renvoie fr+en en doublon.
+     * Quand Wikidata renvoie plusieurs libellés pour le même mandat (ex. fr+en), on privilégie l’anglais (import monde) ; repli sur l’autre libellé.
      */
     private function preferMandateLabel(string $a, string $b): string
     {
@@ -253,10 +253,10 @@ final class WikidataPersonMapper
         }
         $rank = static function (string $s): int {
             if (preg_match('/[àâäéèêëïîôùûüÿçœæ]/ui', $s)) {
-                return 2;
+                return 0;
             }
             if (preg_match('/^(mayor|member of the|deputy |chief |chair(man|woman)?\b)/i', trim($s))) {
-                return 0;
+                return 2;
             }
 
             return 1;
