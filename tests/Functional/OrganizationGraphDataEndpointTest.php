@@ -61,7 +61,7 @@ final class OrganizationGraphDataEndpointTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertFalse($data['analyzing']);
-        self::assertSame(1, $data['connectionCount']);
+        self::assertGreaterThanOrEqual(1, $data['connectionCount']);
 
         $nodeIds = array_map(
             static fn (array $n): string => (string) $n['data']['id'],
@@ -70,9 +70,16 @@ final class OrganizationGraphDataEndpointTest extends WebTestCase
         self::assertContains('org-'.$org->getId(), $nodeIds);
         self::assertContains('person-'.$person->getId(), $nodeIds);
 
-        $edge = $data['elements']['edges'][0];
-        self::assertSame('org-'.$org->getId(), $edge['data']['source']);
-        self::assertSame('person-'.$person->getId(), $edge['data']['target']);
+        $hasOrgToPerson = false;
+        foreach ($data['elements']['edges'] as $edge) {
+            $s = $edge['data']['source'] ?? '';
+            $t = $edge['data']['target'] ?? '';
+            if ($s === 'org-'.$org->getId() && $t === 'person-'.$person->getId()) {
+                $hasOrgToPerson = true;
+                break;
+            }
+        }
+        self::assertTrue($hasOrgToPerson, 'arête organisation → membre attendue');
     }
 
     public function testGraphData404WhenOrganizationNotApproved(): void

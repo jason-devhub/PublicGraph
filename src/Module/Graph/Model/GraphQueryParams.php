@@ -21,6 +21,7 @@ final class GraphQueryParams
         public int $maxNodes = 100,
         public string $colorMode = 'category',
         public string $locale = 'en',
+        public ?string $focusPersonSlug = null,
     ) {
         $this->maxNodes = max(25, min(200, $this->maxNodes));
     }
@@ -45,6 +46,7 @@ final class GraphQueryParams
                 ? (string) $request->query->get('colorMode')
                 : 'category',
             locale: $request->getLocale(),
+            focusPersonSlug: self::stringOrNull($request->query->get('focus')),
         );
     }
 

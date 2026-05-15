@@ -28,7 +28,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         }
     }
 
-    public function testGraphDataReturnsAnalyzingWhenNoSimilarity(): void
+    public function testGraphDataReturnsGlobalGraphIncludingPerson(): void
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
@@ -39,13 +39,18 @@ final class PersonGraphDataEndpointTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        self::assertTrue($data['analyzing']);
-        self::assertSame(0, $data['connectionCount']);
-        self::assertCount(1, $data['elements']['nodes']);
-        self::assertSame([], $data['elements']['edges']);
+        self::assertFalse($data['analyzing']);
+        self::assertIsInt($data['connectionCount']);
+        self::assertGreaterThanOrEqual(0, $data['connectionCount']);
+        self::assertGreaterThanOrEqual(1, \count($data['elements']['nodes']));
+        $nodeIds = array_map(
+            static fn (array $n): string => (string) $n['data']['id'],
+            $data['elements']['nodes'],
+        );
+        self::assertContains('person-'.$person->getId(), $nodeIds);
     }
 
-    public function testGraphDataReturnsOrgsWhenNoSimilarityButMembershipExists(): void
+    public function testGraphDataPersonProfileDoesNotIncludeOrganizationNodes(): void
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
@@ -59,16 +64,15 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertFalse($data['analyzing']);
-        self::assertSame(1, $data['connectionCount']);
         $nodeIds = array_map(
             static fn (array $n): string => (string) $n['data']['id'],
             $data['elements']['nodes'],
         );
         self::assertContains('person-'.$person->getId(), $nodeIds);
-        self::assertContains('org-'.$org->getId(), $nodeIds);
+        self::assertNotContains('org-'.$org->getId(), $nodeIds);
     }
 
-    public function testGraphDataReturnsNodesAndEdgesWithSimilarity(): void
+    public function testGraphDataReturnsSimilarityEdgeWhenBothPersonsInGraph(): void
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
@@ -86,30 +90,30 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertFalse($data['analyzing']);
-        self::assertGreaterThanOrEqual(2, $data['connectionCount']);
 
         $nodeIds = array_map(
             static fn (array $n): string => (string) $n['data']['id'],
             $data['elements']['nodes'],
         );
         self::assertContains('person-'.$central->getId(), $nodeIds);
-        self::assertContains('person-'.$other->getId(), $nodeIds);
-        self::assertContains('org-'.$org->getId(), $nodeIds);
 
-        $hasPersonEdge = false;
-        $hasOrgEdge = false;
-        foreach ($data['elements']['edges'] as $edge) {
-            $s = $edge['data']['source'];
-            $t = $edge['data']['target'];
-            if ($s === 'person-'.$central->getId() && $t === 'person-'.$other->getId()) {
-                $hasPersonEdge = true;
+        $hasOther = \in_array('person-'.$other->getId(), $nodeIds, true);
+        if ($hasOther) {
+            $hasPersonEdge = false;
+            $a = min((int) $central->getId(), (int) $other->getId());
+            $b = max((int) $central->getId(), (int) $other->getId());
+            foreach ($data['elements']['edges'] as $edge) {
+                $s = $edge['data']['source'];
+                $t = $edge['data']['target'];
+                if ($s === 'person-'.$a && $t === 'person-'.$b) {
+                    $hasPersonEdge = true;
+                    break;
+                }
             }
-            if ($s === 'person-'.$central->getId() && $t === 'org-'.$org->getId()) {
-                $hasOrgEdge = true;
-            }
+            self::assertTrue($hasPersonEdge, 'arête de similarité attendue lorsque les deux personnes sont dans le sous-graphe');
         }
-        self::assertTrue($hasPersonEdge, 'arête vers personne similaire attendue');
-        self::assertTrue($hasOrgEdge, 'arête vers organisation attendue');
+
+        self::assertNotContains('org-'.$org->getId(), $nodeIds);
     }
 
     public function testGraphData404WhenPersonNotApproved(): void

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Module\Graph\Controller;
 
-use App\Module\Graph\Service\OrganizationMiniGraphBuilder;
+use App\Module\Graph\Model\GraphQueryParams;
+use App\Module\Graph\Service\GraphDataBuilder;
 use App\Module\Organization\Entity\Organization;
 use App\Module\Organization\Repository\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,7 @@ final class OrganizationGraphDataController extends AbstractController
         Request $request,
         string $slug,
         OrganizationRepository $organizationRepository,
-        OrganizationMiniGraphBuilder $organizationMiniGraphBuilder,
+        GraphDataBuilder $graphDataBuilder,
         #[Autowire(service: 'limiter.graph_api_ip')]
         RateLimiterFactory $graphApiLimiter,
     ): JsonResponse {
@@ -40,7 +41,18 @@ final class OrganizationGraphDataController extends AbstractController
             throw new NotFoundHttpException('Organisation introuvable.');
         }
 
-        $payload = $organizationMiniGraphBuilder->build($organization);
+        $params = new GraphQueryParams(
+            organizationSlug: $organization->getSlug(),
+            maxNodes: 100,
+            locale: $request->getLocale(),
+        );
+        $built = $graphDataBuilder->build($params);
+        $elements = $built['elements'];
+        $payload = [
+            'analyzing' => false,
+            'connectionCount' => \count($elements['edges']),
+            'elements' => $elements,
+        ];
         $response = new JsonResponse($payload);
         $response->setPublic();
         $response->setMaxAge(300);

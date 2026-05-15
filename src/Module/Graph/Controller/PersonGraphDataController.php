@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Module\Graph\Controller;
 
-use App\Module\Graph\Service\PersonMiniGraphBuilder;
+use App\Module\Graph\Model\GraphQueryParams;
+use App\Module\Graph\Service\GraphDataBuilder;
 use App\Module\Person\Entity\Person;
 use App\Module\Person\Repository\PersonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,7 @@ final class PersonGraphDataController extends AbstractController
         Request $request,
         string $slug,
         PersonRepository $personRepository,
-        PersonMiniGraphBuilder $personMiniGraphBuilder,
+        GraphDataBuilder $graphDataBuilder,
         #[Autowire(service: 'limiter.graph_api_ip')]
         RateLimiterFactory $graphApiLimiter,
     ): JsonResponse {
@@ -40,7 +41,18 @@ final class PersonGraphDataController extends AbstractController
             throw new NotFoundHttpException('Personne introuvable.');
         }
 
-        $payload = $personMiniGraphBuilder->build($person);
+        $params = new GraphQueryParams(
+            focusPersonSlug: $person->getSlug(),
+            maxNodes: 100,
+            locale: $request->getLocale(),
+        );
+        $built = $graphDataBuilder->build($params);
+        $elements = $built['elements'];
+        $payload = [
+            'analyzing' => false,
+            'connectionCount' => \count($elements['edges']),
+            'elements' => $elements,
+        ];
         $response = new JsonResponse($payload);
         $response->setPublic();
         $response->setMaxAge(300);

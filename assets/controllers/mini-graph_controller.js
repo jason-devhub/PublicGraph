@@ -4,6 +4,27 @@ import fcose from 'cytoscape-fcose';
 
 cytoscape.use(fcose);
 
+/** Même recette que le graphe global (global_graph_controller.js) pour lisibilité sur 50–200 nœuds. */
+function fcoseLayoutOptions(overrides = {}) {
+    return {
+        name: 'fcose',
+        quality: 'proof',
+        randomize: true,
+        animate: false,
+        fit: false,
+        padding: 48,
+        nodeDimensionsIncludeLabels: true,
+        nodeSeparation: 220,
+        idealEdgeLength: () => 110,
+        nodeRepulsion: () => 48000,
+        edgeElasticity: () => 0.42,
+        gravity: 0.06,
+        gravityRange: 5.2,
+        numIter: 3200,
+        ...overrides,
+    };
+}
+
 /** Couleurs catégories personne / types org — specs/design.md §2.1 */
 const PERSON_CATEGORY_COLOR = {
     politician: '#1A2C5B',
@@ -31,6 +52,8 @@ export default class extends Controller {
     static values = {
         url: String,
         locale: { type: String, default: 'en' },
+        /** Nœud Cytoscape à centrer après layout (ex. person-12, org-3). */
+        focusNodeId: String,
         msgAnalyzing: String,
         msgLoadError: String,
         msgConnectionsZero: String,
@@ -86,16 +109,21 @@ export default class extends Controller {
             /** @type {{ analyzing?: boolean, connectionCount?: number, elements?: { nodes: unknown[], edges: unknown[] } }} */
             const data = await res.json();
 
-            if (this.hasCountTarget && typeof data.connectionCount === 'number') {
-                const n = data.connectionCount;
-                if (n === 0 && this.hasMsgConnectionsZeroValue) {
-                    this.countTarget.textContent = this.msgConnectionsZeroValue;
-                } else if (n === 1 && this.hasMsgConnectionsOneValue) {
-                    this.countTarget.textContent = this.msgConnectionsOneValue;
-                } else if (this.hasMsgConnectionsManyValue) {
-                    this.countTarget.textContent = this.msgConnectionsManyValue.replace('%count%', String(n));
-                } else {
-                    this.countTarget.textContent = String(n);
+            if (this.hasCountTarget) {
+                let n = typeof data.connectionCount === 'number' ? data.connectionCount : null;
+                if (n === null && data.elements && Array.isArray(data.elements.edges)) {
+                    n = data.elements.edges.length;
+                }
+                if (typeof n === 'number') {
+                    if (n === 0 && this.hasMsgConnectionsZeroValue) {
+                        this.countTarget.textContent = this.msgConnectionsZeroValue;
+                    } else if (n === 1 && this.hasMsgConnectionsOneValue) {
+                        this.countTarget.textContent = this.msgConnectionsOneValue;
+                    } else if (this.hasMsgConnectionsManyValue) {
+                        this.countTarget.textContent = this.msgConnectionsManyValue.replace('%count%', String(n));
+                    } else {
+                        this.countTarget.textContent = String(n);
+                    }
                 }
             }
 
@@ -169,14 +197,7 @@ export default class extends Controller {
         const layout =
             edgeCount === 0
                 ? { name: 'circle', fit: true, padding: 20, spacingFactor: 1.25 }
-                : {
-                      name: 'fcose',
-                      quality: 'default',
-                      randomize: true,
-                      animate: false,
-                      fit: true,
-                      padding: 12,
-                  };
+                : fcoseLayoutOptions();
 
         this.cy = cytoscape({
             container: this.canvasTarget,
@@ -206,6 +227,9 @@ export default class extends Controller {
                         'font-size': 11,
                         'border-width': 2,
                         'border-color': '#5DCAA5',
+                        'background-color': '#FFFFFF',
+                        color: '#0E1218',
+                        'text-outline-width': 0,
                     },
                 },
                 {
@@ -220,9 +244,25 @@ export default class extends Controller {
                     },
                 },
             ],
-            layout,
             wheelSensitivity: 0.35,
+            minZoom: 0.08,
+            maxZoom: 4.5,
         });
+
+        const runLayout = () => {
+            if (edgeCount === 0) {
+                this.cy.layout(layout).run();
+                this.applyFocusViewport();
+                return;
+            }
+            const l = this.cy.layout(layout);
+            l.on('layoutstop', () => {
+                this.cy.fit(undefined, 56);
+                this.applyFocusViewport();
+            });
+            l.run();
+        };
+        runLayout();
 
         this.cy.on('tap', 'node', (evt) => {
             const node = evt.target;
@@ -237,5 +277,17 @@ export default class extends Controller {
                 window.location.href = `/${encodeURIComponent(loc)}/organizations/${encodeURIComponent(slug)}`;
             }
         });
+    }
+
+    applyFocusViewport() {
+        if (!this.cy || !this.hasFocusNodeIdValue || !this.focusNodeIdValue) {
+            return;
+        }
+        const el = this.cy.getElementById(this.focusNodeIdValue);
+        if (!el || el.empty()) {
+            return;
+        }
+        el.addClass('central');
+        this.cy.center(el);
     }
 }

@@ -85,6 +85,7 @@
                     class="relative min-h-[320px] w-full"
                     data-controller="mini-graph"
                     data-mini-graph-url-value="{{ path('app_person_graph_data', { slug: person.slug }) }}"
+                    data-mini-graph-focus-node-id-value="person-{{ person.id }}"
                     data-mini-graph-locale-value="{{ app.request.locale }}"
                     data-mini-graph-msg-analyzing-value="{{ 'mini_graph.analyzing'|trans|e('html_attr') }}"
                     data-mini-graph-msg-load-error-value="{{ 'mini_graph.load_error'|trans|e('html_attr') }}"

@@ -10,6 +10,7 @@ use App\Module\Influence\Entity\Position;
 use App\Module\Organization\Entity\Organization;
 use App\Module\Person\Entity\Person;
 use App\Module\Person\Repository\PersonRepository;
+use App\Shared\I18n\LocalizedContentResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -20,6 +21,7 @@ final class GraphDataBuilder
         private readonly EntityManagerInterface $entityManager,
         private readonly PersonRepository $personRepository,
         private readonly CacheInterface $cache,
+        private readonly LocalizedContentResolver $localizedContentResolver,
     ) {
     }
 
@@ -42,14 +44,22 @@ final class GraphDataBuilder
      */
     private function buildUncached(GraphQueryParams $params): array
     {
+        /** @var array<int, Person> $forcedFocusPersons */
+        $forcedFocusPersons = [];
+        if (\is_string($params->focusPersonSlug) && '' !== trim($params->focusPersonSlug)) {
+            $fp = $this->personRepository->findBySlug(trim($params->focusPersonSlug));
+            if ($fp instanceof Person && Person::STATUS_APPROVED === $fp->getStatus() && null === $fp->getDeletedAt()) {
+                $forcedFocusPersons[(int) $fp->getId()] = $fp;
+            }
+        }
+
         $qb = $this->personRepository->createQueryBuilder('p')
             ->select('p')
             ->distinct()
             ->andWhere('p.status = :ap')
             ->andWhere('p.deletedAt IS NULL')
             ->setParameter('ap', Person::STATUS_APPROVED)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults($params->maxNodes);
+            ->orderBy('p.id', 'ASC');
 
         if ([] !== $params->countryIsoCodes) {
             $sub = $this->entityManager->createQueryBuilder()
@@ -72,9 +82,9 @@ final class GraphDataBuilder
             $qb->andWhere($orX);
         }
 
-        if (null !== $params->organizationSlug && '' !== $params->organizationSlug) {
-            $org = $this->entityManager->getRepository(Organization::class)->findOneBy(['slug' => $params->organizationSlug]);
-            if ($org instanceof Organization) {
+        if (null !== $params->organizationSlug && '' !== trim($params->organizationSlug)) {
+            $org = $this->entityManager->getRepository(Organization::class)->findOneBy(['slug' => trim($params->organizationSlug)]);
+            if ($org instanceof Organization && Organization::STATUS_APPROVED === $org->getStatus()) {
                 $subM = $this->entityManager->createQueryBuilder()
                     ->select('1')
                     ->from(Membership::class, 'gm')
@@ -119,8 +129,34 @@ final class GraphDataBuilder
                 ->setParameter('ymax', $yMax);
         }
 
+        if ([] !== $forcedFocusPersons) {
+            $qb->andWhere('p.id NOT IN (:_pgFocusExcl)')
+                ->setParameter('_pgFocusExcl', array_keys($forcedFocusPersons));
+        }
+
+        $remainingSlots = max(0, $params->maxNodes - \count($forcedFocusPersons));
+        if ($remainingSlots > 0) {
+            $qb->setMaxResults($remainingSlots);
+            /** @var list<Person> $fetched */
+            $fetched = $qb->getQuery()->getResult();
+        } else {
+            $fetched = [];
+        }
+
+        /** @var array<int, Person> $merged */
+        $merged = $forcedFocusPersons;
+        foreach ($fetched as $p) {
+            $pid = (int) $p->getId();
+            if (!isset($merged[$pid])) {
+                $merged[$pid] = $p;
+            }
+        }
         /** @var list<Person> $persons */
-        $persons = $qb->getQuery()->getResult();
+        $persons = array_values($merged);
+        usort(
+            $persons,
+            static fn (Person $a, Person $b): int => ((int) $a->getId()) <=> ((int) $b->getId()),
+        );
         $ids = [];
         foreach ($persons as $p) {
             if (null !== $p->getId()) {
@@ -129,6 +165,8 @@ final class GraphDataBuilder
         }
         $idList = array_keys($ids);
         sort($idList);
+
+        $focusSlugTrim = \is_string($params->focusPersonSlug) ? trim($params->focusPersonSlug) : '';
 
         $nodes = [];
         foreach ($persons as $p) {
@@ -139,7 +177,7 @@ final class GraphDataBuilder
             }
             $cat = $p->getRoleCategories()[0] ?? 'other_influencer';
             $nodeColor = $this->nodeColor($cat, $codes, $params->colorMode);
-            $nodes[] = [
+            $node = [
                 'data' => [
                     'id' => 'person-'.$pid,
                     'label' => trim($p->getGivenName().' '.$p->getFamilyName()),
@@ -151,6 +189,10 @@ final class GraphDataBuilder
                     'bgColor' => $nodeColor,
                 ],
             ];
+            if ('' !== $focusSlugTrim && $p->getSlug() === $focusSlugTrim) {
+                $node['classes'] = 'central';
+            }
+            $nodes[] = $node;
         }
 
         $edges = [];
@@ -174,12 +216,62 @@ final class GraphDataBuilder
             }
         }
 
+        $organizationEntity = null;
+        if (\is_string($params->organizationSlug) && '' !== trim($params->organizationSlug)) {
+            $candidate = $this->entityManager->getRepository(Organization::class)->findOneBy(['slug' => trim($params->organizationSlug)]);
+            if ($candidate instanceof Organization && Organization::STATUS_APPROVED === $candidate->getStatus()) {
+                $organizationEntity = $candidate;
+            }
+        }
+
+        if ($organizationEntity instanceof Organization) {
+            $oid = (int) $organizationEntity->getId();
+            $orgNid = 'org-'.$oid;
+            $orgType = $organizationEntity->getType();
+            $nodes[] = [
+                'data' => [
+                    'id' => $orgNid,
+                    'label' => $this->localizedContentResolver->resolveOrganizationDisplayName($organizationEntity, $params->locale),
+                    'type' => 'organization',
+                    'slug' => $organizationEntity->getSlug(),
+                    'orgType' => $orgType,
+                    'bgColor' => $this->organizationBgColor($orgType),
+                ],
+                'classes' => 'central',
+            ];
+            foreach ($persons as $p) {
+                $pid = (int) $p->getId();
+                $edges[] = [
+                    'data' => [
+                        'id' => 'e-o-'.$oid.'-p-'.$pid,
+                        'source' => $orgNid,
+                        'target' => 'person-'.$pid,
+                    ],
+                ];
+            }
+        }
+
         return [
             'elements' => [
                 'nodes' => $nodes,
                 'edges' => $edges,
             ],
         ];
+    }
+
+    private function organizationBgColor(string $orgType): string
+    {
+        return match ($orgType) {
+            Organization::TYPE_INFLUENCE_NETWORK => '#7B1A1A',
+            Organization::TYPE_POLITICAL_PARTY => '#1A2C5B',
+            Organization::TYPE_CORPORATION => '#A84B27',
+            Organization::TYPE_MEDIA_GROUP => '#5C1A6B',
+            Organization::TYPE_GOVERNMENT_BODY => '#1F4D3F',
+            Organization::TYPE_INTERNATIONAL_BODY => '#0F4D5B',
+            Organization::TYPE_THINK_TANK => '#854F0B',
+            Organization::TYPE_LOBBY_GROUP => '#5C1313',
+            default => '#5A5650',
+        };
     }
 
     /** @param list<string> $countryCodes */
