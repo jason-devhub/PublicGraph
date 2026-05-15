@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace App\Shared\Twig;
 
-use Symfony\Component\DependencyInjection\Attribute\When;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
  * Nelmio n’expose la fonction Twig `csp_nonce` que lorsque la CSP est activée.
  * `templates/base.html.twig` l’appelle dans une branche « prod », mais Twig compile
- * tout le fichier : sans ce stub, dev/test lèvent une SyntaxError.
+ * tout le fichier : sans ce stub, la fonction manque et la compilation Twig échoue.
  *
- * En prod, Nelmio enregistre `csp_nonce` : ce service ne doit pas être chargé (évite doublon Twig).
+ * En prod avec CSP Nelmio, le passage compilateur
+ * `App\DependencyInjection\Compiler\RemoveCspNonceStubWhenNelmioCspTwigPresentPass`
+ * retire ce service pour laisser Nelmio enregistrer la vraie fonction `csp_nonce`.
  */
-#[When('dev')]
-#[When('test')]
 final class CspNonceStubExtension extends AbstractExtension
 {
     public function getFunctions(): array

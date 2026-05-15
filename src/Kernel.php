@@ -2,12 +2,24 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\RemoveCspNonceStubWhenNelmioCspTwigPresentPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(
+            new RemoveCspNonceStubWhenNelmioCspTwigPresentPass(),
+            PassConfig::TYPE_BEFORE_OPTIMIZATION,
+            5,
+        );
+    }
 
     /**
      * Définit kernel.share_dir (requis par FrameworkBundle pour le cache app).

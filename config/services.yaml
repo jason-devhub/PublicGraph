@@ -51,6 +51,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Module/'
             - '../src/Shared/'
+            - '../src/DependencyInjection/'
             - '../src/DataFixtures/'
             - '../src/Factory/'
 
