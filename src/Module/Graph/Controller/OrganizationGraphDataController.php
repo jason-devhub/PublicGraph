@@ -43,7 +43,7 @@ final class OrganizationGraphDataController extends AbstractController
 
         $params = new GraphQueryParams(
             organizationSlug: $organization->getSlug(),
-            maxNodes: 100,
+            maxNodes: 200,
             locale: $request->getLocale(),
         );
         $built = $graphDataBuilder->build($params);

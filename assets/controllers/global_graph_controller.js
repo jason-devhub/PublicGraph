@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
+import { enrichNodesWithGraphIcons } from '../graph_node_icons.js';
 
 cytoscape.use(fcose);
 
@@ -80,6 +81,7 @@ export default class extends Controller {
         if (this.cy) {
             this.cy.destroy();
         }
+        enrichNodesWithGraphIcons(elements.nodes || [], null);
         const flat = [
             ...(elements.nodes || []).map((n) => ({ group: 'nodes', ...n })),
             ...(elements.edges || []).map((e) => ({ group: 'edges', ...e })),
@@ -95,6 +97,7 @@ export default class extends Controller {
                 {
                     selector: 'node',
                     style: {
+                        shape: 'roundrectangle',
                         label: 'data(label)',
                         'text-valign': 'bottom',
                         'text-halign': 'center',
@@ -107,7 +110,13 @@ export default class extends Controller {
                         'text-outline-color': '#0E1218',
                         width: 18,
                         height: 18,
-                        'background-color': 'data(bgColor)',
+                        'background-color': 'transparent',
+                        'background-image': 'data(iconImage)',
+                        'background-fit': 'contain',
+                        'background-repeat': 'no-repeat',
+                        'background-position-x': '50%',
+                        'background-position-y': '50%',
+                        'background-clip': 'node',
                         'border-width': 1,
                         'border-color': '#2A3038',
                     },
@@ -157,10 +166,19 @@ export default class extends Controller {
             const n = evt.target;
             const slug = n.data('slug');
             const label = n.data('label');
-            if (slug) {
+            const type = n.data('type');
+            if (slug && typeof slug === 'string') {
+                const path =
+                    type === 'organization'
+                        ? `/${encodeURIComponent(loc)}/organizations/${encodeURIComponent(slug)}`
+                        : `/${encodeURIComponent(loc)}/people/${encodeURIComponent(slug)}`;
+                const safeLabel =
+                    typeof label === 'string'
+                        ? label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
+                        : '';
                 this.previewTarget.innerHTML = `<h2 class="font-serif text-lg font-medium text-text-primary">${sel}</h2>
-                    <p class="mt-2 text-text-primary">${label}</p>
-                    <a href="/${encodeURIComponent(loc)}/people/${encodeURIComponent(slug)}" class="mt-3 inline-block rounded-sm border border-accent bg-transparent px-3 py-2 font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">${viewFull}</a>`;
+                    <p class="mt-2 text-text-primary">${safeLabel}</p>
+                    <a href="${path}" class="mt-3 inline-block rounded-sm border border-accent bg-transparent px-3 py-2 font-medium text-accent no-underline shadow-none transition-shadow duration-150 hover:bg-accent-subtle hover:shadow-subtle">${viewFull}</a>`;
             }
         });
     }

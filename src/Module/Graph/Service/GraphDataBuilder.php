@@ -44,15 +44,6 @@ final class GraphDataBuilder
      */
     private function buildUncached(GraphQueryParams $params): array
     {
-        /** @var array<int, Person> $forcedFocusPersons */
-        $forcedFocusPersons = [];
-        if (\is_string($params->focusPersonSlug) && '' !== trim($params->focusPersonSlug)) {
-            $fp = $this->personRepository->findBySlug(trim($params->focusPersonSlug));
-            if ($fp instanceof Person && Person::STATUS_APPROVED === $fp->getStatus() && null === $fp->getDeletedAt()) {
-                $forcedFocusPersons[(int) $fp->getId()] = $fp;
-            }
-        }
-
         $qb = $this->personRepository->createQueryBuilder('p')
             ->select('p')
             ->distinct()
@@ -129,34 +120,35 @@ final class GraphDataBuilder
                 ->setParameter('ymax', $yMax);
         }
 
-        if ([] !== $forcedFocusPersons) {
-            $qb->andWhere('p.id NOT IN (:_pgFocusExcl)')
-                ->setParameter('_pgFocusExcl', array_keys($forcedFocusPersons));
-        }
+        $qb->setMaxResults($params->maxNodes);
+        /** @var list<Person> $persons */
+        $persons = $qb->getQuery()->getResult();
 
-        $remainingSlots = max(0, $params->maxNodes - \count($forcedFocusPersons));
-        if ($remainingSlots > 0) {
-            $qb->setMaxResults($remainingSlots);
-            /** @var list<Person> $fetched */
-            $fetched = $qb->getQuery()->getResult();
-        } else {
-            $fetched = [];
-        }
-
-        /** @var array<int, Person> $merged */
-        $merged = $forcedFocusPersons;
-        foreach ($fetched as $p) {
-            $pid = (int) $p->getId();
-            if (!isset($merged[$pid])) {
-                $merged[$pid] = $p;
+        /* Même sous-ensemble que le graphe global (tri id, maxNodes), avec la personne fiche toujours incluse. */
+        if (\is_string($params->focusPersonSlug) && '' !== trim($params->focusPersonSlug)) {
+            $slug = trim($params->focusPersonSlug);
+            $fp = $this->personRepository->findBySlug($slug);
+            if ($fp instanceof Person && Person::STATUS_APPROVED === $fp->getStatus() && null === $fp->getDeletedAt()) {
+                $fid = (int) $fp->getId();
+                $present = false;
+                foreach ($persons as $p) {
+                    if ((int) $p->getId() === $fid) {
+                        $present = true;
+                        break;
+                    }
+                }
+                if (!$present) {
+                    if (\count($persons) >= $params->maxNodes) {
+                        array_pop($persons);
+                    }
+                    $persons[] = $fp;
+                    usort(
+                        $persons,
+                        static fn (Person $a, Person $b): int => ((int) $a->getId()) <=> ((int) $b->getId()),
+                    );
+                }
             }
         }
-        /** @var list<Person> $persons */
-        $persons = array_values($merged);
-        usort(
-            $persons,
-            static fn (Person $a, Person $b): int => ((int) $a->getId()) <=> ((int) $b->getId()),
-        );
         $ids = [];
         foreach ($persons as $p) {
             if (null !== $p->getId()) {

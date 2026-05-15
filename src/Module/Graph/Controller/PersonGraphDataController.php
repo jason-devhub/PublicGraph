@@ -43,7 +43,7 @@ final class PersonGraphDataController extends AbstractController
 
         $params = new GraphQueryParams(
             focusPersonSlug: $person->getSlug(),
-            maxNodes: 100,
+            maxNodes: 200,
             locale: $request->getLocale(),
         );
         $built = $graphDataBuilder->build($params);

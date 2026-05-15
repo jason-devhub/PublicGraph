@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
+import { enrichNodesWithGraphIcons } from '../graph_node_icons.js';
 
 cytoscape.use(fcose);
 
@@ -142,6 +143,10 @@ export default class extends Controller {
             const elements = data.elements;
             if (elements) {
                 this.enrichNodeColors(elements);
+                enrichNodesWithGraphIcons(
+                    elements.nodes || [],
+                    this.hasFocusNodeIdValue && this.focusNodeIdValue ? this.focusNodeIdValue : null,
+                );
             }
 
             this.skeletonTarget.classList.add('hidden');
@@ -206,13 +211,20 @@ export default class extends Controller {
                 {
                     selector: 'node',
                     style: {
+                        shape: 'roundrectangle',
                         label: 'data(label)',
                         'text-valign': 'bottom',
                         'text-margin-y': 6,
                         'font-size': 10,
                         'font-family': 'system-ui, sans-serif',
                         color: '#E8ECF1',
-                        'background-color': 'data(bgColor)',
+                        'background-color': 'transparent',
+                        'background-image': 'data(iconImage)',
+                        'background-fit': 'contain',
+                        'background-repeat': 'no-repeat',
+                        'background-position-x': '50%',
+                        'background-position-y': '50%',
+                        'background-clip': 'node',
                         width: 28,
                         height: 28,
                         'border-width': 1,
@@ -224,10 +236,12 @@ export default class extends Controller {
                     style: {
                         width: 46,
                         height: 46,
-                        'font-size': 11,
+                        'font-size': 13,
+                        'font-weight': 'bold',
+                        'min-zoomed-font-size': 8,
                         'border-width': 2,
                         'border-color': '#5DCAA5',
-                        'background-color': '#FFFFFF',
+                        'background-color': 'transparent',
                         color: '#0E1218',
                         'text-outline-width': 0,
                     },
@@ -257,7 +271,6 @@ export default class extends Controller {
             }
             const l = this.cy.layout(layout);
             l.on('layoutstop', () => {
-                this.cy.fit(undefined, 56);
                 this.applyFocusViewport();
             });
             l.run();
@@ -288,6 +301,20 @@ export default class extends Controller {
             return;
         }
         el.addClass('central');
+        const id = this.focusNodeIdValue;
+        const isOrg = id.startsWith('org-');
+
+        if (isOrg) {
+            const nhood = el.closedNeighborhood();
+            this.cy.fit(nhood, 40);
+            this.cy.center(el);
+            return;
+        }
+
+        this.cy.fit(this.cy.elements(), 56);
+        this.cy.center(el);
+        const z = this.cy.zoom();
+        this.cy.zoom(Math.min(this.cy.maxZoom(), Math.max(this.cy.minZoom(), z * 1.15)));
         this.cy.center(el);
     }
 }
