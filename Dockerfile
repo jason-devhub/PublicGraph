@@ -82,7 +82,8 @@ WORKDIR /app
 COPY --from=app-build /app /app
 COPY docker/deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/deploy/docker-entrypoint.sh /usr/local/bin/docker-entrypoint-app
-RUN chmod +x /usr/local/bin/docker-entrypoint-app
+COPY docker/deploy/worker-healthcheck.sh /usr/local/bin/worker-healthcheck
+RUN chmod +x /usr/local/bin/docker-entrypoint-app /usr/local/bin/worker-healthcheck
 
 ENTRYPOINT ["docker-entrypoint-app"]
 CMD ["nginx", "-g", "daemon off;"]

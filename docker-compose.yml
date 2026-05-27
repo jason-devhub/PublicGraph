@@ -61,7 +61,14 @@ services:
       context: .
       dockerfile: Dockerfile
       target: app
-    command: ["php", "bin/console", "messenger:consume", "async", "scheduler", "-vv", "--time-limit=3600", "--memory-limit=200M"]
+    # Boucle interne : recycle le worker (--time-limit) sans faire sortir le conteneur Docker.
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          php bin/console messenger:consume async scheduler -vv --time-limit=3600 --memory-limit=200M || sleep 5
+        done
     environment:
       <<: *symfony-env
     depends_on:
@@ -69,9 +76,9 @@ services:
         condition: service_healthy
       publicgraph-search:
         condition: service_healthy
-    # Pas d’HTTP dans ce conteneur : vérifier que le processus principal (PID 1) est vivant.
+    # Pas d’HTTP : vérifier qu’un processus messenger:consume tourne (/proc, sans procps).
     healthcheck:
-      test: ['CMD-SHELL', 'kill -0 1 || exit 1']
+      test: ['CMD', 'worker-healthcheck']
       interval: 30s
       timeout: 5s
       retries: 3
