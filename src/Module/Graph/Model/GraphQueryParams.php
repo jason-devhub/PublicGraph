@@ -32,8 +32,8 @@ final class GraphQueryParams
         $yearMin = $request->query->get('yearMin');
         $yearMax = $request->query->get('yearMax');
 
-        $countries = self::parseCountryIsoList($request->query->get('countries'));
-        $categories = self::parseCategoriesList($request->query->get('categories'));
+        $countries = self::parseCountryIsoList(self::rawQueryValue($request, 'countries'));
+        $categories = self::parseCategoriesList(self::rawQueryValue($request, 'categories'));
 
         return new self(
             organizationSlug: self::stringOrNull($request->query->get('organization')),
@@ -48,6 +48,18 @@ final class GraphQueryParams
             locale: $request->getLocale(),
             focusPersonSlug: self::stringOrNull($request->query->get('focus')),
         );
+    }
+
+    /**
+     * Chaîne ou liste (ex. pays[] / categories[]) — évite {@see InputBag::get()} qui rejette les tableaux.
+     */
+    private static function rawQueryValue(Request $request, string $key): mixed
+    {
+        if (!$request->query->has($key)) {
+            return null;
+        }
+
+        return $request->query->all()[$key];
     }
 
     /**
