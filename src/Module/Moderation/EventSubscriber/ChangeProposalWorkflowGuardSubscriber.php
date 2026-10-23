@@ -26,6 +26,9 @@ final class ChangeProposalWorkflowGuardSubscriber implements EventSubscriberInte
         ];
     }
 
+    /**
+     * @param GuardEvent<object> $event
+     */
     public function onApprove(GuardEvent $event): void
     {
         if (!$this->security->isGranted('ROLE_MODERATOR')) {
@@ -33,6 +36,9 @@ final class ChangeProposalWorkflowGuardSubscriber implements EventSubscriberInte
         }
     }
 
+    /**
+     * @param GuardEvent<object> $event
+     */
     public function onReject(GuardEvent $event): void
     {
         if (!$this->security->isGranted('ROLE_MODERATOR')) {
@@ -53,6 +59,9 @@ final class ChangeProposalWorkflowGuardSubscriber implements EventSubscriberInte
         }
     }
 
+    /**
+     * @param GuardEvent<object> $event
+     */
     public function onWithdraw(GuardEvent $event): void
     {
         $user = $this->security->getUser();

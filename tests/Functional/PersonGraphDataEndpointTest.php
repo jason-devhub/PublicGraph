@@ -19,7 +19,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         parent::setUp();
         try {
             KernelTestCase::bootKernel();
-            $em = static::getContainer()->get(EntityManagerInterface::class);
+            $em = self::entityManager();
             $em->getConnection()->executeQuery('SELECT 1');
         } catch (\Throwable $e) {
             self::markTestSkipped('Base de données indisponible pour ce test : '.$e->getMessage());
@@ -32,7 +32,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
         $person = $this->persistApprovedPerson($em, $suffix);
 
         $client->request('GET', '/en/people/'.$person->getSlug().'/graph-data');
@@ -54,7 +54,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
         $person = $this->persistApprovedPerson($em, $suffix.'mem');
         $org = $this->persistApprovedOrg($em, $suffix.'org');
         $this->persistMembership($em, $person, $org, 2023);
@@ -87,7 +87,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
         $pivot = $this->persistApprovedPerson($em, $suffix.'pivot');
         $coMember = $this->persistApprovedPerson($em, $suffix.'comember');
         $org = $this->persistApprovedOrg($em, $suffix.'shared');
@@ -122,7 +122,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
 
         $central = $this->persistApprovedPerson($em, $suffix.'a');
         $other = $this->persistApprovedPerson($em, $suffix.'b');
@@ -166,7 +166,7 @@ final class PersonGraphDataEndpointTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
         $person = $this->persistApprovedPerson($em, $suffix);
         $slug = $person->getSlug();
         $person->setStatus(Person::STATUS_PENDING);
@@ -234,5 +234,13 @@ final class PersonGraphDataEndpointTest extends WebTestCase
         $s->setDetails([]);
         $em->persist($s);
         $em->flush();
+    }
+
+    private static function entityManager(): EntityManagerInterface
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+
+        return $em;
     }
 }

@@ -30,6 +30,9 @@ final class PublicationWorkflowGuardSubscriber implements EventSubscriberInterfa
         ];
     }
 
+    /**
+     * @param GuardEvent<object> $event
+     */
     public function onPersonSubmit(GuardEvent $event): void
     {
         $subject = $event->getSubject();
@@ -54,6 +57,9 @@ final class PublicationWorkflowGuardSubscriber implements EventSubscriberInterfa
         }
     }
 
+    /**
+     * @param GuardEvent<object> $event
+     */
     public function onModerator(GuardEvent $event): void
     {
         if (!$this->security->isGranted('ROLE_MODERATOR')) {

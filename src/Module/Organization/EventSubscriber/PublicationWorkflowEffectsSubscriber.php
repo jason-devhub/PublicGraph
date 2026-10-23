@@ -37,6 +37,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         ];
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onPersonApprove(CompletedEvent $event): void
     {
         $subject = $event->getSubject();
@@ -52,6 +55,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         );
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onPersonArchive(CompletedEvent $event): void
     {
         $subject = $event->getSubject();
@@ -65,6 +71,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         }
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onPersonReject(CompletedEvent $event): void
     {
         $subject = $event->getSubject();
@@ -84,6 +93,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         );
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onOrganizationApprove(CompletedEvent $event): void
     {
         $subject = $event->getSubject();
@@ -94,6 +106,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         $this->searchIndexUpdater->syncOrganization($subject);
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onOrganizationArchive(CompletedEvent $event): void
     {
         $subject = $event->getSubject();
@@ -107,6 +122,9 @@ final class PublicationWorkflowEffectsSubscriber implements EventSubscriberInter
         }
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onOrganizationReject(CompletedEvent $event): void
     {
         $subject = $event->getSubject();

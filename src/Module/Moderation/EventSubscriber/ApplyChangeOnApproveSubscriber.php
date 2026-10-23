@@ -37,6 +37,9 @@ final class ApplyChangeOnApproveSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onApproveCompleted(CompletedEvent $event): void
     {
         $proposal = $event->getSubject();

@@ -825,7 +825,7 @@ final class GraphDataBuilder
      * @param list<array<string, mixed>> $edges
      * @param list<int>                  $subgraphPersonIds
      * @param int|null                   $excludeOrganizationId exclue du graphe (ex. org. déjà centrale sur la fiche organisation)
-     * @param positive-int               $maxOrganizations nombre max d'organisations distinctes (tri par nombre de liens vers le sous-graphe)
+     * @param positive-int               $maxOrganizations      nombre max d'organisations distinctes (tri par nombre de liens vers le sous-graphe)
      */
     private function appendPersonOrganizationAffiliations(
         array &$nodes,

@@ -46,7 +46,7 @@ class Person
 
     #[Gedmo\Slug(fields: ['givenName', 'familyName'], updatable: false)]
     #[ORM\Column(length: 200, unique: true)]
-    private string $slug = '';
+    private ?string $slug = null;
 
     #[ORM\Column(length: 100)]
     private string $givenName = '';
@@ -184,7 +184,17 @@ class Person
 
     public function getSlug(): string
     {
-        return $this->slug;
+        return $this->slug ?? '';
+    }
+
+    /**
+     * Slug manuel ; laissé vide, Gedmo Sluggable le génère au flush.
+     */
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
     }
 
     public function getGivenName(): string

@@ -44,9 +44,9 @@ Toute évolution majeure doit continuer à s’appuyer sur ces documents **avant
 
 ## Stack technique
 
-- **Backend** : PHP 8.5 + Symfony 8.0
+- **Backend** : PHP 8.5 + Symfony 8.1
 - **Base de données** : MariaDB 10.11
-- **Cache et queue** : Redis 7
+- **Cache et queue** : Redis 8
 - **Recherche** : Meilisearch 1.x
 - **Frontend** : Twig + Hotwire (Turbo + Stimulus) + Symfony UX (Live Components, Autocomplete)
 - **Back-office** : EasyAdmin **5.x** (`easycorp/easyadmin-bundle` ^5), préfixe `/admin` — ne pas utiliser EasyAdmin 4.x (contraintes documentées dans le plan technique interne).

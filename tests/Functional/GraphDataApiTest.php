@@ -18,7 +18,7 @@ final class GraphDataApiTest extends WebTestCase
         parent::setUp();
         try {
             KernelTestCase::bootKernel();
-            $em = static::getContainer()->get(EntityManagerInterface::class);
+            $em = self::entityManager();
             $em->getConnection()->executeQuery('SELECT 1');
         } catch (\Throwable $e) {
             self::markTestSkipped('Base de données indisponible pour ce test : '.$e->getMessage());
@@ -43,7 +43,7 @@ final class GraphDataApiTest extends WebTestCase
     {
         $client = static::createClient();
         $suffix = bin2hex(random_bytes(4));
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = self::entityManager();
         $cat = 'graph_api_global_'.$suffix;
         $person = $this->persistApprovedPersonWithCategory($em, $suffix, $cat);
         $org = $this->persistApprovedOrg($em, $suffix);
@@ -128,5 +128,13 @@ final class GraphDataApiTest extends WebTestCase
         $m->setStatus('approved');
         $em->persist($m);
         $em->flush();
+    }
+
+    private static function entityManager(): EntityManagerInterface
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+
+        return $em;
     }
 }
