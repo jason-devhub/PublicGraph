@@ -77,7 +77,7 @@ final class OrganizationMiniGraphBuilderTest extends TestCase
         $pending = $this->personWithId(20, 'X', 'Pending', 'x-p', ['politician']);
         $pending->setStatus(Person::STATUS_PENDING);
 
-        $personRepo = $this->createMock(PersonRepository::class);
+        $personRepo = $this->createStub(PersonRepository::class);
         $personRepo->method('findApprovedMembersForOrganization')->willReturn([$pending]);
 
         $builder = new OrganizationMiniGraphBuilder(

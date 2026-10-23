@@ -25,6 +25,9 @@ final class NotifyContributorChangeProposalRejectSubscriber implements EventSubs
         ];
     }
 
+    /**
+     * @param CompletedEvent<object> $event
+     */
     public function onRejectCompleted(CompletedEvent $event): void
     {
         $proposal = $event->getSubject();

@@ -88,7 +88,7 @@ services:
       - app_var:/app/var
 
   publicgraph-search:
-    image: ${MEILISEARCH_IMAGE:-getmeili/meilisearch:v1.10}
+    image: ${MEILISEARCH_IMAGE:-getmeili/meilisearch:v1.55}
     environment:
       MEILI_MASTER_KEY: ${MEILISEARCH_KEY:?definir MEILISEARCH_KEY}
       MEILI_ENV: production
@@ -103,7 +103,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: ${REDIS_IMAGE:-redis:7-alpine}
+    image: ${REDIS_IMAGE:-redis:8-alpine}
     command: ["redis-server", "--appendonly", "yes"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

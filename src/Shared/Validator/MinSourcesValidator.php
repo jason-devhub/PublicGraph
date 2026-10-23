@@ -31,27 +31,15 @@ final class MinSourcesValidator extends ConstraintValidator
             return;
         }
 
-        $id = match (true) {
-            $value instanceof Membership,
-            $value instanceof Position,
-            $value instanceof LegislativeAction,
-            $value instanceof RevolvingDoor => $value->getId(),
-            default => null,
+        [$entityType, $id] = match (true) {
+            $value instanceof Membership => [EntitySource::ENTITY_MEMBERSHIP, $value->getId()],
+            $value instanceof Position => [EntitySource::ENTITY_POSITION, $value->getId()],
+            $value instanceof LegislativeAction => [EntitySource::ENTITY_LEGISLATIVE_ACTION, $value->getId()],
+            $value instanceof RevolvingDoor => [EntitySource::ENTITY_REVOLVING_DOOR, $value->getId()],
+            default => [null, null],
         };
 
-        if (null === $id) {
-            return;
-        }
-
-        $entityType = match (true) {
-            $value instanceof Membership => EntitySource::ENTITY_MEMBERSHIP,
-            $value instanceof Position => EntitySource::ENTITY_POSITION,
-            $value instanceof LegislativeAction => EntitySource::ENTITY_LEGISLATIVE_ACTION,
-            $value instanceof RevolvingDoor => EntitySource::ENTITY_REVOLVING_DOOR,
-            default => null,
-        };
-
-        if (null === $entityType) {
+        if (null === $entityType || null === $id) {
             return;
         }
 

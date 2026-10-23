@@ -57,7 +57,7 @@ class Organization
 
     #[Gedmo\Slug(fields: ['officialName'], updatable: false)]
     #[ORM\Column(length: 250, unique: true)]
-    private string $slug = '';
+    private ?string $slug = null;
 
     #[ORM\Column(length: 250)]
     private string $officialName = '';
@@ -159,7 +159,17 @@ class Organization
 
     public function getSlug(): string
     {
-        return $this->slug;
+        return $this->slug ?? '';
+    }
+
+    /**
+     * Slug manuel ; laissé vide, Gedmo Sluggable le génère au flush.
+     */
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
     }
 
     public function getOfficialName(): string

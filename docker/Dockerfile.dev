@@ -1,11 +1,11 @@
-FROM php:8.5-fpm-bookworm
+FROM php:8.5-fpm-trixie
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     git unzip libicu-dev libzip-dev libpng-dev libonig-dev \
     libxml2-dev libcurl4-openssl-dev \
     && docker-php-ext-install \
        pdo_mysql intl zip exif \
-    && pecl install redis \
+    && pecl install redis-6.3.0 \
     && docker-php-ext-enable redis \
     && git config --global --add safe.directory /app \
     && rm -rf /var/lib/apt/lists/*

@@ -7,9 +7,9 @@
 #   app-build   — Composer + assets Symfony (tailwind, importmap, asset-map)
 #   app         — image finale avec Nginx embarqué (config COPIÉE, jamais montée en volume)
 
-FROM php:8.5-fpm-bookworm AS php-base
+FROM php:8.5-fpm-trixie AS php-base
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     unzip \
     libicu-dev libzip-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -65,7 +65,7 @@ RUN chown -R www-data:www-data var
 # --- Image finale : Nginx + PHP-FPM (config nginx embarquée — jamais en volume)
 FROM php-base AS app
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx curl gosu \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends nginx curl gosu \
     && rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf \
     && rm -rf /var/lib/apt/lists/*
 

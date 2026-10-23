@@ -23,7 +23,7 @@ final class CheckSourceUrlsCommandTest extends TestCase
         $source->setUrl('https://example.com/page');
         $source->setType(Source::TYPE_PRESS_ARTICLE);
 
-        $repo = $this->createMock(SourceRepository::class);
+        $repo = $this->createStub(SourceRepository::class);
         $repo->method('findBatchForUrlCheck')->willReturn([$source]);
 
         $em = $this->createMock(EntityManagerInterface::class);

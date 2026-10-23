@@ -15,7 +15,7 @@ final class LegacyUrlRedirectSubscriberTest extends TestCase
     public function testLiveComponentPathIsNotLocaleRedirected(): void
     {
         $subscriber = new LegacyUrlRedirectSubscriber('en', ['en', 'fr']);
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = Request::create('/_components/CatalogPersonFilters/setPage', 'POST');
         $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
 
@@ -27,7 +27,7 @@ final class LegacyUrlRedirectSubscriberTest extends TestCase
     public function testBarePathStillRedirectsToLocale(): void
     {
         $subscriber = new LegacyUrlRedirectSubscriber('en', ['en', 'fr']);
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = $this->createStub(HttpKernelInterface::class);
         $request = Request::create('/people', 'GET');
         $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
 

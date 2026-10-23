@@ -71,7 +71,7 @@ final class PersonMiniGraphBuilderTest extends TestCase
         $sim->setScore('88.00');
         $sim->setDetails([]);
 
-        $repo = $this->createMock(PersonSimilarityRepository::class);
+        $repo = $this->createStub(PersonSimilarityRepository::class);
         $repo->method('findTopForPerson')->willReturn([$sim]);
 
         $org = $this->organizationWithId(50, 'Org Test', 'org-test', Organization::TYPE_THINK_TANK);
